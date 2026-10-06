@@ -147,10 +147,12 @@ def parse_perseus_analyses(line: str) -> list[Analysis]:
             strip_homonym(cleaned),
         )
         variants = tuple(from_beta(part) for part in variants_beta)
+        # Morpheus prints lemma variants as `form,lemma` (e.g. `ku_ri/ou,ku/rios`);
+        # the canonical lemma is the last one.
         analyses.append(
             Analysis(
-                lemma=variants[0],
-                lemma_beta=variants_beta[0],
+                lemma=variants[-1],
+                lemma_beta=variants_beta[-1],
                 pos=fine_pos(raw_pos, stemtype),
                 raw_pos=raw_pos,
                 stemtype=stemtype,

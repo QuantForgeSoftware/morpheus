@@ -39,6 +39,16 @@ python3 -m venv .venv
 .venv/bin/morpheus-toolkit analyze data/morph/011-didache.txt --morphgnt
 ```
 
+For a whole corpus, `scripts/analyze_corpus.py` keeps the reference/gold columns,
+writes JSONL, and prints a coverage summary:
+
+```bash
+scripts/analyze_corpus.py ../apostolic-fathers/data/morph/*.txt \
+    --ref-field 1 --token-field 5 --lemma-field 7 --lang-field 8 --lang-value grc
+```
+
+The Apostolic Fathers (Greek, 63,222 tokens) come out at **98.2% analyzed**.
+
 ## Python
 
 ```python

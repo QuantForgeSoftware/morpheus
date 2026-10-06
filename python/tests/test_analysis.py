@@ -26,6 +26,7 @@ def test_lemma_variants_are_split_and_matched():
     line = "<NL>N gene/sew^s,ge/nesis  fem gen sg\t\t\th_hs</NL>"
     analysis = parse_perseus_analyses(line)[0]
     assert len(analysis.lemma_variants) == 2
+    assert analysis.lemma == "γένεσις"  # the canonical lemma is the last variant
     assert analysis.matches_lemma("γένεσις")
 
 
