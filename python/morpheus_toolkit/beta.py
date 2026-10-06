@@ -38,4 +38,4 @@ def normalize_lemma(lemma: str) -> str:
     """Canonical key for lemma comparison: NFC, lower-case, artifacts stripped."""
     if not lemma:
         return ""
-    return unicodedata.normalize("NFC", strip_homonym(lemma.replace("^", ""))).lower()
+    return unicodedata.normalize("NFC", strip_homonym(lemma.replace("^", "").replace("_", ""))).lower()

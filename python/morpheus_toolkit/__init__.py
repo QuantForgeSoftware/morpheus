@@ -17,12 +17,14 @@ from .api import Morpheus, TokenResult
 from .beta import from_beta, to_beta
 from .ranking import Ranker
 from .runner import MorpheusRunner
+from .tagger import PosTagger
 from .tokenize import tokenize
 
 __all__ = [
     "Analysis",
     "Morpheus",
     "MorpheusRunner",
+    "PosTagger",
     "Ranker",
     "TokenResult",
     "from_beta",

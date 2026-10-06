@@ -72,13 +72,17 @@ candidate; "before" = Morpheus order, "freq" = after frequency ranking):
 
 | Corpus | tokens | coverage | top-1 before | top-1 freq | POS |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| SBLGNT (MorphGNT) | 137,554 | 93.6% | 86.5% | **92.9%** | 76.8% |
-| Apostolic Fathers (all) | 63,222 | 90.7% | 84.2% | **89.7%** | 74.8% |
-| — of which MorphGNT-sourced | 52,094 | 96.3% | 89.5% | **95.6%** | 76.1% |
+| SBLGNT (MorphGNT) | 137,554 | 93.7% | 86.7% | **93.0%** | 76.6% |
+| Apostolic Fathers (all) | 63,222 | 90.9% | 84.5% | **89.9%** | 74.6% |
+| — of which MorphGNT-sourced | 52,094 | 96.4% | 89.7% | **95.7%** | 75.9% |
 
 Ranking adds ~6 points of top-1 lemma accuracy over Morpheus's native order,
 out of domain. The lower numbers on the `grc_proiel_lg` subset reflect the noise
 in that (machine-generated) reference more than Morpheus itself.
+
+A POS-bigram Viterbi tagger (`tagger.py`) was also built and measured; with the
+bundled model it **does not beat** frequency-only ranking (92.9% vs 93.0%), so it
+is off by default. It needs a learned emission model (P(lemma | tag)) to pay off.
 
 ## Known limitations
 
@@ -87,10 +91,13 @@ in that (machine-generated) reference more than Morpheus itself.
   adjective remains ambiguous. POS agreement is therefore lower than lemma
   agreement.
 - **Contextual ranking is experimental.** The hand-written context rules in
-  `ranking.py` currently *hurt* accuracy (they are off by default); a learned
-  tagger over the candidate set is the real fix.
-- **Coverage.** ~1.5–2% of tokens get no analysis at all (proper names,
-  post-classical forms); AF-specific stems would need adding to `stemlib`.
+  `ranking.py` *hurt* accuracy and the POS-bigram Viterbi tagger in `tagger.py`
+  merely matches frequency ranking; both are off by default.
+- **Coverage.** ~1.6% of NT tokens get no analysis, and the large majority are
+  **biblical proper names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`.
+  A proper-name stemlib (or an explicit unknown-name fallback) is the highest-value
+  next step for coverage; ~6% of tokens are analyzed but with a different lemma
+  than the gold corpus.
 
 ## Tests
 

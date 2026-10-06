@@ -34,6 +34,7 @@ from morpheus_toolkit.analysis import Analysis  # noqa: E402
 from morpheus_toolkit.beta import normalize_lemma, to_beta  # noqa: E402
 from morpheus_toolkit.ranking import Ranker, load_default_frequencies  # noqa: E402
 from morpheus_toolkit.runner import MorpheusRunner  # noqa: E402
+from morpheus_toolkit.tagger import PosTagger, load_default_pos_model  # noqa: E402
 
 
 @dataclass
@@ -53,6 +54,7 @@ class Counters:
     top1_before: int = 0
     top1_freq: int = 0
     top1_context: int = 0
+    top1_tagger: int = 0
     top3_freq: int = 0
     pos_agree: int = 0
 
@@ -60,15 +62,16 @@ class Counters:
         for name in self.__dataclass_fields__:  # type: ignore[attr-defined]
             setattr(self, name, getattr(self, name) + getattr(other, name))
 
-    def line(self, label: str, show_context: bool = False) -> str:
+    def line(self, label: str, show_context: bool = False, show_tagger: bool = False) -> str:
         def pct(value: int) -> str:
             return f"{100 * value / self.total:5.1f}%" if self.total else "  n/a"
 
         context = f"(ctx {pct(self.top1_context)}) " if show_context else ""
+        tagger = f"tagger={pct(self.top1_tagger)} " if show_tagger else ""
         return (
             f"{label:<22} n={self.total:<7} misses={self.misses:<6} "
             f"coverage={pct(self.coverage)} top1={pct(self.top1_before)}->{pct(self.top1_freq)} "
-            f"{context}top3={pct(self.top3_freq)} pos={pct(self.pos_agree)}"
+            f"{context}{tagger}top3={pct(self.top3_freq)} pos={pct(self.pos_agree)}"
         )
 
 
@@ -115,7 +118,9 @@ def main() -> int:
     parser.add_argument("--lang-field", type=int, default=0)
     parser.add_argument("--lang-value", default="grc")
     parser.add_argument("--by-source", action="store_true")
-    parser.add_argument("--context", action="store_true", help="also evaluate contextual re-ranking")
+    parser.add_argument("--context", action="store_true", help="also evaluate hand-written contextual re-ranking")
+    parser.add_argument("--tagger", action="store_true", help="also evaluate the POS-bigram Viterbi tagger")
+    parser.add_argument("--emission-weight", type=float, default=3.0)
     args = parser.parse_args()
 
     paths = list(args.paths)
@@ -142,12 +147,21 @@ def main() -> int:
     overall = Counters()
     by_source: Dict[str, Counters] = {}
 
+    # Frequency-scored copies (used for the freq metrics and the tagger).
+    scored = [ranker.rank(list(analyses)) for analyses in analyses_by_token]
+
     # Context re-ranking needs the whole sequence, so compute it up front.
     context_ranked: List[List[Analysis]] = []
     if args.context:
         for analyses in analyses_by_token:
             context_ranked.append([Analysis(**{**a.__dict__}) for a in analyses])
         ranker.rerank_with_context(context_ranked)
+
+    tagger_chosen = None
+    if args.tagger:
+        tagger_chosen = PosTagger(
+            load_default_pos_model(), emission_weight=args.emission_weight
+        ).tag(scored)
 
     for index, row in enumerate(sent):
         analyses = analyses_by_token[index]
@@ -160,12 +174,16 @@ def main() -> int:
                 counters.coverage = 1
             if first_match(analyses, gold) == 0:
                 counters.top1_before = 1
-            freq_ranked = ranker.rank(list(analyses))
+            freq_ranked = scored[index]
             freq_index = first_match(freq_ranked, gold)
             if freq_index == 0:
                 counters.top1_freq = 1
             if freq_index is not None and freq_index < 3:
                 counters.top3_freq = 1
+            if tagger_chosen is not None:
+                chosen = tagger_chosen[index]
+                if chosen is not None and chosen.matches_lemma(gold):
+                    counters.top1_tagger = 1
             if args.context:
                 ctx_index = first_match(context_ranked[index], gold)
                 if ctx_index == 0:
@@ -176,10 +194,10 @@ def main() -> int:
         if args.by_source:
             by_source.setdefault(row.source or "(none)", Counters()).add(counters)
 
-    print(overall.line("ALL", show_context=args.context))
+    print(overall.line("ALL", show_context=args.context, show_tagger=args.tagger))
     if args.by_source:
         for source, counters in sorted(by_source.items(), key=lambda item: -item[1].total):
-            print(counters.line(f"  source={source}", show_context=args.context))
+            print(counters.line(f"  source={source}", show_context=args.context, show_tagger=args.tagger))
     print(
         "\nLegend: top1 = gold lemma is the first candidate; "
         "before = Morpheus order, freq/ctx = after ranking."

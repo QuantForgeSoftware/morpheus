@@ -140,10 +140,12 @@ def parse_perseus_analyses(line: str) -> list[Analysis]:
         rest = tokens[2:]
         stemtype = rest[-1] if rest else ""
         features = _features(rest[:-1] if rest else [])
-        # Morpheus emits comma-joined lemma variants and a stray `^` marker.
-        variants_beta = tuple(
-            strip_homonym(part) for part in form.replace("^", "").split(",") if part
-        ) or (strip_homonym(form),)
+        # Morpheus emits comma-joined lemma variants and internal beta markers
+        # (`^`, `_`) that are not part of the word.
+        cleaned = form.replace("^", "").replace("_", "")
+        variants_beta = tuple(strip_homonym(part) for part in cleaned.split(",") if part) or (
+            strip_homonym(cleaned),
+        )
         variants = tuple(from_beta(part) for part in variants_beta)
         analyses.append(
             Analysis(
