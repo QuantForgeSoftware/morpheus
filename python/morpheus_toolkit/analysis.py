@@ -128,8 +128,10 @@ def fine_pos(raw_pos: str, stemtype: str) -> str:
         return "A"
     if "pron" in stem:
         return "RP"
-    if stem in {"indecl", "indef"}:
+    if stem == "indef":
         return "RI"
+    # `indecl` covers indeclinable proper names as well as a few pronouns; treat
+    # it as nominal (pronouns are caught by their own stem types above).
     return "N"
 
 

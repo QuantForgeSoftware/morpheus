@@ -16304,11 +16304,39 @@
 *zwsth :*zwsth/r:r_ros:masc:stem_acc
 *zwsthri :*zwsth/rios:os_h_on
 *zwt :*zw/ths:hs_ou:masc
+2*(abel *(/abel:*(/abel:indecl:masc:sg:pers_name
+2*(agabos *(/agabos:*(/agabos:indecl:masc:sg:pers_name
+2*(agar *(aga/r:*(aga/r:indecl:fem:sg:pers_name *(aga\r:*(aga/r:indecl:fem:sg:pers_name
+2*(akeldamax *(akeldama/x:*(akeldama/x:indecl:neut:sg:pers_name
+2*(alfaios *(alfai=os:*(alfai=os:indecl:masc:sg:pers_name
+2*(alfaiou *(alfai/ou:*(alfai=os:indecl:masc:sg:pers_name
 2*(alikarnassoqen *(alikarnasso/qen:*(alikarnasso/qen:adverb
+2*(anania *(anani/a:*(anani/as:indecl:masc:sg:pers_name
+2*(ananian *(anani/an:*(anani/as:indecl:masc:sg:pers_name
+2*(ananias *(anani/as:*(anani/as:indecl:masc:sg:pers_name
+2*(anna *(/anna:*(/anna:indecl:fem:sg:pers_name *(/anna:*(/annas:indecl:masc:sg:pers_name
+2*(annan *(/annan:*(/annas:indecl:masc:sg:pers_name
+2*(annas *(/annas:*(/annas:indecl:masc:sg:pers_name
+2*(areta *(are/ta:*(are/tas:indecl:masc:sg:pers_name
+2*(aretas *(are/tas:*(are/tas:indecl:masc:sg:pers_name
+2*(arimaqaia *(arimaqai/a:*(arimaqai/a:indecl:fem:sg:pers_name
+2*(arimaqaias *(arimaqai/as:*(arimaqai/a:indecl:fem:sg:pers_name
+2*(armagedwn *(armagedw/n:*(armagedw/n:indecl:neut:sg:pers_name
 2*(ebraisti *(ebraisti/:*(ebraisti/:adverb
 2*(ellhnisti *(ellhnisti/:*(ellhnisti/:adverb
+2*(emmwr *(emmw/r:*(emmw/r:indecl:masc:sg:pers_name *(emmw\r:*(emmw/r:indecl:masc:sg:pers_name
+2*(enwx *(enw/x:*(enw/x:indecl:masc:sg:pers_name *(enw\x:*(enw/x:indecl:masc:sg:pers_name
+2*(esli *(esli/:*(esli/:indecl:masc:sg:pers_name *(esli\:*(esli/:indecl:masc:sg:pers_name
 2*(esperoqen *(espero/qen:*(espero/qen:adverb
+2*(esrwm *(esrw/m:*(esrw/m:indecl:masc:sg:pers_name *(esrw\m:*(esrw/m:indecl:masc:sg:pers_name
+2*(ezekian *(ezeki/an:*(ezeki/as:indecl:masc:sg:pers_name
+2*(ezekias *(ezeki/as:*(ezeki/as:indecl:masc:sg:pers_name
 2*(hrakles *(h/rakles:*(hraklh=s:irreg_decl3:masc:voc:sg
+2*(hrw|diada *(hrw|dia/da:*(hrw|dia/s:indecl:fem:sg:pers_name
+2*(hrw|diados *(hrw|dia/dos:*(hrw|dia/s:indecl:fem:sg:pers_name
+2*(hrw|dianoi *(hrw|dianoi/:*(hrw|dianoi/:indecl:masc:sg:pers_name
+2*(hrw|dianwn *(hrw|dianw=n:*(hrw|dianoi/:indecl:masc:sg:pers_name
+2*(hrw|dias *(hrw|dia/s:*(hrw|dia/s:indecl:fem:sg:pers_name *(hrw|dia\s:*(hrw|dia/s:indecl:fem:sg:pers_name
 2*(hsau *(hsau=:*(hsau=s:irreg_decl3:sg:pers_name
 2*(hsaun *(hsau=n:*(hsau=s:irreg_decl3:nom/acc:sg:pers_name
 2*(hsaus *(hsau=s:*(hsau=s:irreg_decl3:masc:nom:sg:pers_name
@@ -16320,19 +16348,44 @@
 2*(ierixous *(ierixou=s:*)ierixw/:irreg_decl3:fem:gen:sg *(ierixou=s:*)ierixw/:irreg_decl3:fem:nom:sg
 2*(ierixw *(ierixw/:*)ierixw/:irreg_decl3:fem:nom:sg
 2*(ierousalhm *(ierousalh/m:*(ieroso/luma:irreg_decl3:neut:nom/voc/acc:sg
+2*(raab *(raa/b:*(raa/b:indecl:fem:sg:pers_name *(raa\b:*(raa/b:indecl:fem:sg:pers_name
+2*(ragau *(ragau/:*(ragau/:indecl:masc:sg:pers_name *(ragau\:*(ragau/:indecl:masc:sg:pers_name
+2*(raifan *(raifa/n:*(raifa/n:indecl:masc:sg:pers_name
+2*(rama *(rama/:*(rama/:indecl:fem:sg:pers_name *(rama\:*(rama/:indecl:fem:sg:pers_name
+2*(raxab *(raxa/b:*(raxa/b:indecl:fem:sg:pers_name
 2*(raxhl *(raxh/l:*(raxh/l:irreg_decl3:fem:sg:pers_name
+2*(rebekka *(rebe/kka:*(rebe/kka:indecl:fem:sg:pers_name
+2*(rhsa *(rhsa/:*(rhsa/:indecl:masc:sg:pers_name *(rhsa\:*(rhsa/:indecl:masc:sg:pers_name
+2*(roboam *(roboa/m:*(roboa/m:indecl:masc:sg:pers_name *(roboa\m:*(roboa/m:indecl:masc:sg:pers_name
+2*(roubhn *(roubh/n:*(roubh/n:indecl:masc:sg:pers_name *(roubh\n:*(roubh/n:indecl:masc:sg:pers_name
+2*(rouq *(rou/q:*(rou/q:indecl:fem:sg:pers_name
 2*(rwmaisti *(rwmai+sti/:*(rwmaisti/:adverb
 2*(uperhsihnde *(uperhsi/hnde:*(uperhsi/h:adverb:geog_name
+2*(wshe *(wshe/:*(wshe/:indecl:masc:sg:pers_name *(wshe\:*(wshe/:indecl:masc:sg:pers_name
+2*)abaddwn *)abaddw/n:*)abaddw/n:indecl:masc:sg:pers_name
 2*)abba *)abba=:*)abba=:indecl
+2*)abia *)abia/:*)abia/:indecl:masc:sg:pers_name *)abia\:*)abia/:indecl:masc:sg:pers_name
+2*)abiaqar *)abiaqa/r:*)abiaqa/r:indecl:masc:sg:pers_name *)abiaqa\r:*)abiaqa/r:indecl:masc:sg:pers_name
+2*)abilhnh *)abilhnh/:*)abilhnh/:indecl:fem:sg:pers_name
+2*)abilhnhs *)abilhnh=s:*)abilhnh/:indecl:fem:sg:pers_name
+2*)abioud *)abiou/d:*)abiou/d:indecl:masc:sg:pers_name *)abiou\d:*)abiou/d:indecl:masc:sg:pers_name
 2*)abraam *)abraa/m:*)abraa/m:irreg_decl3:neut:sg:pers_name
 2*)abudoqen *)abu_do/qen:*)abudo/qen:adverb
 2*)abudoqi *)abu_do/qi:*)abudo/qi:adverb
 2*)adam *)ada/m:*)ada/m:irreg_decl3:masc:sg:pers_name
+2*)addi *)addi/:*)addi/:indecl:masc:sg:pers_name *)addi\:*)addi/:indecl:masc:sg:pers_name
+2*)admin *)admi/n:*)admi/n:indecl:masc:sg:pers_name *)admi\n:*)admi/n:indecl:masc:sg:pers_name
 2*)aidosde *)/ai+do/sde:*(/aidhs:adverb
 2*)alwpekhqen *)alwpekh=qen:*)alw/pekos:adverb
 2*)amalhk *)amalh/k:*)amalh/k:irreg_decl3:masc:pl
+2*)aminadab *)aminada/b:*)aminada/b:indecl:masc:sg:pers_name *)aminada\b:*)aminada/b:indecl:masc:sg:pers_name
+2*)ampliaton *)amplia=ton:*)amplia=tos:indecl:masc:sg:pers_name
+2*)ampliatos *)amplia=tos:*)amplia=tos:indecl:masc:sg:pers_name
 2*)amuklaqen *)amu/kla_qen:*)amu/klaqen:adverb
+2*)antipas *)antipa=s:*)antipa=s:indecl:masc:sg:pers_name
 2*)apeirhqen *)apei/rhqen:*)apei/rhqen:adverb
+2*)apfia *)apfi/a:*)apfi/a:indecl:fem:sg:pers_name
+2*)apfia| *)apfi/a|:*)apfi/a:indecl:fem:sg:pers_name
 2*)apollon *)/apollon:*)apo/llwn:n_nos:masc:voc:sg
 2*)apollw *)apo/llw:*)apo/llwn:n_nos:masc:nom:sg
 2*)aqhnaze *)aqh/naze:*)aqh=nai:adverb:geog_name
@@ -16344,12 +16397,14 @@
 2*)aqows *)aqo/ws:*)/aqws:irreg_decl3:masc:nom:sg:epic:geog_name
 2*)aquri *)/aquri:*)/aquri:irreg_decl3:fem:nom:sg:pers_name
 2*)arabisti *)arabisti/:*)arabisti/:adverb
+2*)aram *)ara/m:*)ara/m:indecl:masc:sg:pers_name *)ara\m:*)ara/m:indecl:masc:sg:pers_name
 2*)area *)/area:*)/arhs:hs_eos:masc:acc:sg
 2*)arei *)/arei+:*)/arhs:hs_eos:masc:dat:sg *)/arei:*)/arhs:hs_eos:masc:dat:sg
 2*)areos *)/areos:*)/arhs:hs_eos:masc:gen:sg
 2*)ares *)/ares:*)/arhs:hs_eos:masc:voc:sg *)=ares:*)/arhs:hs_eos:masc:voc:sg
 2*)arew *)/arew:*)/arhs:hs_eos:masc:gen:sg:epic
 2*)arews *)/arews:*)/arhs:hs_eos:masc:gen:sg
+2*)arfacad *)arfaca/d:*)arfaca/d:indecl:masc:sg:pers_name *)arfaca\d:*)arfaca/d:indecl:masc:sg:pers_name
 2*)argolisti *)argolisti/:*)argolisti/:adverb
 2*)argoqen *)argo/qen:*)argo/qen:adverb
 2*)argosde *)/argosde:*)/argos:adverb
@@ -16360,23 +16415,54 @@
 2*)arhs *)/arhs:*)/arhs:hs_eos:masc:nom:sg
 2*)arisbhqen *)ari/sbhqen:*)ari/sbh:adverb
 2*)armenisti *)armenisti/:*)armenisti/:adverb
+2*)arteman *)artema=n:*)artema=s:indecl:masc:sg:pers_name
+2*)artemas *)artema=s:*)artema=s:indecl:masc:sg:pers_name
+2*)asaf *)asa/f:*)asa/f:indecl:masc:sg:pers_name *)asa\f:*)asa/f:indecl:masc:sg:pers_name
+2*)ashr *)ash/r:*)ash/r:indecl:masc:sg:pers_name *)ash\r:*)ash/r:indecl:masc:sg:pers_name
 2*)asihqen *)asi/hqen:*)asi/hqen:adverb
 2*)attikhrws *)attikhrw=s:*)attikhrw=s:adverb
 2*)attikisti *)attikisti/:*)attikisti/:adverb
+2*)axaz *)axa/z:*)axa/z:indecl:masc:sg:pers_name *)axa\z:*)axa/z:indecl:masc:sg:pers_name
 2*)axileus *)axileu/s:*)axilleu/s:eus_ews:masc:nom:sg:epic
 2*)axillea *)axille/a_:*)axilleu/s:eus_ews:masc:acc:sg
 2*)axilleu *)axilleu=:*)axilleu/s:eus_ews:masc:voc:sg
+2*)axim *)axi/m:*)axi/m:indecl:masc:sg:pers_name *)axi\m:*)axi/m:indecl:masc:sg:pers_name
+2*)azwr *)azw/r:*)azw/r:indecl:masc:sg:pers_name *)azw\r:*)azw/r:indecl:masc:sg:pers_name
+2*)eber *)/eber:*)/eber:indecl:masc:sg:pers_name
+2*)efraim *)efrai/m:*)efrai/m:indecl:masc:sg:pers_name *)efrai\m:*)efrai/m:indecl:masc:sg:pers_name
+2*)elamitai *)elami=tai:*)elami/ths:indecl:masc:sg:pers_name
+2*)elamiths *)elami/ths:*)elami/ths:indecl:masc:sg:pers_name
+2*)eleazar *)elea/zar:*)elea/zar:indecl:masc:sg:pers_name
 2*)eleusinade *)eleusi/nade:*)eleusi/nade:adverb *)eleusi/nade:*)eleusi/nade:adverb:geog_name *)eleusi=nade:*)eleusi/nade:adverb
 2*)eleusini *)eleusi=ni:*)eleusi=ni:adverb
 2*)eleusinoqen *)eleusino/qen:*)eleusino/qen:adverb
+2*)eliakim *)eliaki/m:*)eliaki/m:indecl:masc:sg:pers_name *)eliaki\m:*)eliaki/m:indecl:masc:sg:pers_name
+2*)eliezer *)elie/zer:*)elie/zer:indecl:masc:sg:pers_name
+2*)elioud *)eliou/d:*)eliou/d:indecl:masc:sg:pers_name *)eliou\d:*)eliou/d:indecl:masc:sg:pers_name
+2*)elisabet *)elisa/bet:*)elisa/bet:indecl:fem:sg:pers_name
+2*)elisaios *)elisai=os:*)elisai=os:indecl:masc:sg:pers_name
+2*)elisaiou *)elisai/ou:*)elisai=os:indecl:masc:sg:pers_name
+2*)elmadam *)elmada/m:*)elmada/m:indecl:masc:sg:pers_name *)elmada\m:*)elmada/m:indecl:masc:sg:pers_name
+2*)elumas *)elu/mas:*)elu/mas:indecl:masc:sg:pers_name
+2*)emmanouhl *)emmanouh/l:*)emmanouh/l:indecl:masc:sg:pers_name
+2*)emmaous *)emmaou=s:*)emmaou=s:indecl:fem:sg:pers_name
 2*)enarees *)enare/es:*)enare/es:irreg_decl3:masc:nom:pl
 2*)enaries *)enari/es:*)enare/es:irreg_decl3:masc:nom:pl
+2*)enws *)enw/s:*)enw/s:indecl:masc:sg:pers_name *)enw\s:*)enw/s:indecl:masc:sg:pers_name
 2*)erebesfin *)ere/besfin:e)/rebos:hs_eos:neut:gen:pl:epic
 2*)erebosde *)/erebo/sde:*)/erebo/sde:adverb *)/erebo/sde:*)/erebos:adverb:geog_name
+2*)hli *)hli/:*)hli/:indecl:masc:sg:pers_name *)hli\:*)hli/:indecl:masc:sg:pers_name
+2*)hsau *)hsau=:*)hsau=:indecl:masc:sg:pers_name
+2*)iairos *)ia/i+ros:*)ia/i+ros:indecl:masc:sg:pers_name
 2*)iakwb *)iakw/b:*)iakw/b:irreg_decl3:masc:sg:pers_name
+2*)iambrhs *)iambrh=s:*)iambrh=s:indecl:masc:sg:pers_name
+2*)iannai *)iannai/:*)iannai/:indecl:masc:sg:pers_name *)iannai\:*)iannai/:indecl:masc:sg:pers_name
+2*)iannhs *)ia/nnhs:*)ia/nnhs:indecl:masc:sg:pers_name
 2*)iaonau *)ia_onau=:*)iaonau=:irreg_decl3:masc:voc:sg
+2*)iaret *)ia/ret:*)ia/ret:indecl:masc:sg:pers_name
 2*)iasti *)iasti/:*)iasti/:adverb
 2*)idhqen *)/idhqen:*)/idh:adverb *)/idhqen:*)/idh:h_hs:fem:gen:sg:epic
+2*)iefqae *)iefqa/e:*)iefqa/e:indecl:masc:sg:pers_name
 2*)ierixoi *)ierixoi=:*)ierixw/:irreg_decl3:fem:dat:sg
 2*)ierixoun *)ierixou=n:*)ierixw/:irreg_decl3:fem:acc:sg
 2*)ierixounta *)ierixou=nta:*)ierixw/:irreg_decl3:fem:acc:sg
@@ -16385,43 +16471,105 @@
 2*)ierixous *)ierixou=s:*)ierixw/:irreg_decl3:fem:gen:sg *)ierixou=s:*)ierixw/:irreg_decl3:fem:nom:sg
 2*)ierixw *)ierixw/:*)ierixw/:irreg_decl3:fem:nom:sg
 2*)ierousalhm *)ierousalh/m:*(ieroso/luma:irreg_decl3:neut:nom/voc/acc:sg
+2*)iessai *)iessai/:*)iessai/:indecl:masc:sg:pers_name *)iessai\:*)iessai/:indecl:masc:sg:pers_name
+2*)iezabel *)ieza/bel:*)ieza/bel:indecl:fem:sg:pers_name
 2*)ihsou *)ihsou=:*)ihsou=s-pl:oos_oou:masc:dat:sg:pers_name
 2*)iliofi *)ilio/fi:*)/ilios:os_ou:fem:gen:sg:epic:geog_name
 2*)ilioqen *)ilio/qen:*)ilio/qen:adverb:geog_name
 2*)ilioqi *)ilio/qi:*)ilio/qi:adverb:geog_name
 2*)indisti *)indisti/:*)indisti/:adverb
+2*)ioudaismos *)ioudai+smo/s:*)ioudai+smo/s:indecl:masc:sg:pers_name
+2*)ioudaismw| *)ioudai+smw=|:*)ioudai+smo/s:indecl:masc:sg:pers_name
+2*)iounia *)iouni/a:*)iouni/a:indecl:fem:sg:pers_name
+2*)iounian *)iouni/an:*)iouni/a:indecl:fem:sg:pers_name
 2*)iqakhnde *)iqa/khnde:*)iqa/khnde:adverb
 2*)isaak *)isaa/k:*)isaa/k:irreg_decl3:masc:sg:pers_name
+2*)iskariwq *)iskariw/q:*)iskariw/q:indecl:masc:sg:pers_name *)iskariw\q:*)iskariw/q:indecl:masc:sg:pers_name
 2*)isqmoi *)isqmoi=:*)isqmoi=:adverb:geog_name
 2*)isqmoqen *)isqmo/qen:*)isqmo/qen:adverb:geog_name
 2*)isqmoqi *)isqmo/qi:*)isqmo/qi:adverb:geog_name
 2*)israhl *)israh/l:*)israh/l:irreg_decl3:neut:sg:geog_name
+2*)issaxar *)issaxa/r:*)issaxa/r:indecl:masc:sg:pers_name *)issaxa\r:*)issaxa/r:indecl:masc:sg:pers_name
+2*)iwanan *)iwana/n:*)iwana/n:indecl:masc:sg:pers_name *)iwana\n:*)iwana/n:indecl:masc:sg:pers_name
+2*)iwaqam *)iwaqa/m:*)iwaqa/m:indecl:masc:sg:pers_name *)iwaqa\m:*)iwaqa/m:indecl:masc:sg:pers_name
 2*)iwasaf *)iwa/saf:*)iwa/saf:indecl:neut:sg:pers_name
+2*)iwb *)iw/b:*)iw/b:indecl:masc:sg:pers_name *)iw\b:*)iw/b:indecl:masc:sg:pers_name
+2*)iwbhd *)iwbh/d:*)iwbh/d:indecl:masc:sg:pers_name *)iwbh\d:*)iwbh/d:indecl:masc:sg:pers_name
+2*)iwbhl *)iwbh/l:*)iwbh/l:indecl:masc:sg:pers_name *)iwbh\l:*)iwbh/l:indecl:masc:sg:pers_name
+2*)iwda *)iwda/:*)iwda/:indecl:masc:sg:pers_name *)iwda\:*)iwda/:indecl:masc:sg:pers_name
+2*)iwhl *)iwh/l:*)iwh/l:indecl:masc:sg:pers_name
+2*)iwna *)iwna=:*)iwna=s:indecl:masc:sg:pers_name
+2*)iwnam *)iwna/m:*)iwna/m:indecl:masc:sg:pers_name *)iwna\m:*)iwna/m:indecl:masc:sg:pers_name
+2*)iwnas *)iwna=s:*)iwna=s:indecl:masc:sg:pers_name
 2*)iwnisti *)iwnisti/:*)iwnisti/:adverb
+2*)iwram *)iwra/m:*)iwra/m:indecl:masc:sg:pers_name *)iwra\m:*)iwra/m:indecl:masc:sg:pers_name
+2*)iwrim *)iwri/m:*)iwri/m:indecl:masc:sg:pers_name *)iwri\m:*)iwri/m:indecl:masc:sg:pers_name
+2*)iwsafat *)iwsafa/t:*)iwsafa/t:indecl:masc:sg:pers_name *)iwsafa\t:*)iwsafa/t:indecl:masc:sg:pers_name
 2*)iwshf *)iwsh/f:*)iwsh/f:irreg_decl3:masc:sg:pers_name
+2*)iwshs *)iwsh=s:*)iwsh=s:indecl:masc:sg:pers_name
+2*)iwshtos *)iwsh=tos:*)iwsh=s:indecl:masc:sg:pers_name
+2*)iwshx *)iwsh/x:*)iwsh/x:indecl:masc:sg:pers_name *)iwsh\x:*)iwsh/x:indecl:masc:sg:pers_name
 2*)ohqen *)oh=qen:*)oh=qen:adverb
+2*)olumpan *)olumpa=n:*)olumpa=s:indecl:masc:sg:pers_name
+2*)olumpas *)olumpa=s:*)olumpa=s:indecl:masc:sg:pers_name
 2*)olumpiasi *)olumpi/a_si:*)olumpi/a:adverb
 2*)olumpiasin *)olumpi/a_sin:*)olumpi/a:adverb *)olumpi/a_sin:*)olumpi/a:adverb:nu_movable
 2*)olumpiaze *)olumpi/aze:*)olumpi/a:adverb
 2*)olumponde *)/olumpo/nde:*)/olumpo/nde:adverb
+2*)ozian *)ozi/an:*)ozi/as:indecl:masc:sg:pers_name
+2*)ozias *)ozi/as:*)ozi/as:indecl:masc:sg:pers_name
 2*)wkeanonde *)wkeano/nde:*)wkeano/nde:adverb
 2*a)tlan :*)/atlas:as_antos:masc:acc:sg:*aesch.:poetic
 2*ai)guptisti *ai)guptisti/:*ai)guptisti/:adverb
 2*ai)guptonde *ai)/gupto/nde:*ai)/guptos:adverb *ai)/guptonde:*ai)/guptos:adverb
 2*ai)noqen *ai)no/qen:*ai)=nos:adverb
+2*ai)nwn *ai)nw/n:*ai)nw/n:indecl:fem:sg:pers_name *ai)nw\n:*ai)nw/n:indecl:fem:sg:pers_name
 2*ai)sumhqen *ai)su/mhqen:*ai)su/mh:adverb
+2*baal *ba/al:*ba/al:indecl:masc:sg:pers_name
+2*balaam *balaa/m:*balaa/m:indecl:masc:sg:pers_name *balaa\m:*balaa/m:indecl:masc:sg:pers_name
+2*balak *bala/k:*bala/k:indecl:masc:sg:pers_name *bala\k:*bala/k:indecl:masc:sg:pers_name
+2*barabban *barabba=n:*barabba=s:indecl:masc:sg:pers_name
+2*barabbas *barabba=s:*barabba=s:indecl:masc:sg:pers_name
+2*barak *bara/k:*bara/k:indecl:masc:sg:pers_name
+2*barihsou *barihsou=:*barihsou=s:indecl:masc:sg:pers_name
+2*barihsous *barihsou=s:*barihsou=s:indecl:masc:sg:pers_name
+2*bariwna *bariwna=:*bariwna=:indecl:masc:sg:pers_name
 2*barlaam *barlaa/m:*barlaa/m:indecl:neut:sg:pers_name
+2*barnaba *barnaba=:*barnaba=s:indecl:masc:sg:pers_name
+2*barnaba| *barnaba=|:*barnaba=s:indecl:masc:sg:pers_name
+2*barnabas *barnaba=s:*barnaba=s:indecl:masc:sg:pers_name
+2*barsabban *barsabba=n:*barsabba=s:indecl:masc:sg:pers_name
+2*barsabbas *barsabba=s:*barsabba=s:indecl:masc:sg:pers_name
+2*bartimaios *bartimai=os:*bartimai=os:indecl:masc:sg:pers_name
 2*bathqen *bath=qen:*bath=qen:adverb
+2*beelzeboul *beelzebou/l:*beelzebou/l:indecl:masc:sg:pers_name *beelzebou\l:*beelzebou/l:indecl:masc:sg:pers_name
+2*beliar *belia/r:*belia/r:indecl:masc:sg:pers_name
 2*bendin *bendi=n:*bendi=s:s_dos:fem:acc:sg
 2*beniamin *beniami/n:*beniami/n:irreg_decl3:masc:sg:pers_name
-2*bhqleem *bhqlee/m:*bhqlee/m:indecl:neut:sg:geog_name
+2*bernikh *berni/kh:*berni/kh:indecl:fem:sg:pers_name
+2*bernikhs *berni/khs:*berni/kh:indecl:fem:sg:pers_name
+2*bhqania *bhqani/a:*bhqani/a:indecl:fem:sg:pers_name
+2*bhqanian *bhqani/an:*bhqani/a:indecl:fem:sg:pers_name
+2*bhqesda *bhqesda/:*bhqesda/:indecl:fem:sg:pers_name
+2*bhqfagh *bhqfagh/:*bhqfagh/:indecl:fem:sg:pers_name *bhqfagh\:*bhqfagh/:indecl:fem:sg:pers_name
+2*bhqleem *bhqle/em:*bhqle/em:indecl:fem:sg:pers_name *bhqlee/m:*bhqlee/m:indecl:neut:sg:geog_name
+2*bhqsaida *bhqsai+da/:*bhqsai+da/:indecl:fem:sg:pers_name *bhqsai+da\:*bhqsai+da/:indecl:fem:sg:pers_name
+2*bhqsaidan *bhqsai+da/n:*bhqsai+da/n:indecl:fem:sg:pers_name
+2*boanhrges *boanhrge/s:*boanhrge/s:indecl:masc:sg:pers_name
+2*boos *bo/os:*bo/os:indecl:masc:sg:pers_name
 2*borehnde *bore/hnde:*bore/hnde:adverb
 2*borehqen *bore/hqen:*bore/hqen:adverb
+2*bosor *boso/r:*boso/r:indecl:masc:sg:pers_name *boso\r:*boso/r:indecl:masc:sg:pers_name
 2*braurwnoqen *braurwno/qen:*braurwno/qen:adverb
+2*dalmanouqa *dalmanouqa/:*dalmanouqa/:indecl:fem:sg:pers_name
+2*damaris *da/maris:*da/maris:indecl:fem:sg:pers_name
+2*danihl *danih/l:*danih/l:indecl:masc:sg:pers_name *danih\l:*danih/l:indecl:masc:sg:pers_name
 2*daueid *dauei/d:*daui/dhs-pl:irreg_decl3:neut:sg:pers_name
+2*dauid *daui/d:*daui/d:indecl:masc:sg:pers_name *daui\d:*daui/d:indecl:masc:sg:pers_name
 2*dekelehqen *dekeleh=qen:*dekeleh=qen:adverb
 2*dekeleioqen *dekeleio/qen:*dekeleio/qen:adverb
 2*delta *de/lta:*de/lta:indecl_noun:neut:sg:geog_name
+2*dhmas *dhma=s:*dhma=s:indecl:masc:sg:pers_name
 2*dhmhtros *dh/mhtros:*dhmh/thr:hr_eros:fem:gen:sg
 2*dhoi *dhoi=:*dhw/:irreg_decl3:gen/dat:sg:contr
 2*dhoos *dho/os:*dhw/:irreg_decl3:fem:gen:sg
@@ -16433,39 +16581,85 @@
 2*dioqen *dio/qen:*zeu/s:adverb:epic
 2*dios *dio/s:*zeu/s:irreg_decl3:masc:gen:sg:pers_name
 2*doulixionde *douli/xionde:*douli/xios-pl:adverb
+2*drousilla *drou/silla:*drou/silla:indecl:fem:sg:pers_name
+2*drousillh| *drousi/llh|:*drou/silla:indecl:fem:sg:pers_name
 2*druos *druo/s:*dru/s:irreg_decl3:fem:gen:sg
 2*drus *dru/s:*dru/s:irreg_decl3:fem:nom:sg
 2*dwristi *dwristi/:*dwristi/:adverb
 2*erebosde *erebo/sde:*erebo/sde:adverb
+2*eu(a *eu(/a:*eu(/a:indecl:fem:sg:pers_name
+2*eu(an *eu(/an:*eu(/a:indecl:fem:sg:pers_name
+2*falek *fa/lek:*fa/lek:indecl:masc:sg:pers_name
 2*falhroi *falhroi=:*falhroi=:adverb
 2*falhronde *falhro/nde:*falhro/nde:adverb
 2*falhroqen *falhro/qen:*falhro/qen:adverb
+2*fanouhl *fanouh/l:*fanouh/l:indecl:masc:sg:pers_name
+2*faraw *faraw/:*faraw/:indecl:masc:sg:pers_name *faraw\:*faraw/:indecl:masc:sg:pers_name
+2*fares *fare/s:*fare/s:indecl:masc:sg:pers_name *fare\s:*fare/s:indecl:masc:sg:pers_name
 2*fawfi *fawfi/:*fawfi/:irreg_decl3:fem:nom:sg:pers_name
+2*filhtos *fi/lhtos:*fi/lhtos:indecl:masc:sg:pers_name
 2*fluhsin *fluh=sin:*fluh=sin:adverb:geog_name
 2*foinikisti *foini_kisti/:*foinikisti/:adverb
+2*fortounatos *fortouna=tos:*fortouna=tos:indecl:masc:sg:pers_name
+2*fortounatou *fortouna/tou:*fortouna=tos:indecl:masc:sg:pers_name
 2*fqihfi *fqi/hfi:*fqi/hfi:adverb
 2*fqihnde *fqi/hnde:*fqi/hnde:adverb
 2*fqirai *fqirai/:*fqirai/:h_hs:fem:pl:suff_acc:geog_name
 2*frugisti *frugisti/:*frugisti/:adverb
+2*fugelos *fu/gelos:*fu/gelos:indecl:masc:sg:pers_name
+2*gabbaqa :*gabbaqa:indecl:neut:sg:pers_name
+2*gabrihl *gabrih/l:*gabrih/l:indecl:masc:sg:pers_name *gabrih\l:*gabrih/l:indecl:masc:sg:pers_name
+2*gad *ga/d:*ga/d:indecl:masc:sg:pers_name *ga\d:*ga/d:indecl:masc:sg:pers_name
 2*gadeiraqen *gadei/ra_qen:*gadei/raqen:adverb:*anth.
 2*galba *ga/lba:*ga/lba:a_hs:masc:nom:sg:pers_name
 2*galba| *ga/lba|:*ga/lba:a_hs:masc:dat:sg:pers_name
 2*galban *ga/lban:*ga/lba:a_hs:masc:acc:sg:pers_name
 2*galbas *ga/lbas:*ga/lba:a_hs:masc:gen:sg:pers_name
+2*gamalihl *gamalih/l:*gamalih/l:indecl:masc:sg:pers_name
 2*garizein *garizei/n:*garizei/n:irreg_decl3:neut:sg:geog_name
+2*gennhsaret *gennhsare/t:*gennhsare/t:indecl:fem:sg:pers_name *gennhsare\t:*gennhsare/t:indecl:fem:sg:pers_name
+2*geqshmani *geqshmani/:*geqshmani/:indecl:neut:sg:pers_name
 2*glws *glw=s:*glw=s-pl:irreg_decl3:masc:nom:sg:pers_name
+2*golgoqa *golgoqa=:*golgoqa=:indecl:fem:sg:pers_name :*golgoqa=:indecl:fem:sg:pers_name
+2*golgoqan *golgoqa=n:*golgoqa=:indecl:fem:sg:pers_name
+2*gomorra *go/morra:*go/morra:indecl:fem:sg:pers_name *go/morra:*go/morra:indecl:neut:sg:pers_name
+2*gomorras *gomo/rras:*go/morra:indecl:fem:sg:pers_name
+2*gomorrwn *gomo/rrwn:*go/morra:indecl:neut:sg:pers_name
+2*gwg *gw/g:*gw/g:indecl:masc:sg:pers_name *gw\g:*gw/g:indecl:masc:sg:pers_name
 2*kabhsoqen *kabhso/qen:*kabhso/s:adverb
 2*kafarnaoum *kafarnaou/m:*kafarnaou/m:irreg_decl3:masc:sg:geog_name
+2*kaiafa *kai+a/fa:*kai+a/fas:indecl:masc:sg:pers_name
+2*kaiafan *kai+a/fan:*kai+a/fas:indecl:masc:sg:pers_name
+2*kaiafas *kai+a/fas:*kai+a/fas:indecl:masc:sg:pers_name
+2*kainam *kai+na/m:*kai+na/m:indecl:masc:sg:pers_name *kai+na\m:*kai+na/m:indecl:masc:sg:pers_name
+2*kana *kana/:*kana/:indecl:fem:sg:pers_name *kana\:*kana/:indecl:fem:sg:pers_name
 2*karisti *karisti/:*karisti/:adverb
+2*karpos *ka/rpos:*ka/rpos:indecl:masc:sg:pers_name
+2*karpw| *ka/rpw|:*ka/rpos:indecl:masc:sg:pers_name
+2*kauda *kau=da:*kau=da:indecl:neut:sg:pers_name
 2*keltisti *keltisti/:*keltisti/:adverb
+2*khfa *khfa=:*khfa=s:indecl:masc:sg:pers_name
+2*khfa| *khfa=|:*khfa=s:indecl:masc:sg:pers_name
+2*khfan *khfa=n:*khfa=s:indecl:masc:sg:pers_name
+2*khfas *khfa=s:*khfa=s:indecl:masc:sg:pers_name
 2*kikunnoi *kikunnoi=:*kikunnoi=:adverb
 2*kikunnoqen *kikunno/qen:*kiku/nna:adverb
+2*klaudia *klaudi/a:*klaudi/a:indecl:fem:sg:pers_name
+2*kleopas *kleopa=s:*kleopa=s:indecl:masc:sg:pers_name
+2*klhmentos *klh/mentos:*klh/mhs:indecl:masc:sg:pers_name
+2*klhmhs *klh/mhs:*klh/mhs:indecl:masc:sg:pers_name
+2*klwpa *klwpa=:*klwpa=s:indecl:masc:sg:pers_name
+2*klwpas *klwpa=s:*klwpa=s:indecl:masc:sg:pers_name
 2*knhf *knh/f:*knh/f:indecl:masc:nom/acc:sg:pers_name
 2*knidoqen *knido/qen:*knido/qen:adverb
+2*kolossai *kolossai/:*kolossai/:indecl:fem:sg:pers_name
+2*kolossais *kolossai=s:*kolossai/:indecl:fem:sg:pers_name
 2*kolwnhqen *kolwnh=qen:*kolwnh=qen:adverb
 2*korinqoqi *korinqo/qi:*ko/rinqos:adverb
+2*kouartos *kou/artos:*kou/artos:indecl:masc:sg:pers_name
 2*kownde *ko/wnde:*ko/wnde:adverb
 2*kows *ko/ws:*kw=s:irreg_decl3:fem:nom:sg:epic
+2*krhskhs *krh/skhs:*krh/skhs:indecl:masc:sg:pers_name
 2*krhthnde *krh/thnde:*krh/thnde:adverb
 2*krhthqen *krh/thqen:*krh/thqen:adverb
 2*kuklwpikws *kuklwpikw=s:*kuklwpikw=s:adverb
@@ -16474,36 +16668,69 @@
 2*kupronde *ku/pronde:*ku/pronde:adverb
 2*kuproqen *kupro/qen:*kupro/qen:adverb
 2*kuqhroqen *kuqh/roqen:*kuqh/roqen:adverb *kuqhro/qen:*kuqh/roqen:adverb *kuqhro/qen:*kuqhro/qen:adverb
+2*kurhnios *kurh/nios:*kurh/nios:indecl:masc:sg:pers_name
+2*kurhniou *kurhni/ou:*kurh/nios:indecl:masc:sg:pers_name
 2*kw *kw=:*kw=s:irreg_decl3:fem:gen:sg
 2*kwn *kw=n:*kw=s:irreg_decl3:fem:acc:sg:contr:geog_name
 2*kws *kw=s:*kw=s:irreg_decl3:fem:nom:sg *kw=s:*kw=s:irreg_decl3:fem:nom:sg:contr:geog_name
+2*kwsam *kwsa/m:*kwsa/m:indecl:masc:sg:pers_name *kwsa\m:*kwsa/m:indecl:masc:sg:pers_name
+2*lamex *la/mex:*la/mex:indecl:masc:sg:pers_name
 2*lamnoqen *lamno/qen:*lamno/qen:adverb
 2*lesboqen *lesbo/qen:*le/sbos:adverb:geog_name
+2*leui *leui/:*leui/:indecl:masc:sg:pers_name *leui\:*leui/:indecl:masc:sg:pers_name
+2*leuin *leui\n:*leui/:indecl:masc:sg:pers_name
+2*leuis *leui/s:*leui/s:indecl:masc:sg:pers_name *leui\s:*leui/s:indecl:masc:sg:pers_name
 2*leukata *leuka/ta:*leuka/tas:irreg_decl3:gen:sg:geog_name
 2*lhmnoqen *lhmno/qen:*lhmno/qen:adverb
 2*libuaqe *libua_qe:*libu/hqe:adverb:doric
 2*libuhqe *libu/hqe:*libu/hqe:adverb
 2*lokristi *lokristi/:*lokristi/:adverb
+2*ludda *lu/dda:*lu/dda:indecl:fem:sg:pers_name
+2*luddas *lu/ddas:*lu/dda:indecl:fem:sg:pers_name
 2*ludisti *lu_disti/:*ludisti/:adverb *ludisti/:*ludisti/:adverb
 2*lukai :*lu/kaia:os_ou:neut:pl
 2*lukihnde *luki/hnde:*luki/hnde:adverb
 2*lukihqen *luki/hqen:*luki/hqen:adverb
 2*lukisti *lukisti/:*lukaoni/a:adverb
+2*lustra *lu/stra:*lu/stra:indecl:neut:sg:pers_name
+2*lustrois *lu/strois:*lu/stra:indecl:neut:sg:pers_name
+2*lwidi *lwi/+di:*lwi/+s:indecl:fem:sg:pers_name
+2*lwis *lwi/+s:*lwi/+s:indecl:fem:sg:pers_name
+2*lwt *lw/t:*lw/t:indecl:masc:sg:pers_name *lw\t:*lw/t:indecl:masc:sg:pers_name
+2*maaq *ma/aq:*ma/aq:indecl:masc:sg:pers_name
+2*madiam *madia/m:*madia/m:indecl:masc:sg:pers_name
+2*magadan *magada/n:*magada/n:indecl:fem:sg:pers_name
+2*magwg *magw/g:*magw/g:indecl:masc:sg:pers_name
 2*maiwtisti *maiwtisti/:*maiwtisti/:adverb
 2*makedonisti *makedonisti/:*makedonisti/:adverb
+2*malelehl *maleleh/l:*maleleh/l:indecl:masc:sg:pers_name *maleleh\l:*maleleh/l:indecl:masc:sg:pers_name
 2*mammwna *mammwna=:*mammwna=:irreg_decl3:masc:gen:sg
 2*mammwnas *mammwna=s:*mammwna=:irreg_decl3:masc:nom:sg
 2*mamwnas *mamwna=s:*mammwna=:irreg_decl3:masc:nom:sg
+2*manahn *manah/n:*manah/n:indecl:masc:sg:pers_name
+2*maqousala *maqousala/:*maqousala/:indecl:masc:sg:pers_name *maqousala\:*maqousala/:indecl:masc:sg:pers_name
+2*maqqat *maqqa/t:*maqqa/t:indecl:masc:sg:pers_name *maqqa\t:*maqqa/t:indecl:masc:sg:pers_name
+2*maria *mari/a:*mari/a:indecl:fem:sg:pers_name
 2*mariam *maria/m:*maria/m:irreg_decl3:fem:sg:pers_name
+2*marian *mari/an:*mari/a:indecl:fem:sg:pers_name
 2*maris *ma/ris:*ma/ris:irreg_decl3:masc:nom:sg
+2*matqan *matqa/n:*matqa/n:indecl:masc:sg:pers_name *matqa\n:*matqa/n:indecl:masc:sg:pers_name
+2*mattaqa *mattaqa/:*mattaqa/:indecl:masc:sg:pers_name *mattaqa\:*mattaqa/:indecl:masc:sg:pers_name
 2*megarade *me/gara/de:*me/gara/de:adverb
 2*megaroi *megaroi=:*megaroi=:adverb
 2*megaroqen *megaro/qen:*megaro/qen:adverb
-2*melxisedek *melxisede/k:*melxisede/k:indecl:masc:sg:pers_name
+2*melea *melea/:*melea/:indecl:masc:sg:pers_name *melea\:*melea/:indecl:masc:sg:pers_name
+2*melxi *melxi/:*melxi/:indecl:masc:sg:pers_name *melxi\:*melxi/:indecl:masc:sg:pers_name
+2*melxisedek *melxise/dek:*melxise/dek:indecl:masc:sg:pers_name *melxisede/k:*melxisede/k:indecl:masc:sg:pers_name
 2*menela| *mene/la|:*mene/laos:irreg_decl3:masc:dat:sg:doric
 2*menelan *mene/lan:*mene/laos:irreg_decl3:masc:acc:sg:doric
+2*menna *menna/:*menna/:indecl:masc:sg:pers_name *menna\:*menna/:indecl:masc:sg:pers_name
 2*mequer *mequ/er:*mequ/er:irreg_decl3:fem:nom:sg:pers_name
+2*messian *messi/an:*messi/as:indecl:masc:sg:pers_name
+2*messias *messi/as:*messi/as:indecl:masc:sg:pers_name
 2*mhdisti *mhdisti/:*mhdisti/:adverb
+2*mixahl *mixah/l:*mixah/l:indecl:masc:sg:pers_name *mixah\l:*mixah/l:indecl:masc:sg:pers_name
+2*molox *molo/x:*molo/x:indecl:masc:sg:pers_name *molo\x:*molo/x:indecl:masc:sg:pers_name
 2*mounixiasi *mounixi/asi:*mounixi/asi:adverb
 2*mounixiasin *mounixi/asin:*mounixi/asi:adverb:nu_movable
 2*mounixiaze *mounixi/aze:*mounixi/aze:adverb
@@ -16512,19 +16739,41 @@
 2*mounuxiasin *mounuxi/a_sin:*mounuxi/asi:adverb:nu_movable
 2*mounuxiaze *mounuxi/aze:*mounuxi/aze:adverb
 2*mukhnhqen *mukh/nhqen:*mukh/nhqen:adverb
+2*naasswn *naassw/n:*naassw/n:indecl:masc:sg:pers_name *naassw\n:*naassw/n:indecl:masc:sg:pers_name
+2*naggai *naggai/:*naggai/:indecl:masc:sg:pers_name *naggai\:*naggai/:indecl:masc:sg:pers_name
+2*naiman *naima/n:*naima/n:indecl:masc:sg:pers_name *naima\n:*naima/n:indecl:masc:sg:pers_name
+2*naoum *naou/m:*naou/m:indecl:masc:sg:pers_name *naou\m:*naou/m:indecl:masc:sg:pers_name
+2*naqam *naqa/m:*naqa/m:indecl:masc:sg:pers_name *naqa\m:*naqa/m:indecl:masc:sg:pers_name
+2*naqanahl *naqanah/l:*naqanah/l:indecl:masc:sg:pers_name *naqanah\l:*naqanah/l:indecl:masc:sg:pers_name
 2*nasika *nasika=:*nasika=s-pl:indecl_noun:masc:gen:sg:pers_name
 2*nasika| *nasika=|:*nasika=s-pl:indecl_noun:masc:dat:sg:pers_name
 2*nasikan *nasika=n:*nasika=s-pl:indecl_noun:masc:acc:sg:pers_name
 2*nasikas *nasika=s:*nasika=s-pl:indecl_noun:masc:nom:sg:pers_name
 2*naxwr *naxw/r:*naxw/r:indecl:neut:sg:pers_name
+2*nazara *nazara/:*nazara/:indecl:fem:sg:pers_name *nazara\:*nazara/:indecl:fem:sg:pers_name
+2*nazareq *nazare/q:*nazare/q:indecl:fem:sg:pers_name *nazare\q:*nazare/q:indecl:fem:sg:pers_name
+2*nazaret *nazare/t:*nazare/t:indecl:fem:sg:pers_name *nazare\t:*nazare/t:indecl:fem:sg:pers_name
+2*nefqalim *nefqali/m:*nefqali/m:indecl:masc:sg:pers_name *nefqali\m:*nefqali/m:indecl:masc:sg:pers_name
+2*nikolaiths *nikolai/+ths:*nikolai/+ths:indecl:masc:sg:pers_name
+2*nikolaitwn *nikolai+tw=n:*nikolai/+ths:indecl:masc:sg:pers_name
+2*nineuitai *nineui=tai:*nineui/ths:indecl:masc:sg:pers_name
+2*nineuitais *nineui/tais:*nineui/ths:indecl:masc:sg:pers_name
+2*nineuiths *nineui/ths:*nineui/ths:indecl:masc:sg:pers_name
+2*nwe *nw=e:*nw=e:indecl:masc:sg:pers_name
 2*oi)oqen *oi)o/qen:*oi)o/qen:adverb
 2*oi)xalihqen *oi)xali/hqen:*oi)xali/hqen:adverb:epic
 2*ou)lumponde *ou)/lumpo/nde:*)/olumpo/nde:adverb:epic:ionic
 2*ou)lumpoqen *ou)lumpo/qen:*ou)lumpo/qen:adverb:epic
+2*ou)rbanon *ou)rbano\n:*ou)rbano/s:indecl:masc:sg:pers_name
+2*ou)rbanos *ou)rbano/s:*ou)rbano/s:indecl:masc:sg:pers_name
 2*ou)tin *ou)=tin:*ou)=tis:irreg_decl3:masc:acc:sg
 2*ou)tis *ou)=tis:*ou)=tis:irreg_decl3:masc:nom:sg
+2*parmenan *parmena=n:*parmena=s:indecl:masc:sg:pers_name
+2*parmenas *parmena=s:*parmena=s:indecl:masc:sg:pers_name
 2*parnhsonde *parnhso/nde:*parnaso/s:adverb:geog_name
 2*parqisti *parqisti/:*parqisti/:adverb
+2*patroban *patroba=n:*patroba=s:indecl:masc:sg:pers_name
+2*patrobas *patroba=s:*patroba=s:indecl:masc:sg:pers_name
 2*peiraioi *peiraioi=:*peiraioi=:adverb
 2*peiraiws *peiraiw=s:*peiraieu/s:eus_ews:masc:gen:sg:suff_acc
 2*peirws *pei/rws:*pei/rws:irreg_decl3:masc:nom:sg
@@ -16537,6 +16786,8 @@
 2*pierihqen *pieri/hqen:*pieri/hqen:adverb
 2*pindoqen *pindo/qen:*pindo/qen:adverb
 2*pishqen *pi/shqen:*pi/shqen:adverb
+2*pisidia *pisidi/a:*pisidi/a:indecl:fem:sg:pers_name
+2*pisidian *pisidi/an:*pisidi/a:indecl:fem:sg:pers_name
 2*plataiasi *plataia=si:*plataia=si:adverb
 2*plataiasin *plataia=sin:*plataia=si:adverb:nu_movable
 2*pontoposeidwn *pontoposeidw=n:*pontoposeidw=n:irreg_decl3:masc:nom:sg
@@ -16547,6 +16798,11 @@
 2*poseidwna *poseidw=na:*poseidw=n:irreg_decl3:masc:acc:sg:contr:pers_name
 2*poseidwni *poseidw=ni:*poseidw=n:irreg_decl3:masc:dat:sg:contr:pers_name
 2*poseidwnos *poseidw=nos:*poseidw=n:irreg_decl3:masc:gen:sg:contr:pers_name
+2*poudhs *pou/dhs:*pou/dhs:indecl:masc:sg:pers_name
+2*priska *pri/ska:*pri/ska:indecl:fem:sg:pers_name
+2*priskan *pri/skan:*pri/ska:indecl:fem:sg:pers_name
+2*priskilla *pri/skilla:*pri/skilla:indecl:fem:sg:pers_name
+2*priskillan *pri/skillan:*pri/skilla:indecl:fem:sg:pers_name
 2*prospaltoqen *prospalto/qen:*prospalto/qen:adverb
 2*pukna *pu/kna:pnu/c:irreg_decl3:masc:acc:sg
 2*pulonde *pu/londe:*pulo/nde:adverb *pulo/nde:*pulo/nde:adverb
@@ -16557,8 +16813,11 @@
 2*puqwnade *pu_qw=na/de:*puqw=na/de:adverb
 2*puqwnoqen *pu_qwno/qen:*puqwno/qen:adverb
 2*puqwqen *pu_qw=qen:*puqw=qen:adverb
+2*qamar *qama/r:*qama/r:indecl:fem:sg:pers_name
+2*qara *qa/ra:*qa/ra:indecl:masc:sg:pers_name
 2*qeibaqen *qei/ba_qen:*qei/baqen:adverb *qei/ba_qen:*qh/bhqen:adverb:aeolic
 2*qeibaqi *qei/ba_qi:*qei/baqi:adverb *qei/ba_qi:*qh/bhsin:adverb:aeolic
+2*qeudas *qeuda=s:*qeuda=s:indecl:masc:sg:pers_name
 2*qhbasde *qh/basde:*qh/basde:adverb
 2*qhbhqe *qh/bhqe:*qh/bhqen:adverb
 2*qhbhqen *qh/bhqen:*qh/bhqen:adverb
@@ -16569,25 +16828,70 @@
 2*qrh|khnde *qrh/|khnde:*qrh/|khnde:adverb
 2*qrh|khqen *qrh/|khqen:*qrh/|khqen:adverb
 2*qriwze *qriw=ze:*qri=a:adverb
+2*quateira *qua/teira:*qua/teira:indecl:neut:sg:pers_name
+2*quateirois *quatei/rois:*qua/teira:indecl:neut:sg:pers_name
+2*quateirwn *quatei/rwn:*qua/teira:indecl:neut:sg:pers_name
 2*qwn *qw=n:*qw=n:irreg_decl3:masc:nom:sg:pers_name
 2*qwnos *qw=nos:*qw=n:irreg_decl3:masc:gen:sg:pers_name *qw=nos:*qw=nos:irreg_decl3:gen:sg:epic
+2*sadwk *sadw/k:*sadw/k:indecl:masc:sg:pers_name *sadw\k:*sadw/k:indecl:masc:sg:pers_name
 2*salamin *salami/_n:*salami/s:irreg_decl3:fem:acc:sg
+2*salaqihl *salaqih/l:*salaqih/l:indecl:masc:sg:pers_name *salaqih\l:*salaqih/l:indecl:masc:sg:pers_name
+2*saleim *salei/m:*salei/m:indecl:neut:sg:pers_name
+2*salhm *salh/m:*salh/m:indecl:fem:sg:pers_name
+2*salmwn *salmw/n:*salmw/n:indecl:masc:sg:pers_name *salmw\n:*salmw/n:indecl:masc:sg:pers_name
+2*samaritai *samari=tai:*samari/ths:indecl:masc:sg:pers_name
+2*samariths *samari/ths:*samari/ths:indecl:masc:sg:pers_name
+2*samaritidos *samari/tidos:*samari=tis:indecl:fem:sg:pers_name
+2*samaritis *samari=tis:*samari=tis:indecl:fem:sg:pers_name
 2*samhnde *sa/mhnde:*sa/mh:adverb
+2*samouhl *samouh/l:*samouh/l:indecl:masc:sg:pers_name *samouh\l:*samouh/l:indecl:masc:sg:pers_name
 2*saoul *saou/l:*sau/lios:irreg_decl3:masc:sg:geog_name
+2*sapfira *sa/pfira:*sa/pfira:indecl:fem:sg:pers_name
+2*sapfirh| *sapfi/rh|:*sa/pfira:indecl:fem:sg:pers_name
+2*sarepta *sa/repta:*sa/repta:indecl:neut:sg:pers_name
+2*sarwn *sarw/n:*sarw/n:indecl:masc:sg:pers_name
+2*sarwna *sarw=na:*sarw/n:indecl:masc:sg:pers_name
 2*satana *satana=:*sata/n-pl:irreg_decl3:masc:gen:sg
-2*satanas *satana=s:*sata/n-pl:irreg_decl3:masc:nom:sg
+2*satana| *satana=|:*satana=s:indecl:masc:sg:pers_name
+2*satanan *satana=n:*satana=s:indecl:masc:sg:pers_name
+2*satanas *satana=s:*sata/n-pl:irreg_decl3:masc:nom:sg *satana=s:*satana=s:indecl:masc:sg:pers_name
+2*semein *semei/+n:*semei/+n:indecl:masc:sg:pers_name *semei\+n:*semei/+n:indecl:masc:sg:pers_name
+2*seroux *serou/x:*serou/x:indecl:masc:sg:pers_name *serou\x:*serou/x:indecl:masc:sg:pers_name
 2*sfhttoi *sfhttoi=:*sfhttoi=:adverb
 2*sfhttoqen *sfhtto/qen:*sfhttoi=:adverb
+2*shm *sh/m:*sh/m:indecl:masc:sg:pers_name *sh\m:*sh/m:indecl:masc:sg:pers_name
 2*shq *sh/q:*sh/q:irreg_decl3:neut:nom/voc/acc:sg
 2*sidonihqen *si_doni/hqen:*sidoni/hqen:adverb
 2*sikuwnoqe *sikuw/noqe:*sikuw/noqe:adverb
+2*silas *sila=s:*sila=s:indecl:masc:sg:pers_name
+2*silwam *silwa/m:*silwa/m:indecl:masc:sg:pers_name *silwa\m:*silwa/m:indecl:masc:sg:pers_name
+2*siwn *siw/n:*siw/n:indecl:fem:sg:pers_name *siw\n:*siw/n:indecl:fem:sg:pers_name
 2*skuqisti *skuqisti/:*skuqisti/:adverb
 2*skuroqen *skuro/qen:*sku=ros:adverb *skuro/qen:*skuro/qen:adverb
+2*sodoma *so/doma:*so/doma:indecl:neut:sg:pers_name
+2*sodomois *sodo/mois:*so/doma:indecl:neut:sg:pers_name
+2*sodomwn *sodo/mwn:*so/doma:indecl:neut:sg:pers_name
+2*solomwn *solomw=n:*solomw=n:indecl:masc:sg:pers_name
+2*solomwntos *solomw=ntos:*solomw=n:indecl:masc:sg:pers_name
+2*sousanna *sousa/nna:*sousa/nna:indecl:fem:sg:pers_name
 2*sparthnde *spa/rthnde:*spa/rthnde:adverb
 2*sparthqen *spa/rthqen:*spa/rthqen:adverb
+2*stefana *stefana=:*stefana=s:indecl:masc:sg:pers_name
+2*stefanas *stefana=s:*stefana=s:indecl:masc:sg:pers_name
 2*sumhqen *su/mhqen:*su/mh:adverb:geog_name
+2*suntuxh *suntu/xh:*suntu/xh:indecl:fem:sg:pers_name
+2*suntuxhn *suntu/xhn:*suntu/xh:indecl:fem:sg:pers_name
 2*suristi *suristi/:*suristi/:adverb
+2*surofoinikissa *surofoini/kissa:*surofoini/kissa:indecl:fem:sg:pers_name
+2*suxar *suxa/r:*suxa/r:indecl:fem:sg:pers_name *suxa\r:*suxa/r:indecl:fem:sg:pers_name
+2*suxem *suxe/m:*suxe/m:indecl:fem:sg:pers_name *suxe\m:*suxe/m:indecl:fem:sg:pers_name
+2*tabernh *tabe/rnh:*tabe/rnh:indecl:fem:sg:pers_name
+2*tabernwn *tabernw=n:*tabe/rnh:indecl:fem:sg:pers_name
+2*tabiqa *tabiqa/:*tabiqa/:indecl:fem:sg:pers_name
 2*tempoqen *tempo/qen:*tempo/qen:adverb
+2*tertios *te/rtios:*te/rtios:indecl:masc:sg:pers_name
+2*tertullos *te/rtullos:*te/rtullos:indecl:masc:sg:pers_name
+2*tertullou *tertu/llou:*te/rtullos:indecl:masc:sg:pers_name
 2*tigridi *ti/gridi:*ti/gris:irreg_decl3:masc:gen:sg
 2*tigridos *ti/gridos:*ti/gris:irreg_decl3:masc:gen:sg
 2*tirunqa *ti/runqa:*ti/runs:irreg_decl3:fem:acc:sg
@@ -16598,7 +16902,15 @@
 2*trw|ande *trw/|ande:*troi/ande:adverb:ionic:geog_name
 2*trwiaqen *trwi/a_qen:*trwi/aqen:adverb
 2*xaldaisti *xaldaisti/:*xaldaisti/:adverb
+2*xanaan *xana/an:*xana/an:indecl:fem:sg:pers_name
+2*xarran *xarra/n:*xarra/n:indecl:fem:sg:pers_name
+2*xeroub *xerou=b:*xerou=b:indecl:neut:sg:pers_name
+2*xeroubin *xeroubi\n:*xerou=b:indecl:neut:sg:pers_name
+2*xorazin *xorazi/n:*xorazi/n:indecl:fem:sg:pers_name
+2*xouza *xouza=:*xouza=s:indecl:masc:sg:pers_name
+2*xouzas *xouza=s:*xouza=s:indecl:masc:sg:pers_name
 2*yeudartabas *yeudarta/bas:*yeudarta/bas:irreg_decl3:masc:nom:sg
+2*zaboulwn *zaboulw/n:*zaboulw/n:indecl:masc:sg:pers_name *zaboulw\n:*zaboulw/n:indecl:masc:sg:pers_name
 2*zana *za_na:*zeu/s:irreg_decl3:masc:acc:sg:doric:pers_name:needs_acc
 2*zani *za_ni/:*zeu/s:irreg_decl3:masc:dat:sg:doric:pers_name:needs_acc
 2*zanos *za_no/s:*zeu/s:irreg_decl3:masc:gen:sg:doric:pers_name
@@ -16608,6 +16920,7 @@
 2*zhna :*zeu/s:irreg_decl3:masc:acc:sg:pers_name:needs_acc:poetic
 2*zhni *zhni/:*zeu/s:irreg_decl3:masc:dat:sg:pers_name:needs_acc:poetic
 2*zhnos *zhno/s:*zeu/s:irreg_decl3:masc:gen:sg:pers_name:poetic
+2*zorobabel *zorobabe/l:*zorobabe/l:indecl:masc:sg:pers_name *zorobabe\l:*zorobabe/l:indecl:masc:sg:pers_name
 2a( a(/:o(/s:relative:neut:acc:pl a(/:o(/s:relative:neut:nom:pl a(_/:o(/s:relative:fem:acc:dual a(_/:o(/s:relative:fem:nom:dual a(_/:o(/s:relative:fem:nom:sg:doric:aeolic a_(/:o(:article:fem:nom:sg:doric:proclitic a_(:o(:article:fem:nom:sg:doric:proclitic
 2a(de a(/_de:o(/de:demonstr:fem:nom:sg:doric:aeolic
 2a(dea a(_de/a:h(du/s:irreg_adj3:masc/fem:acc:sg:doric
@@ -17003,7 +17316,7 @@
 2a)neuqe a)/neuqe:a)/neuqe:prep
 2a)neuqen a)/neuqen:a)/neuqe:prep
 2a)new :a)new:adverb a)/new:a)/new:adverb:a_priv
-2a)new| a)/new|:a)/new:adverb:a_priv a)/newi:a)/new:adverb:a_priv
+2a)newi a)/newi:a)/new:adverb:a_priv a)/new|:a)/new:adverb:a_priv
 2a)new|gotws a)new|go/tws:a)new|go/tws:adverb
 2a)nhplwmenws a)nhplwme/nws:a)nhplwme/nws:adverb
 2a)nhr a)nh/r:a)nh/r:irreg_decl3:masc:nom:sg
@@ -28912,7 +29225,7 @@ a)poklau :a)po/klauma:ma_matos:neut
 a)pokleis :a)po/kleisis:is_ews:fem :a)po/kleisma:ma_matos:neut
 a)pokleism :a)pokleismo/s:os_ou:masc:suff_acc
 a)pokleist :a)po/kleistos:os_on
-a)poklh|s :a)po/kleisis:is_ews:fem
+a)poklhis :a)po/kleisis:is_ews:fem
 a)poklhr :a)po/klhros:os_on
 a)poklhronom :a)poklhro/nomos:os_on
 a)poklhrws :a)poklh/rwsis:is_ews:fem
