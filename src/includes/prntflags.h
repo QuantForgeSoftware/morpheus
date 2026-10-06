@@ -21,6 +21,9 @@
 #define LEMCOUNT	0200000
 #define VERBS_ONLY	0400000
 #define ITALIAN		01000000
+/* Emit a `:form <token>` delimiter for every input line, including misses, so
+   consumers can align results positionally. Enabled with -q. */
+#define ECHO_INPUT	020000000
 
 typedef int PrntFlags;
 

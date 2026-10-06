@@ -1,42 +1,71 @@
-# C# project structure and build process
+# C build for the Morpheus analyzer (cruncher + supporting tools).
+#
+# The C# port of this module lives in makefile-cs (built separately with `make -f
+# makefile-cs`, or `make cs` from the repo root) so the default `make` works
+# without a C# toolchain.
 
-# Define the project name
-PROJECT_NAME = Morpheus
+LEXLIB = -lfl
 
-# Define the source files
-CS_SOURCES = \
-    betamorph.cs \
-    checkcmpstem.cs \
-    checkcrasis.cs \
-    checkdict.cs \
-    checkgenwds.cs \
-    checkhalf1.cs \
-    checkindecl.cs \
-    checkirreg.cs \
-    checknom.cs \
-    checkpreverb.cs \
-    checkstem.cs \
-    checkstring.cs \
-    checkverb.cs \
-    checkword.cs \
-    dictstems.cs
+INCLUDE=../includes
+CFLAGS+= -O2 -I${INCLUDE}
+RM=rm
+CC=cc
+CC=gcc
+LEX=flex
 
-# Define the output directory
-OUTPUT_DIR = bin
+ENDLIB=../gkends/gkends.a
+GREEKLIB=../greeklib/greeklib.a
+MORPHLIB=../morphlib/morphlib.a
+GENERLIB=../gener/gener.a
+DICTLIB=../gkdict/gkdict.a
+ANALLIB=anal.a
+LIBS=${GENERLIB} ${ENDLIB} ${DICTLIB} ${MORPHLIB} ${GREEKLIB}
 
-# Define the compiler
-CSC = csc
+LSJDIR=/local/text/lsj
+ANALOBJ= checkcrasis.o \
+checkdict.o \
+checkgenwds.o \
+checkhalf1.o \
+checkindecl.o \
+checkirreg.o \
+checknom.o \
+checkpreverb.o \
+checkstem.o \
+checkstring.o \
+checkverb.o \
+checkword.o \
+dictstems.o \
+prntanal.o \
+prvb.o
 
-# Define the compiler flags
-CSC_FLAGS = -out:$(OUTPUT_DIR)/$(PROJECT_NAME).exe
+${ANALLIB}: ${ANALOBJ}
+	ar rv ${ANALLIB} ${ANALOBJ}
+	ranlib ${ANALLIB}
 
-# Define the build target
-all: $(OUTPUT_DIR)/$(PROJECT_NAME).exe
+ALL=cruncher pname findbase deverbal ${ANALLIB}
 
-# Define the build rule
-$(OUTPUT_DIR)/$(PROJECT_NAME).exe: $(CS_SOURCES)
-	$(CSC) $(CSC_FLAGS) $(CS_SOURCES)
+all: ${ALL}
 
-# Define the clean target
+install: all
+	cp ${ALL} ../../bin
+
+lcnt: lcnt.o ${ANALLIB} ${LIBS}
+	${CC} -o lcnt lcnt.o ../gener/genwd.o ${ANALLIB} ${LIBS}
+
+cruncher: stdiomorph.o ${ANALLIB} ${LIBS}
+	${CC} -o cruncher stdiomorph.o ../gener/genwd.o ${ANALLIB} ${LIBS}
+
+pname: propname.o ${ANALOBJ} ${LIBS}
+	${CC} -o pname propname.o ${ANALOBJ} ${LIBS}
+
+findbase: findbase.o ${ANALOBJ} ${LIBS}
+	${CC} -o findbase findbase.o ${ANALOBJ} ${LIBS}
+
+deverbal: deverb.o ${ANALOBJ} ${LIBS}
+	${CC} -o deverbal deverb.o ${ANALOBJ} ${LIBS}
+
 clean:
-	rm -rf $(OUTPUT_DIR)
+	rm -f cruncher pname findbase deverbal lcnt *.o ${ANALLIB}
+
+proclems: proclems.o
+	${CC} -o proclems proclems.o

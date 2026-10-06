@@ -21,7 +21,7 @@ double string_time = 0;
 char long_string[BUFSIZ];
 int timeit = 1;
 
-#define ARGS "ILalmnbckidsxSVpPeTo:"
+#define ARGS "ILalmnbckidsxSVpPeTo:q"
 #define PATH_SEP '/'
 
 main(argc,argv)
@@ -105,6 +105,9 @@ char *argv[];
       break;
     case 'T':
       timeit = 0;
+      break;
+    case 'q':
+      flags |= ECHO_INPUT;
       break;
     case 'o':
       if (!strcmp(optarg,"-")) {
@@ -205,6 +208,11 @@ fprintf(stdout,"files: [%s] [%s]\n", outname, failedname);
     }
     /*setatticprose();*/
     /*set_nocrasis();*/
+
+    if (flags & ECHO_INPUT) {
+      fprintf(foutput, ":form\t%s\n", line);
+      fflush(foutput);
+    }
 
     rval = checkstring(line,flags,foutput);
     if( cur_lang() != LATIN && ! rval && (flags & IGNORE_ACCENTS) ) {

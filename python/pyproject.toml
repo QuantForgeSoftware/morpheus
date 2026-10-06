@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "morpheus-toolkit"
+version = "0.1.0"
+description = "Unicode/JSON toolkit around the Morpheus Ancient Greek morphological analyzer"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["beta-code>=1.1"]
+
+[project.scripts]
+morpheus-toolkit = "morpheus_toolkit.cli:main"
+
+[tool.setuptools]
+packages = ["morpheus_toolkit"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+morpheus_toolkit = ["data/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
