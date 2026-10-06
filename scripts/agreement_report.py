@@ -32,7 +32,11 @@ sys.path.insert(0, os.path.join(REPO, "python"))
 
 from morpheus_toolkit.analysis import Analysis  # noqa: E402
 from morpheus_toolkit.beta import normalize_lemma, to_beta  # noqa: E402
-from morpheus_toolkit.ranking import Ranker, load_default_frequencies  # noqa: E402
+from morpheus_toolkit.ranking import (  # noqa: E402
+    Ranker,
+    load_default_frequencies,
+    load_default_joint_frequencies,
+)
 from morpheus_toolkit.runner import MorpheusRunner  # noqa: E402
 from morpheus_toolkit.tagger import PosTagger, load_default_pos_model  # noqa: E402
 
@@ -121,6 +125,7 @@ def main() -> int:
     parser.add_argument("--context", action="store_true", help="also evaluate hand-written contextual re-ranking")
     parser.add_argument("--tagger", action="store_true", help="also evaluate the POS-bigram Viterbi tagger")
     parser.add_argument("--emission-weight", type=float, default=3.0)
+    parser.add_argument("--joint", action="store_true", help="rank by joint (lemma, POS) frequency")
     args = parser.parse_args()
 
     paths = list(args.paths)
@@ -139,7 +144,11 @@ def main() -> int:
         row.beta = to_beta(row.token)
 
     runner = MorpheusRunner()
-    ranker = Ranker(load_default_frequencies(), use_context=False)
+    ranker = Ranker(
+        load_default_frequencies(),
+        use_context=False,
+        joint_frequencies=load_default_joint_frequencies() if args.joint else None,
+    )
 
     sent = [row for row in rows if row.beta]
     analyses_by_token = runner.analyze_beta([row.beta for row in sent])

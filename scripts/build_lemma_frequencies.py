@@ -36,13 +36,17 @@ def main() -> int:
         parser.error("--morphgnt-dir must point at the MorphGNT *.txt files")
 
     counts: collections.Counter = collections.Counter()
+    by_pos: dict = collections.defaultdict(collections.Counter)
     for path in sorted(glob.glob(os.path.join(args.morphgnt_dir, "*.txt"))):
         with open(path, encoding="utf-8") as handle:
             for line in handle:
                 fields = line.split()
                 if len(fields) < 7:
                     continue
-                counts[normalize_lemma(fields[6])] += 1
+                lemma = normalize_lemma(fields[6])
+                pos = fields[1].rstrip("-")
+                counts[lemma] += 1
+                by_pos[lemma][pos] += 1
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     payload = {
@@ -50,6 +54,8 @@ def main() -> int:
         "tokens": sum(counts.values()),
         "lemmas": len(counts),
         "frequencies": dict(counts.most_common()),
+        # joint (lemma, POS) counts, for disambiguating homographs like o( (RA vs RR)
+        "by_pos": {lemma: dict(counter) for lemma, counter in by_pos.items()},
     }
     with open(args.out, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, ensure_ascii=False, indent=0)

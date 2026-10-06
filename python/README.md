@@ -90,9 +90,14 @@ Ranking adds ~6 points of top-1 lemma accuracy over Morpheus's native order,
 out of domain. The lower numbers on the `grc_proiel_lg` subset reflect the noise
 in that (machine-generated) reference more than Morpheus itself.
 
-A POS-bigram Viterbi tagger (`tagger.py`) was also built and measured; with the
-bundled model it **does not beat** frequency-only ranking (92.9% vs 93.0%), so it
-is off by default. It needs a learned emission model (P(lemma | tag)) to pay off.
+Two contextual approaches were built and measured but do **not** beat plain
+frequency ranking, so both are off by default:
+
+- a POS-bigram Viterbi tagger (`tagger.py`, `--tagger`): 92.9% vs 93.0%;
+- joint (lemma, POS) frequency (`--joint`): 91.9% top-1 but 77.8% POS (vs 76.2%).
+
+They need a *learned* emission model (P(lemma | tag)) and a proper tagger to pay
+off; the bundled hand-built model is not enough.
 
 ## Known limitations
 

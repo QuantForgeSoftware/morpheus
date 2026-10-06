@@ -48,6 +48,16 @@ def load_default_frequencies() -> Dict[str, int]:
     return data.get("frequencies", data)
 
 
+def load_default_joint_frequencies() -> Dict[str, Dict[str, int]]:
+    """Load the bundled joint (lemma, POS) frequency table (empty when absent)."""
+    path = os.path.join(_DATA_DIR, "lemma_frequencies.json")
+    if not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    return data.get("by_pos", {})
+
+
 def context_bonus(analysis: Analysis, prev_pos: Optional[str], next_pos: Optional[str]) -> float:
     """Small contextual adjustment based on the neighbouring tokens' chosen POS."""
     bonus = 0.0
@@ -68,13 +78,35 @@ def context_bonus(analysis: Analysis, prev_pos: Optional[str], next_pos: Optiona
 
 
 class Ranker:
-    def __init__(self, frequencies: Optional[Dict[str, int]] = None, use_context: bool = False):
+    def __init__(
+        self,
+        frequencies: Optional[Dict[str, int]] = None,
+        use_context: bool = False,
+        joint_frequencies: Optional[Dict[str, Dict[str, int]]] = None,
+    ):
         self.frequencies = {normalize_lemma(key): value for key, value in (frequencies or {}).items()}
         self.max_frequency = max(self.frequencies.values(), default=1)
         self.log_max = math.log1p(self.max_frequency)
         self.use_context = use_context
+        self.joint = {
+            normalize_lemma(key): row for key, row in (joint_frequencies or {}).items()
+        }
+        self.max_joint = max((max(row.values()) for row in self.joint.values() if row), default=1)
+        self.log_max_joint = math.log1p(self.max_joint)
 
     def frequency_score(self, analysis: Analysis) -> float:
+        # Prefer the joint (lemma, POS) count when we have it: it separates
+        # homographs such as o( as an article (RA) vs a relative pronoun (RR).
+        if self.joint:
+            best = 0
+            seen = False
+            for variant in analysis.variants():
+                row = self.joint.get(normalize_lemma(variant))
+                if row:
+                    seen = True
+                    best = max(best, row.get(analysis.pos, 0))
+            if seen:
+                return math.log1p(best) / self.log_max_joint if self.log_max_joint else 0.0
         frequency = max(
             (self.frequencies.get(normalize_lemma(variant), 0) for variant in analysis.variants()),
             default=0,
@@ -82,7 +114,10 @@ class Ranker:
         return math.log1p(frequency) / self.log_max if self.log_max else 0.0
 
     def score(self, analysis: Analysis) -> float:
-        return self.frequency_score(analysis) + POS_PRIOR.get(analysis.pos, 0.0) * 0.5
+        base = self.frequency_score(analysis)
+        if self.joint:
+            return base  # the joint table already encodes the POS distribution
+        return base + POS_PRIOR.get(analysis.pos, 0.0) * 0.5
 
     def rank(self, analyses: Iterable[Analysis]) -> list[Analysis]:
         ranked = list(analyses)
