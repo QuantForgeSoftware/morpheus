@@ -30,6 +30,12 @@ def test_lemma_variants_are_split_and_matched():
     assert analysis.matches_lemma("γένεσις")
 
 
+def test_latin_lemmas_are_not_beta_decoded():
+    line = "<NL>N fe_mina_,femina  fem nom/voc sg\t\t\ta_ae</NL>"
+    analysis = parse_perseus_analyses(line, latin=True)[0]
+    assert analysis.lemma == "femina"
+
+
 def test_fine_pos_from_stemtype():
     assert fine_pos("N", "article") == "RA"
     assert fine_pos("N", "prep") == "P"

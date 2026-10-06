@@ -47,3 +47,30 @@ def test_unknown_as_proper_fallback():
 def test_fallback_is_off_by_default():
     analyzer = Morpheus(runner=FakeRunner(), frequencies={})
     assert analyzer.analyze_tokens(["Δαυίδ"])[0].is_miss
+
+
+def test_confidence_is_a_distribution():
+    analyzer = Morpheus(runner=FakeRunner(), frequencies={})
+    analyses = analyzer.analyze_tokens(["λόγος"])[0].analyses
+    assert abs(sum(analysis.confidence for analysis in analyses) - 1.0) < 1e-9
+
+
+def test_strongs_is_attached_for_greek():
+    analyzer = Morpheus(runner=FakeRunner(), frequencies={})
+    assert analyzer.analyze_tokens(["λόγος"])[0].best.strongs == 3056
+
+
+class LatinFakeRunner:
+    def analyze_beta(self, forms):
+        return [
+            [Analysis(lemma="femina", lemma_beta="femina", pos="N", raw_pos="N", stemtype="a_ae")]
+            for _ in forms
+        ]
+
+
+def test_latin_skips_beta_and_strongs():
+    analyzer = Morpheus(runner=LatinFakeRunner(), frequencies={}, language="latin")
+    result = analyzer.analyze_tokens(["femina"])[0]
+    assert result.beta == "femina"  # not beta-converted
+    assert result.best.lemma == "femina"
+    assert result.best.strongs is None

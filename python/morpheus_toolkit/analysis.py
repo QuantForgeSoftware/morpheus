@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 from .beta import from_beta, strip_homonym
 
@@ -46,6 +46,9 @@ class Analysis:
     # them all so matching/ranking can use whichever the gold corpus uses.
     lemma_variants: Tuple[str, ...] = ()
     score: float = 0.0
+    # Strong's number (Greek only) and a softmax confidence in [0, 1].
+    strongs: Optional[int] = None
+    confidence: float = 0.0
     # True for synthetic analyses invented for tokens Morpheus could not analyze
     # (e.g. proper names); consumers can filter them out.
     proposed: bool = False
@@ -77,6 +80,8 @@ class Analysis:
             "features": {key: list(values) for key, values in self.features.items()},
             "stemtype": self.stemtype,
             "score": round(self.score, 4),
+            "confidence": round(self.confidence, 4),
+            "strongs": self.strongs,
             "proposed": self.proposed,
         }
 
@@ -135,7 +140,7 @@ def fine_pos(raw_pos: str, stemtype: str) -> str:
     return "N"
 
 
-def parse_perseus_analyses(line: str) -> list[Analysis]:
+def parse_perseus_analyses(line: str, latin: bool = False) -> list[Analysis]:
     """Parse a line of Perseus-format output (possibly several ``<NL>`` records)."""
     analyses: list[Analysis] = []
     for match in ANAL_RE.finditer(line):
@@ -146,13 +151,13 @@ def parse_perseus_analyses(line: str) -> list[Analysis]:
         rest = tokens[2:]
         stemtype = rest[-1] if rest else ""
         features = _features(rest[:-1] if rest else [])
-        # Morpheus emits comma-joined lemma variants and internal beta markers
-        # (`^`, `_`) that are not part of the word.
+        # Morpheus emits comma-joined lemma variants and internal markers (`^`,
+        # `_`) that are not part of the word. Latin lemmas are already Latin.
         cleaned = form.replace("^", "").replace("_", "")
         variants_beta = tuple(strip_homonym(part) for part in cleaned.split(",") if part) or (
             strip_homonym(cleaned),
         )
-        variants = tuple(from_beta(part) for part in variants_beta)
+        variants = variants_beta if latin else tuple(from_beta(part) for part in variants_beta)
         # Morpheus prints lemma variants as `form,lemma` (e.g. `ku_ri/ou,ku/rios`);
         # the canonical lemma is the last one.
         analyses.append(

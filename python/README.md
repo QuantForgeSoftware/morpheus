@@ -60,6 +60,30 @@ for result in morpheus.analyze_text("ἐν ἀρχῇ ἦν ὁ λόγος"):
     print(result.token, best.pos, best.lemma, best.feature_string())
 ```
 
+## Languages
+
+Morpheus parses Latin as well as Greek. Set `language="latin"` (CLI:
+`--language latin`) and the tokens are passed through untouched (no beta-code
+round-trip):
+
+```python
+Morpheus(language="latin").analyze_text("femina amo dominus")
+```
+
+## Strong's numbers and confidence
+
+Every Greek analysis carries a **Strong's number** (from the SBLGNT lemma mapping)
+and a softmax **confidence**; Latin analyses have neither:
+
+```python
+best = morpheus.analyze_text("θεοῦ")[0].best
+best.strongs      # 2316
+best.confidence   # 0.32
+```
+
+The Strong's table is MorphGNT-convention, so a few Morpheus spelling variants
+(γίγνομαι vs γίνομαι) resolve through their lemma variants when possible.
+
 ## Ranking
 
 The bundled frequency table is derived from the MorphGNT SBLGNT (CC-BY-SA 4.0).

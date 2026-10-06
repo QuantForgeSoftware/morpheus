@@ -18,6 +18,7 @@ from .beta import from_beta, to_beta
 from .morphgnt import parsing_code, pos_code
 from .ranking import Ranker
 from .runner import MorpheusRunner
+from .strongs import strongs_for
 from .tagger import PosTagger
 from .tokenize import tokenize
 
@@ -32,6 +33,7 @@ __all__ = [
     "parse_perseus_analyses",
     "parsing_code",
     "pos_code",
+    "strongs_for",
     "to_beta",
     "tokenize",
 ]
