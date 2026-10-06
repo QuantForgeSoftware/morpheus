@@ -72,6 +72,9 @@
 :wd:*(hrw|dianoi/	indecl masc nom voc gen dat acc pl pers_name
 :wd:*(hrw|dianw=n	indecl masc nom voc gen dat acc pl pers_name
 
+:le:*(ierixw/
+:wd:*(ierixw/	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*(raa/b
 :wd:*(raa/b	indecl fem nom voc gen dat acc sg pers_name
 :wd:*(raa\b	indecl fem nom voc gen dat acc sg pers_name
@@ -101,6 +104,10 @@
 :wd:*(roboa/m	indecl masc nom voc gen dat acc sg pers_name
 :wd:*(roboa\m	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*(rou/fos
+:wd:*(rou/fos	indecl masc nom voc gen dat acc sg pers_name
+:wd:*(rou/fw|	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*(rou/q
 :wd:*(rou/q	indecl fem nom voc gen dat acc sg pers_name
 
@@ -112,11 +119,35 @@
 :wd:*(wshe/	indecl masc nom voc gen dat acc sg pers_name
 :wd:*(wshe\	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)/arays
+:wd:*)/aray	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)/arays	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*)/eber
 :wd:*)/eber	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)/egones
+:wd:*)/egnwn	indecl fem nom voc gen dat acc pl pers_name
+:wd:*)/egones	indecl fem nom voc gen dat acc pl pers_name
+
+:le:*)/hqelos
+:wd:*)/hqelon	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)/hqelos	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)/omosos
+:wd:*)/omoson	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)/omosos	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)=assos
+:wd:*)=asson	indecl fem nom voc gen dat acc sg pers_name
+:wd:*)=assos	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*)abaddw/n
 :wd:*)abaddw/n	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)abeirw/n
+:wd:*)abeirw/n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)abeirw\n	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*)abia/
 :wd:*)abia/	indecl masc nom voc gen dat acc sg pers_name
@@ -142,6 +173,9 @@
 :wd:*)admi/n	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)admi\n	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)amalh\k
+:wd:*)amalh\k	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*)aminada/b
 :wd:*)aminada/b	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)aminada\b	indecl masc nom voc gen dat acc sg pers_name
@@ -150,12 +184,32 @@
 :wd:*)amplia=ton	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)amplia=tos	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)andri/zos
+:wd:*)andri/zos	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)andri/zou	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*)antipa=s
 :wd:*)antipa=s	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*)apfi/a
 :wd:*)apfi/a	indecl fem nom voc gen dat acc sg pers_name
 :wd:*)apfi/a|	indecl fem nom voc gen dat acc sg pers_name
+
+:le:*)apodexo/meno/s
+:wd:*)apodexo/meno/s	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)apollw/s
+:wd:*)apollw/	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)apollw/s	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)apollw=s
+:wd:*)apollw=	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)apollw=n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)apollw=s	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)apolusa/tws
+:wd:*)apolusa/tw	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)apolusa/tws	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*)ara/m
 :wd:*)ara/m	indecl masc nom voc gen dat acc sg pers_name
@@ -185,6 +239,9 @@
 :wd:*)axi/m	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)axi\m	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)azari/as
+:wd:*)azari/as	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*)azw/r
 :wd:*)azw/r	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)azw\r	indecl masc nom voc gen dat acc sg pers_name
@@ -196,6 +253,9 @@
 :le:*)elami/ths
 :wd:*)elami/ths	indecl masc nom voc gen dat acc pl pers_name
 :wd:*)elami=tai	indecl masc nom voc gen dat acc pl pers_name
+
+:le:*)elda\d
+:wd:*)elda\d	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*)elea/zar
 :wd:*)elea/zar	indecl masc nom voc gen dat acc sg pers_name
@@ -235,6 +295,12 @@
 :wd:*)enw/s	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)enw\s	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)enw/x
+:wd:*)enw/x	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)esqh\r
+:wd:*)esqh\r	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*)hli/
 :wd:*)hli/	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)hli\	indecl masc nom voc gen dat acc sg pers_name
@@ -258,8 +324,20 @@
 :wd:*)iannai/	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)iannai\	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)ido/s
+:wd:*)ido/s	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)idou=	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)idou/s
+:wd:*)idou/	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)idou/s	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*)iefqa/e
 :wd:*)iefqa/e	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)ierousalh/m
+:wd:*)ierousalh/m	indecl fem nom voc gen dat acc sg pers_name
+:wd:*)ierousalh\m	indecl fem nom voc gen dat acc sg pers_name
 
 :le:*)iessai/
 :wd:*)iessai/	indecl masc nom voc gen dat acc sg pers_name
@@ -268,9 +346,23 @@
 :le:*)ieza/bel
 :wd:*)ieza/bel	indecl fem nom voc gen dat acc sg pers_name
 
+:le:*)iezekih/l
+:wd:*)iezekih/l	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)igna/tion
+:wd:*)igna/tion	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)ignati/w|	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)illuriko/n
+:wd:*)illuriko/n	indecl neut nom voc gen dat acc sg pers_name
+:wd:*)illurikou=	indecl neut nom voc gen dat acc sg pers_name
+
 :le:*)ioudai+smo/s
 :wd:*)ioudai+smo/s	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)ioudai+smw=|	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)ioudi\q
+:wd:*)ioudi\q	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*)iouni/a
 :wd:*)iouni/a	indecl fem nom voc gen dat acc sg pers_name
@@ -339,17 +431,32 @@
 :wd:*)iwsh=s	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)iwsh=tos	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*)olofe/rnh
+:wd:*)olofe/rnh	indecl fem nom voc gen dat acc sg pers_name
+:wd:*)olofe/rnhn	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*)olumpa=s
 :wd:*)olumpa=n	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)olumpa=s	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*)onhsi/foros
+:wd:*)onhsi/foros	indecl masc nom voc gen dat acc sg pers_name
+:wd:*)onhsifo/rou	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*)ozi/as
 :wd:*)ozi/an	indecl masc nom voc gen dat acc sg pers_name
 :wd:*)ozi/as	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*ai)de/sqhti/
+:wd:*ai)de/sqhti/	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*ai)nw/n
 :wd:*ai)nw/n	indecl fem nom voc gen dat acc sg pers_name
 :wd:*ai)nw\n	indecl fem nom voc gen dat acc sg pers_name
+
+:le:*au)gou=stos
+:wd:*au)gou/stou	indecl masc nom voc gen dat acc sg pers_name
+:wd:*au)gou=stos	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*ba/al
 :wd:*ba/al	indecl masc nom voc gen dat acc sg pers_name
@@ -388,6 +495,15 @@
 :le:*bartimai=os
 :wd:*bartimai=os	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*basilei=os
+:wd:*basilei=ai	indecl fem nom voc gen dat acc pl pers_name
+:wd:*basilei=os	indecl fem nom voc gen dat acc pl pers_name
+
+:le:*be/roia
+:wd:*be/roia	indecl fem nom voc gen dat acc sg pers_name
+:wd:*be/roian	indecl fem nom voc gen dat acc sg pers_name
+:wd:*beroi/a|	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*beelzebou/l
 :wd:*beelzebou/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*beelzebou\l	indecl masc nom voc gen dat acc sg pers_name
@@ -420,6 +536,10 @@
 :le:*bhqsai+da/n
 :wd:*bhqsai+da/n	indecl fem nom voc gen dat acc sg pers_name
 
+:le:*bla/stos
+:wd:*bla/ston	indecl masc nom voc gen dat acc sg pers_name
+:wd:*bla/stos	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*bo/os
 :wd:*bo/os	indecl masc nom voc gen dat acc sg pers_name
 
@@ -430,19 +550,47 @@
 :wd:*boso/r	indecl masc nom voc gen dat acc sg pers_name
 :wd:*boso\r	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*bou/rron
+:wd:*bou/rron	indecl masc nom voc gen dat acc sg pers_name
+:wd:*bou/rrou	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*bou/rros
+:wd:*bou/rros	indecl masc nom voc gen dat acc sg pers_name
+:wd:*bou/rrou	indecl masc nom voc gen dat acc sg pers_name
+:wd:*bou/rrw|	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*da/maris
 :wd:*da/maris	indecl fem nom voc gen dat acc sg pers_name
 
 :le:*dalmanouqa/
 :wd:*dalmanouqa/	indecl fem nom voc gen dat acc sg pers_name
 
+:le:*dama/
+:wd:*dama/	indecl masc nom voc gen dat acc sg pers_name
+:wd:*dama=	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*danai/+s
+:wd:*danai/+des	indecl fem nom voc gen dat acc pl pers_name
+:wd:*danai/+s	indecl fem nom voc gen dat acc pl pers_name
+
 :le:*danih/l
 :wd:*danih/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*danih\l	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*daqa/n
+:wd:*daqa/n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*daqa\n	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*daui/d
 :wd:*daui/d	indecl masc nom voc gen dat acc sg pers_name
 :wd:*daui\d	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*dei/casa/
+:wd:*dei/casa/	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*dh/lwsos
+:wd:*dh/lwso/n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*dh/lwsos	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*dhma=s
 :wd:*dhma=s	indecl masc nom voc gen dat acc sg pers_name
@@ -472,6 +620,9 @@
 :le:*fi/lhtos
 :wd:*fi/lhtos	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*fortouna/tw|
+:wd:*fortouna/tw|	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*fortouna=tos
 :wd:*fortouna/tou	indecl masc nom voc gen dat acc sg pers_name
 :wd:*fortouna=tos	indecl masc nom voc gen dat acc sg pers_name
@@ -490,6 +641,10 @@
 :wd:*gabrih/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*gabrih\l	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*gai/+as
+:wd:*gai/+as	indecl masc nom voc gen dat acc sg pers_name
+:wd:*gai/+ou	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*gamalih/l
 :wd:*gamalih/l	indecl masc nom voc gen dat acc sg pers_name
 
@@ -499,6 +654,10 @@
 
 :le:*geqshmani/
 :wd:*geqshmani/	indecl neut nom voc gen dat acc sg pers_name
+
+:le:*gnw/risos
+:wd:*gnw/riso/n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*gnw/risos	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*go/morra
 :wd:*go/morra	indecl fem nom voc gen dat acc sg pers_name
@@ -514,6 +673,13 @@
 :le:*gw/g
 :wd:*gw/g	indecl masc nom voc gen dat acc sg pers_name
 :wd:*gw\g	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*ka/i+n
+:wd:*ka/i+n	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*ka/qisos
+:wd:*ka/qison	indecl masc nom voc gen dat acc sg pers_name
+:wd:*ka/qisos	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*ka/rpos
 :wd:*ka/rpos	indecl masc nom voc gen dat acc sg pers_name
@@ -532,6 +698,10 @@
 :wd:*kana/	indecl fem nom voc gen dat acc sg pers_name
 :wd:*kana\	indecl fem nom voc gen dat acc sg pers_name
 
+:le:*kaqh/lwsos
+:wd:*kaqh/lwso/n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*kaqh/lwsos	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*kau=da
 :wd:*kau=da	indecl neut nom voc gen dat acc sg pers_name
 
@@ -547,6 +717,13 @@
 :le:*kleopa=s
 :wd:*kleopa=s	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*klh/menti
+:wd:*klh/menti	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*klh/mh
+:wd:*klh/mh	indecl fem nom voc gen dat acc sg pers_name
+:wd:*klh/mhs	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*klh/mhs
 :wd:*klh/mentos	indecl masc nom voc gen dat acc sg pers_name
 :wd:*klh/mhs	indecl masc nom voc gen dat acc sg pers_name
@@ -554,6 +731,13 @@
 :le:*klwpa=s
 :wd:*klwpa=	indecl masc nom voc gen dat acc sg pers_name
 :wd:*klwpa=s	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*ko/i+ntos
+:wd:*ko/i+ntos	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*kodra/ths
+:wd:*kodra/ths	indecl masc nom voc gen dat acc sg pers_name
+:wd:*kodra/tou	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*kolossai/
 :wd:*kolossai/	indecl fem nom voc gen dat acc pl pers_name
@@ -569,12 +753,24 @@
 :wd:*kurh/nios	indecl masc nom voc gen dat acc sg pers_name
 :wd:*kurhni/ou	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*kw/s
+:wd:*kw/s	indecl fem nom voc gen dat acc sg pers_name
+:wd:*kw=	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*kwsa/m
 :wd:*kwsa/m	indecl masc nom voc gen dat acc sg pers_name
 :wd:*kwsa\m	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*la/binos
+:wd:*la/binos	indecl masc nom voc gen dat acc sg pers_name
+:wd:*liba/nou	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*la/mex
 :wd:*la/mex	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*laba\s
+:wd:*laba\n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*laba\s	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*leui/
 :wd:*leui/	indecl masc nom voc gen dat acc sg pers_name
@@ -613,6 +809,9 @@
 :le:*magw/g
 :wd:*magw/g	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*maia/ndrw|
+:wd:*maia/ndrw|	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*maleleh/l
 :wd:*maleleh/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*maleleh\l	indecl masc nom voc gen dat acc sg pers_name
@@ -631,6 +830,11 @@
 :le:*mari/a
 :wd:*mari/a	indecl fem nom voc gen dat acc sg pers_name
 :wd:*mari/an	indecl fem nom voc gen dat acc sg pers_name
+
+:le:*marki/wn
+:wd:*marki/wn	indecl masc nom voc gen dat acc sg pers_name
+:wd:*marki/wni	indecl masc nom voc gen dat acc sg pers_name
+:wd:*marki/wnos	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*matqa/n
 :wd:*matqa/n	indecl masc nom voc gen dat acc sg pers_name
@@ -659,6 +863,14 @@
 :wd:*messi/an	indecl masc nom voc gen dat acc sg pers_name
 :wd:*messi/as	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*misah/l
+:wd:*misah/l	indecl masc nom voc gen dat acc sg pers_name
+:wd:*misah\l	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*mish/w
+:wd:*mish/seis	indecl fem nom voc gen dat acc pl pers_name
+:wd:*mish/w	indecl fem nom voc gen dat acc pl pers_name
+
 :le:*mixah/l
 :wd:*mixah/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*mixah\l	indecl masc nom voc gen dat acc sg pers_name
@@ -667,6 +879,24 @@
 :wd:*molo/x	indecl masc nom voc gen dat acc sg pers_name
 :wd:*molo\x	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*mwda/t
+:wd:*mwda/t	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*mwu+sh/s
+:wd:*mwu+sh/s	indecl masc nom voc gen dat acc sg pers_name
+:wd:*mwu+sh=	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*mwu+sh=s
+:wd:*mwu+se/a	indecl masc nom voc gen dat acc sg pers_name
+:wd:*mwu+se/ws	indecl masc nom voc gen dat acc sg pers_name
+:wd:*mwu+sei=	indecl masc nom voc gen dat acc sg pers_name
+:wd:*mwu+sh=n	indecl masc nom voc gen dat acc sg pers_name
+:wd:*mwu+sh=s	indecl masc nom voc gen dat acc sg pers_name
+:wd:*mwu+sh=|	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*mwu/sews
+:wd:*mwu/sews	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*naassw/n
 :wd:*naassw/n	indecl masc nom voc gen dat acc sg pers_name
 :wd:*naassw\n	indecl masc nom voc gen dat acc sg pers_name
@@ -674,6 +904,9 @@
 :le:*naggai/
 :wd:*naggai/	indecl masc nom voc gen dat acc sg pers_name
 :wd:*naggai\	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*nai/+n
+:wd:*nai/+n	indecl fem nom voc gen dat acc sg pers_name
 
 :le:*naima/n
 :wd:*naima/n	indecl masc nom voc gen dat acc sg pers_name
@@ -691,6 +924,9 @@
 :wd:*naqanah/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*naqanah\l	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*nauh/
+:wd:*nauh/	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*nazara/
 :wd:*nazara/	indecl fem nom voc gen dat acc sg pers_name
 :wd:*nazara\	indecl fem nom voc gen dat acc sg pers_name
@@ -706,6 +942,14 @@
 :le:*nefqali/m
 :wd:*nefqali/m	indecl masc nom voc gen dat acc sg pers_name
 :wd:*nefqali\m	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*nhri/
+:wd:*nhri/	indecl masc nom voc gen dat acc sg pers_name
+:wd:*nhri\	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*nikh/ths
+:wd:*nikh/thn	indecl masc nom voc gen dat acc sg pers_name
+:wd:*nikh/ths	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*nikolai/+ths
 :wd:*nikolai+tw=n	indecl masc nom voc gen dat acc pl pers_name
@@ -731,9 +975,17 @@
 :wd:*patroba=n	indecl masc nom voc gen dat acc sg pers_name
 :wd:*patroba=s	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*peritmh/qhtos
+:wd:*peritmh/qhte	indecl masc nom voc gen dat acc sg pers_name
+:wd:*peritmh/qhtos	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*pisidi/a
 :wd:*pisidi/a	indecl fem nom voc gen dat acc sg pers_name
 :wd:*pisidi/an	indecl fem nom voc gen dat acc sg pers_name
+
+:le:*poluka/rpos
+:wd:*poluka/rpos	indecl masc nom voc gen dat acc sg pers_name
+:wd:*poluka/rpw|	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*pou/dhs
 :wd:*pou/dhs	indecl masc nom voc gen dat acc sg pers_name
@@ -752,6 +1004,9 @@
 :le:*qama/r
 :wd:*qama/r	indecl fem nom voc gen dat acc sg pers_name
 
+:le:*qeofo/ros
+:wd:*qeofo/ros	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*qeuda=s
 :wd:*qeuda=s	indecl masc nom voc gen dat acc sg pers_name
 
@@ -766,6 +1021,12 @@
 
 :le:*sa/repta
 :wd:*sa/repta	indecl neut nom voc gen dat acc pl pers_name
+
+:le:*saddoukai=os
+:wd:*saddoukai/ous	indecl masc nom voc gen dat acc pl pers_name
+:wd:*saddoukai/wn	indecl masc nom voc gen dat acc pl pers_name
+:wd:*saddoukai=oi	indecl masc nom voc gen dat acc pl pers_name
+:wd:*saddoukai=os	indecl masc nom voc gen dat acc pl pers_name
 
 :le:*sadw/k
 :wd:*sadw/k	indecl masc nom voc gen dat acc sg pers_name
@@ -797,6 +1058,10 @@
 :wd:*samouh/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*samouh\l	indecl masc nom voc gen dat acc sg pers_name
 
+:le:*saou/l
+:wd:*saou/l	indecl masc nom voc gen dat acc sg pers_name
+:wd:*saou\l	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*sarw/n
 :wd:*sarw/n	indecl masc nom voc gen dat acc sg pers_name
 :wd:*sarw=na	indecl masc nom voc gen dat acc sg pers_name
@@ -805,6 +1070,9 @@
 :wd:*satana=n	indecl masc nom voc gen dat acc sg pers_name
 :wd:*satana=s	indecl masc nom voc gen dat acc sg pers_name
 :wd:*satana=|	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*sekou=ndos
+:wd:*sekou=ndos	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*semei/+n
 :wd:*semei/+n	indecl masc nom voc gen dat acc sg pers_name
@@ -841,9 +1109,17 @@
 :le:*sousa/nna
 :wd:*sousa/nna	indecl fem nom voc gen dat acc sg pers_name
 
+:le:*sta/tios
+:wd:*sta/tios	indecl masc nom voc gen dat acc sg pers_name
+:wd:*stati/ou	indecl masc nom voc gen dat acc sg pers_name
+
 :le:*stefana=s
 :wd:*stefana=	indecl masc nom voc gen dat acc sg pers_name
 :wd:*stefana=s	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*sunexa/ra
+:wd:*sunexa/ra	indecl masc nom voc gen dat acc sg pers_name
+:wd:*sunexa/rhn	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*suntu/xh
 :wd:*suntu/xh	indecl fem nom voc gen dat acc sg pers_name
@@ -867,12 +1143,22 @@
 :le:*tabiqa/
 :wd:*tabiqa/	indecl fem nom voc gen dat acc sg pers_name
 
+:le:*talai/pwroi/
+:wd:*talai/pwroi/	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*taoui/+as
+:wd:*taoui/+as	indecl fem nom voc gen dat acc sg pers_name
+
 :le:*te/rtios
 :wd:*te/rtios	indecl masc nom voc gen dat acc sg pers_name
 
 :le:*te/rtullos
 :wd:*te/rtullos	indecl masc nom voc gen dat acc sg pers_name
 :wd:*tertu/llou	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*tra/llos
+:wd:*tra/llesin	indecl neut nom voc gen dat acc pl pers_name
+:wd:*tra/llos	indecl neut nom voc gen dat acc pl pers_name
 
 :le:*xana/an
 :wd:*xana/an	indecl fem nom voc gen dat acc sg pers_name
@@ -898,4 +1184,12 @@
 :le:*zorobabe/l
 :wd:*zorobabe/l	indecl masc nom voc gen dat acc sg pers_name
 :wd:*zorobabe\l	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*zwsi=mos
+:wd:*zwsi/mw|	indecl masc nom voc gen dat acc sg pers_name
+:wd:*zwsi=mos	indecl masc nom voc gen dat acc sg pers_name
+
+:le:*zwti/wn
+:wd:*zwti/wn	indecl masc nom voc gen dat acc sg pers_name
+:wd:*zwti/wnos	indecl masc nom voc gen dat acc sg pers_name
 
