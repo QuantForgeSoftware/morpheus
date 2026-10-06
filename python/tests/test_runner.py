@@ -25,3 +25,24 @@ def test_marked_alignment_keeps_misses_in_position():
 def test_marked_alignment_pads_to_input_count():
     records = MorpheusRunner._align_marked(":form\ta)/nqrwpos\na)/nqrwpos\n", 2)
     assert records == [[], []]
+
+
+def test_ignore_accents_adds_the_n_flag(monkeypatch):
+    runner = MorpheusRunner(cruncher="/bin/echo")
+    captured = {}
+
+    def fake_run(argv, **kwargs):
+        captured["argv"] = argv
+
+        class Result:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        return Result()
+
+    monkeypatch.setattr("subprocess.run", fake_run)
+    runner.analyze_beta(["qeos"], ignore_accents=True)
+    assert "-n" in captured["argv"]
+    runner.analyze_beta(["qeos"])
+    assert "-n" not in captured["argv"]

@@ -45,6 +45,7 @@ class Morpheus:
         use_context: bool = False,
         runner: Optional[MorpheusRunner] = None,
         unknown_as_proper: bool = False,
+        ignore_accents: bool = False,
         language: str = "greek",
     ):
         self.language = (language or "greek").lower()
@@ -56,6 +57,9 @@ class Morpheus:
         # When set, tokens Morpheus cannot analyze get a synthetic proper-noun
         # analysis (lemma = the surface form), so names are never left blank.
         self.unknown_as_proper = unknown_as_proper
+        # When set, tokens the accented match misses are retried without accents
+        # (recovering unaccented text such as verse-initial capitals).
+        self.ignore_accents = ignore_accents
 
     @property
     def is_latin(self) -> bool:
@@ -86,6 +90,8 @@ class Morpheus:
         return self.analyze_tokens(tokenize(text))
 
     def _finish(self, results: List[TokenResult]) -> List[TokenResult]:
+        if self.ignore_accents:
+            self._recover_unaccented(results)
         if self.unknown_as_proper:
             for result in results:
                 if not result.analyses and result.beta:
@@ -97,6 +103,23 @@ class Morpheus:
         for result in results:
             self._annotate(result.analyses)
         return results
+
+    def _recover_unaccented(self, results: List[TokenResult]) -> None:
+        """Retry, without accents, the words the accented match missed.
+
+        Transcriptions often drop accents and breathings (e.g. a verse-initial
+        capital); Morpheus's ``-n`` mode matches them against the stemlib.
+        """
+        misses = [
+            (index, result.beta)
+            for index, result in enumerate(results)
+            if not result.analyses and result.beta
+        ]
+        if not misses:
+            return
+        raw = self.runner.analyze_beta([beta for _, beta in misses], ignore_accents=True)
+        for (index, _), analyses in zip(misses, raw):
+            results[index].analyses = analyses
 
     def _annotate(self, analyses: List[Analysis]) -> None:
         """Attach a softmax confidence and (for Greek) a Strong's number."""
