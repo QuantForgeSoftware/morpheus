@@ -36,6 +36,7 @@ def main(argv: List[str] | None = None) -> int:
     analyze.add_argument("--token-field", type=int, default=5, help="1-based token column in --morphgnt mode")
     analyze.add_argument("--sample", type=int, default=20)
     analyze.add_argument("--top", type=int, default=3, help="analyses to show per sampled token")
+    analyze.add_argument("--language", default="greek", choices=["greek", "latin"])
     analyze.add_argument("--context", action="store_true", help="enable experimental contextual re-ranking")
     analyze.add_argument(
         "--unknown-as-proper",
@@ -44,7 +45,11 @@ def main(argv: List[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    morpheus = Morpheus(use_context=args.context, unknown_as_proper=args.unknown_as_proper)
+    morpheus = Morpheus(
+        use_context=args.context,
+        unknown_as_proper=args.unknown_as_proper,
+        language=args.language,
+    )
     tokens = _read_tokens(args)
     results = morpheus.analyze_tokens(tokens)
 
@@ -56,7 +61,12 @@ def main(argv: List[str] | None = None) -> int:
         if not result.analyses:
             continue
         top = result.analyses[: args.top]
-        rendered = "; ".join(f"{a.pos} {a.lemma} [{a.feature_string()}]" for a in top)
+        rendered = "; ".join(
+            f"{a.pos} {a.lemma}"
+            + (f" G{a.strongs}" if a.strongs else "")
+            + f" [{a.feature_string()}] ({a.confidence:.2f})"
+            for a in top
+        )
         print(f"  {result.token:<18} {result.beta:<18} {rendered}")
         args.sample -= 1
         if args.sample <= 0:

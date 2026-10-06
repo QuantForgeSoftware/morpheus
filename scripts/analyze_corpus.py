@@ -62,6 +62,7 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--json", help="write JSONL here (single input file only)")
     parser.add_argument("--context", action="store_true")
+    parser.add_argument("--language", default="greek", choices=["greek", "latin"])
     parser.add_argument(
         "--unknown-as-proper",
         action="store_true",
@@ -73,7 +74,11 @@ def main() -> int:
     for pattern in args.paths:
         paths.extend(sorted(glob.glob(pattern)) or [pattern])
 
-    morpheus = Morpheus(use_context=args.context, unknown_as_proper=args.unknown_as_proper)
+    morpheus = Morpheus(
+        use_context=args.context,
+        unknown_as_proper=args.unknown_as_proper,
+        language=args.language,
+    )
 
     grand_total = grand_analyzed = 0
     for path in paths:
