@@ -43,11 +43,17 @@ def main(argv: List[str] | None = None) -> int:
         action="store_true",
         help="give unanalyzed tokens (proper names) a synthetic proper-noun analysis",
     )
+    analyze.add_argument(
+        "--ignore-accents",
+        action="store_true",
+        help="retry accented misses without accents/breathings (unaccented text)",
+    )
     args = parser.parse_args(argv)
 
     morpheus = Morpheus(
         use_context=args.context,
         unknown_as_proper=args.unknown_as_proper,
+        ignore_accents=args.ignore_accents,
         language=args.language,
     )
     tokens = _read_tokens(args)

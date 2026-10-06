@@ -49,6 +49,30 @@ def test_fallback_is_off_by_default():
     assert analyzer.analyze_tokens(["Δαυίδ"])[0].is_miss
 
 
+class AccentFallbackRunner:
+    """Analyzes an unaccented form only when accents are ignored."""
+
+    def analyze_beta(self, forms, ignore_accents=False):
+        return [
+            [Analysis(lemma="θεός", lemma_beta="qeo/s", pos="N", raw_pos="N", stemtype="os_ou")]
+            if (ignore_accents and form == "qeos")
+            else []
+            for form in forms
+        ]
+
+
+def test_ignore_accents_recovers_unaccented_words():
+    analyzer = Morpheus(runner=AccentFallbackRunner(), frequencies={}, ignore_accents=True)
+    result = analyzer.analyze_tokens(["θεος"])[0]  # unaccented -> beta "qeos"
+    assert result.best is not None
+    assert result.best.lemma == "θεός"
+
+
+def test_ignore_accents_is_off_by_default():
+    analyzer = Morpheus(runner=AccentFallbackRunner(), frequencies={})
+    assert analyzer.analyze_tokens(["θεος"])[0].is_miss
+
+
 def test_confidence_is_a_distribution():
     analyzer = Morpheus(runner=FakeRunner(), frequencies={})
     analyses = analyzer.analyze_tokens(["λόγος"])[0].analyses

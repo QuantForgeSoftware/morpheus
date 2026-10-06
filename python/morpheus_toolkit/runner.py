@@ -33,14 +33,21 @@ class MorpheusRunner:
                 f"cruncher not found at {self.cruncher!r}; build it with scripts/build.sh"
             )
 
-    def analyze_beta(self, forms: List[str]) -> List[List[Analysis]]:
-        """Analyze a list of beta-code forms; the result is aligned to the input."""
+    def analyze_beta(self, forms: List[str], ignore_accents: bool = False) -> List[List[Analysis]]:
+        """Analyze a list of beta-code forms; the result is aligned to the input.
+
+        With ``ignore_accents`` the cruncher matches without accents/breathings
+        (``-n``), which recovers unaccented words (verse-initial capitals in
+        transcriptions, papyri, inscriptions).
+        """
         if not forms:
             return []
         env = dict(os.environ, MORPHLIB=self.stemlib)
         argv = [self.cruncher, "-S"]
         if self.language in {"latin", "la", "lat"}:
             argv.append("-L")
+        if ignore_accents:
+            argv.append("-n")
         if self.echo:
             argv.append("-q")  # emit a `:form` delimiter for every input, including misses
         proc = subprocess.run(
