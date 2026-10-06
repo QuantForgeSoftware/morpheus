@@ -22,3 +22,33 @@ jobs:
 
       - name: Run tests
         run: ruby test/test.rb
+
+  toolkit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -qq -y build-essential
+
+      - name: Build the analyzer
+        run: bash scripts/build.sh
+
+      - name: Install the toolkit
+        run: pip install -e python/ pytest
+
+      - name: Unit tests
+        run: cd python && pytest -q
+
+      - name: Integration smoke
+        run: |
+          python - <<'PY'
+          from morpheus_toolkit import Morpheus
+          results = Morpheus().analyze_text("ἐν ἀρχῇ ἦν ὁ λόγος")
+          best = next(r for r in results if r.token == "λόγος").best
+          assert best.lemma == "λόγος", best
+          print("ok:", best.pos, best.lemma)
+          PY

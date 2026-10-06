@@ -19,11 +19,15 @@ RM=/bin/rm -f
 
 LOADLIBES= -lfl
 
-ALL=gkdict.a indexcomps indexnoms indexvbs  newlems newlems2 setquant splitlems splitlat latvb conj1 combitype latnom fixhesc fixgend
+# Tools needed to run the analyzer (no flex).
+ALL=gkdict.a indexcomps indexnoms indexvbs newlems newlems2
 
+# Flex-based stemlib-building tools (require flex + libfl): `make stemtools`.
 lexer= combitype fixhesc latnom setquant splitlems conj1 getitype latvb splitlat fixgend
 
 all: ${ALL}
+
+stemtools: ${lexer}
 
 install: ${ALL}
 	cp  ${ALL} ../../bin

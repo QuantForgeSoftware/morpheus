@@ -112,6 +112,16 @@ $ echo 'cactus' | MORPHLIB=stemlib bin/cruncher -S -L
 | -l | Show lemma. When this switch is set, instead of printing the entire analysis, cruncher will only show the lemma or headword from which the given form is made. |
 | -P | Turn off Perseus format. Output will be in the form `$feminam& is^M &from$ femina^M $fe\_minam^M [&stem $fe\_min-& ]^M & a\_ae fem acc sg^M`. Note the returns, without line feeds, between the fields. |
 | -V | Analyze verbs only. |
+| -q | Echo a `:form <token>` delimiter for every input, including words with no analysis, so batch output stays positionally alignable. |
+
+## Python toolkit
+
+`python/` contains **morpheus-toolkit**, a Unicode/JSON layer over the analyzer:
+UTF-8 in, structured analyses (lemma, fine-grained POS, features) out, with
+frequency-based ranking of the candidate readings. See
+[`python/README.md`](python/README.md) for install, CLI, and the measured effect
+of ranking (top-1 lemma accuracy +~6 points on the SBLGNT and the Apostolic
+Fathers). Build the analyzer with `scripts/build.sh` first.
 
 ## Tests
 

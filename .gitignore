@@ -30,3 +30,9 @@ src/gkends/buildend
 src/gkends/buildword
 src/gkends/indderivtables
 src/gkends/indendtables
+
+# python toolkit
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
