@@ -108,11 +108,13 @@ off; the bundled hand-built model is not enough.
 - **Contextual ranking is experimental.** The hand-written context rules in
   `ranking.py` *hurt* accuracy and the POS-bigram Viterbi tagger in `tagger.py`
   merely matches frequency ranking; both are off by default.
-- **Coverage.** ~1.6% of NT tokens get no analysis, and the large majority are
-  **biblical proper names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`.
-  A proper-name stemlib (or an explicit unknown-name fallback) is the highest-value
-  next step for coverage; ~6% of tokens are analyzed but with a different lemma
-  than the gold corpus.
+- **Coverage.** ~1.6% of NT tokens get no analysis, dominated by **biblical proper
+  names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`. Enable
+  `unknown_as_proper=True` (CLI: `--unknown-as-proper`) to give unanalyzed tokens a
+  synthetic proper-noun analysis (lemma = surface, POS `N`/`NP`, flagged
+  `proposed=True`). This brings the analysis rate to **100%** on both the SBLGNT and
+  the Apostolic Fathers. ~6% of tokens are analyzed but with a different lemma than
+  the gold corpus.
 
 ## Tests
 

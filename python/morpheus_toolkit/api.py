@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional
 
 from .analysis import Analysis
-from .beta import to_beta
+from .beta import from_beta, to_beta
 from .ranking import Ranker, load_default_frequencies
 from .runner import MorpheusRunner
 from .tokenize import tokenize
@@ -42,21 +42,22 @@ class Morpheus:
         frequencies: Optional[Dict[str, int]] = None,
         use_context: bool = False,
         runner: Optional[MorpheusRunner] = None,
+        unknown_as_proper: bool = False,
     ):
         self.runner = runner or MorpheusRunner(morpheus_dir=morpheus_dir)
         self.ranker = Ranker(
             frequencies if frequencies is not None else load_default_frequencies(),
             use_context=use_context,
         )
+        # When set, tokens Morpheus cannot analyze get a synthetic proper-noun
+        # analysis (lemma = the surface form), so names are never left blank.
+        self.unknown_as_proper = unknown_as_proper
 
     def analyze_beta(self, forms: List[str]) -> List[TokenResult]:
         results = [TokenResult(token=form, beta=form) for form in forms]
-        raw = self.runner.analyze_beta(forms)
-        for result, analyses in zip(results, raw):
-            result.analyses = self.ranker.rank(analyses)
-        if self.ranker.use_context:
-            self.ranker.rerank_with_context([result.analyses for result in results])
-        return results
+        for result, analyses in zip(results, self.runner.analyze_beta(forms)):
+            result.analyses = analyses
+        return self._finish(results)
 
     def analyze_tokens(self, tokens: Iterable[str]) -> List[TokenResult]:
         results = [TokenResult(token=token, beta=to_beta(token)) for token in tokens]
@@ -64,10 +65,31 @@ class Morpheus:
         if valid:
             raw = self.runner.analyze_beta([beta for _, beta in valid])
             for (index, _), analyses in zip(valid, raw):
-                results[index].analyses = self.ranker.rank(analyses)
+                results[index].analyses = analyses
+        return self._finish(results)
+
+    def analyze_text(self, text: str) -> List[TokenResult]:
+        return self.analyze_tokens(tokenize(text))
+
+    def _finish(self, results: List[TokenResult]) -> List[TokenResult]:
+        if self.unknown_as_proper:
+            for result in results:
+                if not result.analyses and result.beta:
+                    result.analyses = [self._propose(result)]
+        for result in results:
+            result.analyses = self.ranker.rank(result.analyses)
         if self.ranker.use_context:
             self.ranker.rerank_with_context([result.analyses for result in results])
         return results
 
-    def analyze_text(self, text: str) -> List[TokenResult]:
-        return self.analyze_tokens(tokenize(text))
+    @staticmethod
+    def _propose(result: TokenResult) -> Analysis:
+        lemma = from_beta(result.beta) or result.token
+        return Analysis(
+            lemma=lemma,
+            lemma_beta=result.beta,
+            pos="N",
+            raw_pos="N",
+            stemtype="proper",
+            proposed=True,
+        )

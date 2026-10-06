@@ -37,9 +37,14 @@ def main(argv: List[str] | None = None) -> int:
     analyze.add_argument("--sample", type=int, default=20)
     analyze.add_argument("--top", type=int, default=3, help="analyses to show per sampled token")
     analyze.add_argument("--context", action="store_true", help="enable experimental contextual re-ranking")
+    analyze.add_argument(
+        "--unknown-as-proper",
+        action="store_true",
+        help="give unanalyzed tokens (proper names) a synthetic proper-noun analysis",
+    )
     args = parser.parse_args(argv)
 
-    morpheus = Morpheus(use_context=args.context)
+    morpheus = Morpheus(use_context=args.context, unknown_as_proper=args.unknown_as_proper)
     tokens = _read_tokens(args)
     results = morpheus.analyze_tokens(tokens)
 

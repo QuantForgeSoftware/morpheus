@@ -46,6 +46,9 @@ class Analysis:
     # them all so matching/ranking can use whichever the gold corpus uses.
     lemma_variants: Tuple[str, ...] = ()
     score: float = 0.0
+    # True for synthetic analyses invented for tokens Morpheus could not analyze
+    # (e.g. proper names); consumers can filter them out.
+    proposed: bool = False
 
     @property
     def mood(self):
@@ -74,6 +77,7 @@ class Analysis:
             "features": {key: list(values) for key, values in self.features.items()},
             "stemtype": self.stemtype,
             "score": round(self.score, 4),
+            "proposed": self.proposed,
         }
 
 

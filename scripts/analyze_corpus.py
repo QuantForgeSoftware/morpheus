@@ -62,13 +62,18 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--json", help="write JSONL here (single input file only)")
     parser.add_argument("--context", action="store_true")
+    parser.add_argument(
+        "--unknown-as-proper",
+        action="store_true",
+        help="give unanalyzed tokens (proper names) a synthetic proper-noun analysis",
+    )
     args = parser.parse_args()
 
     paths: List[str] = []
     for pattern in args.paths:
         paths.extend(sorted(glob.glob(pattern)) or [pattern])
 
-    morpheus = Morpheus(use_context=args.context)
+    morpheus = Morpheus(use_context=args.context, unknown_as_proper=args.unknown_as_proper)
 
     grand_total = grand_analyzed = 0
     for path in paths:
