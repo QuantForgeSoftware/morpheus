@@ -31,6 +31,9 @@ src/gkends/buildword
 src/gkends/indderivtables
 src/gkends/indendtables
 
+# local working files (corpus comparisons, reports)
+tmp/
+
 # python toolkit
 .venv/
 __pycache__/

@@ -12,6 +12,18 @@ _DEFAULT_BASE = os.environ.get("MORPHEUS_DIR") or os.path.abspath(
 )
 
 
+def _normalize_beta(form: str, latin: bool = False) -> str:
+    """Normalize a beta-code form for the cruncher.
+
+    The cruncher only matches lowercase beta code; some reference corpora
+    encode Greek in uppercase and would otherwise come back unanalyzed. Latin
+    text is case-sensitive, so it passes through untouched.
+    """
+    if latin or not form:
+        return form
+    return form.lower()
+
+
 class MorpheusRunner:
     def __init__(
         self,
@@ -50,9 +62,10 @@ class MorpheusRunner:
             argv.append("-n")
         if self.echo:
             argv.append("-q")  # emit a `:form` delimiter for every input, including misses
+        latin = self.language in {"latin", "la", "lat"}
         proc = subprocess.run(
             argv,
-            input="\n".join(forms) + "\n",
+            input="\n".join(_normalize_beta(form, latin) for form in forms) + "\n",
             capture_output=True,
             text=True,
             env=env,
@@ -60,7 +73,6 @@ class MorpheusRunner:
         )
         if proc.returncode != 0:
             raise RuntimeError(f"cruncher failed ({proc.returncode}): {proc.stderr[:400]}")
-        latin = self.language in {"latin", "la", "lat"}
         if self.echo and ":form\t" in proc.stdout:
             return self._align_marked(proc.stdout, len(forms), latin)
         return self._align_echo(proc.stdout, len(forms), latin)

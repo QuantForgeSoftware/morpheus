@@ -94,7 +94,7 @@ ainto ami_aor ami_pr ami_short aor1
 aio ami_aor ami_pr ami_short aor1
 ais ami_short aor1 ath_h_aor aw_fut aw_pr
 aisa ami_short aor1 ath_h_aor
-aisa| ami_short aor1 ath_h_aor
+aisai ami_short aor1 ath_h_aor
 aisain ami_short aor1 ath_h_aor
 aisais ami_short aor1 ath_h_aor
 aisaisi ami_short aor1 ath_h_aor
@@ -268,7 +268,7 @@ askonto ami_pr aor1 aw_pr
 askou ami_pr aor1 aw_pr
 aso ami_aor ami_pr ami_short
 asomena aor2_pass aor_pass
-asomena| aor2_pass aor_pass
+asomenai aor2_pass aor_pass
 asomenain aor2_pass aor_pass
 asomenais aor2_pass aor_pass
 asomenaisi aor2_pass aor_pass
@@ -474,7 +474,7 @@ eiousi ath_h_aor emi_aor
 eiousin ath_h_aor emi_aor
 eis aor1 aor2_pass aor_pass ath_primary emi_aor emi_pr evw_pr ew_fut ew_pr fut_perf perf_act reg_fut w_stem
 eisa aor2_pass aor_pass ath_primary emi_aor emi_pr
-eisa| aor2_pass aor_pass ath_primary emi_aor emi_pr
+eisai aor2_pass aor_pass ath_primary emi_aor emi_pr
 eisain aor2_pass aor_pass ath_primary emi_aor emi_pr
 eisais aor2_pass aor_pass ath_primary emi_aor emi_pr
 eisaisi aor2_pass aor_pass ath_primary emi_aor emi_pr
@@ -738,7 +738,7 @@ eumai ew_fut ew_pr ow_pr reg_fut ww_pr
 euman ew_pr
 eumen aor2_pass ew_fut ew_pr ow_pr reg_fut ww_pr
 eumena ew_fut ew_pr ow_pr reg_fut ww_pr
-eumena| ew_fut ew_pr ow_pr reg_fut ww_pr
+eumenai ew_fut ew_pr ow_pr reg_fut ww_pr
 eumenain ew_fut ew_pr ow_pr reg_fut ww_pr
 eumenais ew_fut ew_pr ow_pr reg_fut ww_pr
 eumenaisi ew_fut ew_pr ow_pr ww_pr
@@ -794,7 +794,7 @@ euntos ew_fut ew_pr ow_pr reg_fut ww_pr
 euntwn ew_fut ew_pr ow_pr reg_fut ww_pr
 eus ow_pr ww_pr
 eusa ew_fut ew_pr ow_pr reg_fut ww_pr
-eusa| ew_fut ew_pr ow_pr reg_fut ww_pr
+eusai ew_fut ew_pr ow_pr reg_fut ww_pr
 eusain ew_fut ew_pr ow_pr reg_fut ww_pr
 eusais ew_fut ew_pr ow_pr reg_fut ww_pr
 eusaisi ew_fut ew_pr ow_pr ww_pr
@@ -860,7 +860,7 @@ gktai perfp_gg perfp_gx
 gkto perfp_gg perfp_gx
 gmai perfp_g perfp_gg perfp_gx
 gmena perfp_g perfp_gg perfp_gx
-gmena| perfp_g perfp_gg perfp_gx
+gmenai perfp_g perfp_gg perfp_gx
 gmenain perfp_g perfp_gg perfp_gx
 gmenais perfp_g perfp_gg perfp_gx
 gmenaisi perfp_g perfp_gg perfp_gx
@@ -970,7 +970,7 @@ hsoisqe aor2_pass aor_pass
 hsoito aor2_pass aor_pass
 hsomai aor2_pass aor_pass
 hsomena aor2_pass aor_pass
-hsomena| aor2_pass aor_pass
+hsomenai aor2_pass aor_pass
 hsomenain aor2_pass aor_pass
 hsomenais aor2_pass aor_pass
 hsomenaisi aor2_pass aor_pass
@@ -1044,7 +1044,7 @@ iointo ew_fut ew_pr reg_fut
 ioio ew_fut ew_pr reg_fut
 iois ew_fut ew_pr reg_fut
 ioisa ew_fut ew_pr reg_fut
-ioisa| ew_fut ew_pr reg_fut
+ioisai ew_fut ew_pr reg_fut
 ioisain ew_fut ew_pr reg_fut
 ioisais ew_fut ew_pr reg_fut
 ioisan ew_fut ew_pr reg_fut
@@ -1059,7 +1059,7 @@ iomai ew_fut ew_pr reg_fut
 ioman ew_pr
 iomen ew_fut ew_pr reg_fut
 iomena ew_fut ew_pr reg_fut
-iomena| ew_fut ew_pr reg_fut
+iomenai ew_fut ew_pr reg_fut
 iomenain ew_fut ew_pr reg_fut
 iomenais ew_fut ew_pr reg_fut
 iomenan ew_fut ew_pr reg_fut
@@ -1108,7 +1108,7 @@ ktai perfp_g
 kto perfp_g
 lmai perfp_l
 lmena perfp_l
-lmena| perfp_l
+lmenai perfp_l
 lmenain perfp_l
 lmenais perfp_l
 lmenaisi perfp_l
@@ -1159,7 +1159,7 @@ lto perfp_l
 mai ath_primary perfp_vow
 men ath_primary ath_secondary
 mena ath_primary ath_secondary perfp_vow
-mena| ath_primary ath_secondary perfp_vow
+menai ath_primary ath_secondary perfp_vow
 menain ath_primary ath_secondary perfp_vow
 menais ath_primary ath_secondary perfp_vow
 menaisi ath_primary ath_secondary perfp_vow
@@ -1419,7 +1419,7 @@ oumai ew_fut ew_pr ow_pr reg_fut ww_pr
 ouman ew_pr ow_pr ww_pr
 oumen aor2_pass ew_fut ew_pr ow_pr reg_fut ww_pr
 oumena ew_fut ew_pr ow_pr reg_fut ww_pr
-oumena| ew_fut ew_pr ow_pr reg_fut ww_pr
+oumenai ew_fut ew_pr ow_pr reg_fut ww_pr
 oumenain ew_fut ew_pr ow_pr reg_fut ww_pr
 oumenais ew_fut ew_pr ow_pr reg_fut ww_pr
 oumenaisi ew_fut ew_pr ow_pr ww_pr
@@ -1476,7 +1476,7 @@ ountos ew_fut ew_pr ow_pr reg_fut ww_pr
 ountwn ew_fut ew_pr ow_pr reg_fut ww_pr
 ous ath_w_aor omi_aor omi_pr ow_pr ww_pr
 ousa aor2 ath_w_aor ew_fut ew_pr fut_perf omi_aor omi_pr ow_pr reg_fut w_stem ww_pr
-ousa| aor2 ath_w_aor ew_fut ew_pr fut_perf omi_aor omi_pr ow_pr reg_fut w_stem ww_pr
+ousai aor2 ath_w_aor ew_fut ew_pr fut_perf omi_aor omi_pr ow_pr reg_fut w_stem ww_pr
 ousain aor2 ath_w_aor ew_fut ew_pr fut_perf omi_aor omi_pr ow_pr reg_fut w_stem ww_pr
 ousais aor2 ath_w_aor ew_fut ew_pr fut_perf omi_aor omi_pr ow_pr reg_fut w_stem ww_pr
 ousaisi aor2 ath_w_aor ew_fut ew_pr fut_perf omi_aor omi_pr ow_pr reg_fut w_stem ww_pr
@@ -1772,9 +1772,9 @@ uhthn ath_u_aor
 uhton ath_u_aor umi_pr
 uia perf_act
 uiafi perf_act
-uia| perf_act
+uiai perf_act
 uiain perf_act
-uia|s perf_act
+uiais perf_act
 uiaisi perf_act
 uiaisin perf_act
 uian perf_act
@@ -1791,7 +1791,7 @@ uiwn perf_act
 umai umi_pr
 umen ath_u_aor umi_pr
 umena ath_u_aor umi_pr
-umenai ath_u_aor umi_pr
+umena| ath_u_aor umi_pr
 umenain ath_u_aor umi_pr
 umenais ath_u_aor umi_pr
 umenaisi ath_u_aor umi_pr
@@ -1907,7 +1907,7 @@ uoito umi_pr
 uqi ath_u_aor umi_pr
 us ath_u_aor umi_pr
 usa ath_u_aor umi_pr
-usa| ath_u_aor perfp_un umi_pr
+usai ath_u_aor perfp_un umi_pr
 usain ath_u_aor umi_pr
 usais ath_u_aor umi_pr
 usaisi ath_u_aor umi_pr
@@ -2035,7 +2035,7 @@ wmai ajw_pr ami_aor ami_pr ami_short aor1 aor2 ath_secondary aw_fut aw_pr emi_ao
 wman ajw_pr aw_pr ow_pr ww_pr
 wmen ajw_pr ami_aor ami_pr aor1 aor2 aor2_pass aor_pass ath_h_aor ath_secondary ath_w_aor aw_fut aw_pr emi_aor emi_pr ew_pr omi_aor omi_pr ow_pr perf2_act perf_act w_stem ww_pr
 wmena ajw_pr aw_fut aw_pr ow_pr ww_pr
-wmena| ajw_pr ath_w_aor aw_fut aw_pr ow_pr ww_pr
+wmenai ajw_pr ath_w_aor aw_fut aw_pr ow_pr ww_pr
 wmenain ajw_pr aw_fut aw_pr ow_pr ww_pr
 wmenais ajw_pr aw_fut aw_pr ow_pr ww_pr
 wmenaisi ajw_pr aw_fut aw_pr ow_pr ww_pr
@@ -2174,7 +2174,7 @@ wouswn ww_pr
 wqi ath_w_aor omi_pr
 ws ath_w_aor omi_pr ow_pr perf2_act perf_act ww_pr
 wsa ajw_pr aw_fut aw_pr perf2_act
-wsa| ajw_pr aw_fut aw_pr perf2_act
+wsai ajw_pr aw_fut aw_pr perf2_act
 wsain ajw_pr aw_fut aw_pr perf2_act
 wsais ajw_pr aw_fut aw_pr perf2_act
 wsaisi ajw_pr aw_fut aw_pr perf2_act

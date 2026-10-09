@@ -119,9 +119,30 @@ $ echo 'cactus' | MORPHLIB=stemlib bin/cruncher -S -L
 `python/` contains **morpheus-toolkit**, a Unicode/JSON layer over the analyzer:
 UTF-8 in, structured analyses (lemma, fine-grained POS, features) out, with
 frequency-based ranking of the candidate readings. See
-[`python/README.md`](python/README.md) for install, CLI, and the measured effect
+[`python/README.md`](python/README.md) for install, CLI, the measured effect
 of ranking (top-1 lemma accuracy +~6 points on the SBLGNT and the Apostolic
-Fathers). Build the analyzer with `scripts/build.sh` first.
+Fathers), and LXX annotation support. Build the analyzer with `scripts/build.sh`
+first.
+
+## Septuagint (LXX)
+
+The Greek stemlibs include a generated `stemsrc/nom.lxx` derived from a reference
+morphological analysis of the Septuagint: ~4,500 proper names Morpheus lacked
+(Ἰσραήλ, Δαυίδ, Ἱερουσαλήμ, …) plus a curated set of common words (σάββατον,
+ἀμνός, τρυβλίον, …). The verb sources gained base entries (εὐλογέω, ἐγγίζω) and
+explicit inflection lines for forms the generative paradigms miss. Against that
+reference corpus Morpheus now analyzes **99.81%** of all 623,685 LXX tokens;
+`todo.md` (Rounds 1–3) has the full story and metrics.
+
+Regenerate the entries from a local checkout of the reference corpus:
+
+```bash
+scripts/build_lxx_stemlib.py --corpus-dir /path/to/lxx-corpus   # or LXX_CORPUS_DIR
+bash scripts/build-stemlib.sh                                   # rebuild the stemlibs
+```
+
+The toolkit can also produce a full, disambiguated annotation of the whole corpus in
+the reference format — see [`python/README.md`](python/README.md#the-septuagint-lxx).
 
 ## Tests
 

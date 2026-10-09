@@ -13,6 +13,9 @@ this package makes it usable on arbitrary Greek texts:
   wrong reading first surprisingly often (e.g. `θεοῦ` → the verb θεάομαι).
 - **Tokenization** — splits raw Greek text into tokens.
 - **Alignment** — uses the engine's `-q` delimiter so misses stay in position.
+- **Case handling** — Greek input is normalized to lowercase beta code before it
+  reaches the analyzer (which only matches lowercase), so corpus-style uppercase
+  input works as-is; Latin passes through untouched.
 
 ## Install
 
@@ -47,7 +50,7 @@ scripts/analyze_corpus.py ../apostolic-fathers/data/morph/*.txt \
     --ref-field 1 --token-field 5 --lemma-field 7 --lang-field 8 --lang-value grc
 ```
 
-The Apostolic Fathers (Greek, 63,222 tokens) come out at **98.2% analyzed**.
+The Apostolic Fathers (Greek, 63,222 tokens) come out at **98.4% analyzed**.
 
 ## Python
 
@@ -107,8 +110,11 @@ candidate; "before" = Morpheus order, "freq" = after frequency ranking):
 | Corpus | tokens | coverage | top-1 before | top-1 freq | POS |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | SBLGNT (MorphGNT) | 137,554 | 93.7% | 86.7% | **93.0%** | 76.6% |
-| Apostolic Fathers (all) | 63,222 | 90.9% | 84.5% | **89.9%** | 74.6% |
-| — of which MorphGNT-sourced | 52,094 | 96.4% | 89.7% | **95.7%** | 75.9% |
+| Apostolic Fathers (all) | 63,222 | 91.2% | 84.8% | **90.1%** | 74.3% |
+| — of which MorphGNT-sourced | 52,094 | 96.5% | 89.8% | **95.9%** | 75.5% |
+
+The Apostolic Fathers rows were re-measured after the LXX stemlib additions (see
+below); the SBLGNT row predates them and was not re-run.
 
 Ranking adds ~6 points of top-1 lemma accuracy over Morpheus's native order,
 out of domain. The lower numbers on the `grc_proiel_lg` subset reflect the noise
@@ -123,6 +129,46 @@ frequency ranking, so both are off by default:
 They need a *learned* emission model (P(lemma | tag)) and a proper tagger to pay
 off; the bundled hand-built model is not enough.
 
+## The Septuagint (LXX)
+
+Morpheus's Greek stemlibs carry a generated `nom.lxx` with ~4,500 proper names and
+curated common words taken from a reference morphological analysis of the LXX, plus
+explicit verb entries for inflections the generative paradigms miss. Against that
+corpus (623,685 tokens) Morpheus now analyzes **99.81%**; the residual 0.19% is
+interjections and a handful of rare forms. The stemlib entries are regenerated with
+`scripts/build_lxx_stemlib.py` — see the root [README](../README.md#septuagint-lxx).
+
+Two disambiguation models trained on that corpus are bundled in `data/`:
+`pos_bigram_lxx.json` (16 coarse POS tags) and `lemma_frequencies_lxx.json`
+(12,943 lemmas). Rebuild them from a local checkout of the reference corpus:
+
+```bash
+scripts/build_pos_model.py --format mlxx --corpus-dir /path/to/lxx-corpus
+scripts/build_lemma_frequencies.py --format mlxx --corpus-dir /path/to/lxx-corpus
+```
+
+### Full-corpus annotation
+
+`scripts/build_morph_lxx.py` analyzes every token of the corpus with Morpheus —
+two-pass accent handling, frequency ranking, Viterbi POS-bigram disambiguation — and
+writes re-annotated files in the reference format (`form type parse lemma [prefix]`,
+with `parse` = Morpheus's full 8-char parsing code):
+
+```bash
+scripts/build_morph_lxx.py --corpus-dir /path/to/lxx-corpus \
+    [--out-dir tmp/lxx/morph-lxx]
+```
+
+Tokens with no candidate fall back to the corpus's own annotation (counted per book
+in `summary.txt`), so the output is complete. Lemma convention is compound lemmas in
+canonical beta, uppercased to match the corpus style.
+
+Agreement with the reference corpus on Morpheus-analyzed tokens: lemma **90.01%**,
+coarse POS **85.11%**, parse fields **76.24%**. Both models were trained on this same
+corpus, so these numbers measure domain consistency as much as absolute accuracy — a
+floor for untagged LXX text, not a ceiling claim. The largest disagreement is
+dictionary-form convention (articles/pronouns), which is flip-able in a follow-up.
+
 ## Known limitations
 
 - **POS granularity.** Morpheus tags nouns, adjectives, pronouns, articles and
@@ -132,8 +178,10 @@ off; the bundled hand-built model is not enough.
 - **Contextual ranking is experimental.** The hand-written context rules in
   `ranking.py` *hurt* accuracy and the POS-bigram Viterbi tagger in `tagger.py`
   merely matches frequency ranking; both are off by default.
-- **Coverage.** ~1.6% of NT tokens get no analysis, dominated by **biblical proper
-  names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`. Enable
+- **Coverage.** A small fraction of NT tokens gets no analysis, historically dominated
+  by **biblical proper names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`;
+  coverage improved slightly after the LXX additions (`nom.lxx`) since many biblical
+  names are shared. Enable
   `unknown_as_proper=True` (CLI: `--unknown-as-proper`) to give unanalyzed tokens a
   synthetic proper-noun analysis (lemma = surface, POS `N`/`NP`, flagged
   `proposed=True`). This brings the analysis rate to **100%** on both the SBLGNT and

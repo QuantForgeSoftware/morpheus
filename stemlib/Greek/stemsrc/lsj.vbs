@@ -11323,6 +11323,9 @@
 :le:e)gghrotrofe/w
 :de:e)gghrotrof ew_denom
 
+:le:e)ggi/zw
+:de:e)gg izw
+
 :le:e)ggia/w
 :de:e)gg iaw_denom
 
@@ -20307,6 +20310,9 @@
 
 :le:eu)lhmate/w
 :de:eu)lhmat ew_denom
+
+:le:eu)loge/w
+:de:eulog ew_denom
 
 :le:eu)logi/zw
 :de:eu)log izw

@@ -6729,6 +6729,11 @@
 @ end:o/menai aor act inf
 @ end:o/men aor act inf
 :vb:dw/meqon  omi_aor 1st dual aor subj act epic
+# LXX optatives missing (o_stem has no optative ending table) — Round 2.
+# omi_pr is the real stemtype (GenIrregForm requires one; o_stem alone is
+# only a derivtype and fails with "no stemtype seen").
+:vb:dw/|h omi_pr o_stem aor opt act 3rd sg
+:vb:dw/|hs omi_pr o_stem aor opt act 2nd sg
 
 :le:di/emai
 :vs:di emi_pr
@@ -8865,6 +8870,9 @@
 @ end:ei 3rd sg plup ind act epic
 :vs:ei)lhlouq perf_act,attic_redupl,epic
 :vb:ei)lh/louqmen perf_act 1st pl perf ind act
+# LXX aorist variants missing from the generative paradigm (Round 2)
+:vb:h)/lqosan aor2 aor ind act 3rd pl
+:vb:e)lqe/twsan aor2 aor imperat act 3rd pl
 
 :le:e)rw=
 :vs:e)r ew_fut
@@ -9137,6 +9145,19 @@
 ;fu
 ;ao syll_aug
 ;ao
+# LXX forms missing from the generative paradigm (Round 2). The deriv path
+# rejects non-reduplicated perfect stems (derivio.c checkcomderiv2), so -e/w
+# pp participles never generate; ;pp/@ mid declarations do not reach vbind.
+# Explicit lines below use the reference corpus's exact surface spellings;
+# FixRecAcc keeps stored accents, so each round-trips exactly through GenIrregForm.
+:vb:eu)loghme/nos perfp_vow part masc nom sg
+:vb:eu)loghme/non perfp_vow part neut nom acc sg
+:vb:eu)loghme/nh perfp_vow part fem nom sg
+:vb:eu)loghme/noi perfp_vow part masc nom pl
+:vb:eu)loghme/na perfp_vow part neut acc pl
+:vb:eu)lo/ghntai ew_pr pres ind mid 3rd pl
+:vb:eu)logh/kamen perf_act perf ind act 1st pl
+:vb:eu)lo/ghkas perf_act perf ind act 2nd sg
 
 :le:eu)mari/zw
 :de:eu)ma^r izw comp_only
@@ -12735,6 +12756,18 @@
 :vb:ke/kraxqi perf2_act perf imperat act 2nd sg
 :vs:kekrag w_stem,redupl imperat act 2nd pl
 :vb:e)kekra/geite perf2_act 2nd pl plup ind act attic
+# LXX reduplicated aorist forms missing from the generative paradigm (Round 2)
+:vb:e)ke/kraca w_stem aor ind act 1st sg
+:vb:e)ke/kracan w_stem aor ind act 3rd pl
+:vb:e)ke/kracen w_stem aor ind act 3rd sg
+# The corpus attests both spellings of this form (κεκράξατε ×6, ἐκεκράξατε ×1).
+:vb:kekra/cate w_stem aor imperat act 2nd pl
+:vb:e)kekra/cate w_stem aor ind act 2nd pl
+:vb:ke/kracon w_stem aor imperat act 2nd sg
+:vb:e)ke/kragon w_stem imperf ind act 3rd pl
+:vb:kekra/cantes w_stem aor part act masc nom pl
+:vb:kekra/cai w_stem aor inf act
+:vb:kekrage/twsan w_stem aor imperat act 3rd pl
 
 :le:krai/nw
 :vb:kekra/antai perfp_n 3rd sg perf mp ind epic
@@ -13421,6 +13454,34 @@
 @ mid
 ;pf,-hk,ionic
 ;va,verb_adj1
+# LXX forms missing from the generative paradigm (Round 2):
+# future middle (generation drops the mu: lhy), aorist passive,
+# aorist active -osan/-an variants, imperfect middle.
+:vb:lh/myomai reg_fut fut mid ind 1st sg
+:vb:lh/myh reg_fut fut mid ind 2nd sg
+:vb:lh/myetai reg_fut fut mid ind 3rd sg
+:vb:lh/myh| reg_fut fut mid ind 2nd sg
+:vb:lh/myesqe reg_fut fut mid ind 2nd pl
+:vb:lh/myontai reg_fut fut mid ind 3rd pl
+:vb:lh/myo/meqa reg_fut fut mid ind 1st pl
+:vb:lh/myesqai reg_fut fut mid inf
+:vb:lhmyo/menos reg_fut part mid masc nom sg
+:vb:lhmyo/menon reg_fut part mid neut nom acc sg
+:vb:e)lh/mfqh aor_pass aor pass ind 3rd sg
+:vb:e)lh/mfqhs aor_pass aor pass ind 2nd sg
+:vb:e)lh/mfqhn aor_pass aor pass ind 1st sg
+:vb:e)lh/mfqhsan aor_pass aor pass ind 3rd pl
+:vb:lhmfqh=nai aor_pass aor pass inf
+:vb:lhmfqh/setai perfp_p fut pass ind 3rd sg
+:vb:lhmfqh/sontai perfp_p fut pass ind 3rd pl
+# The corpus spells λημφθήτω unaccented in beta but accented (circumflex) in
+# its Greek column. Store the standard accented spelling; the unaccented token
+# resolves via ignore_accents mode, as with αλληλουία.
+:vb:lhmfqh=tw aor_pass aor imperat act 2nd sg
+:vb:e)la/bosan aor2 aor ind act 3rd pl
+:vb:e)/laban aor2 aor ind act 3rd pl
+:vb:labe/twsan aor2 aor imperat act 3rd pl
+:vb:e)lamba/nosan w_stem imperf mid ind 3rd pl
 
 :le:lampeta/w
 :de:lampet aw_denom
@@ -16889,6 +16950,11 @@
 ;pr,ew_pr ionic
 ;pf,-ak syll_aug
 ;pp,-a_ perfp_vow syll_aug r_e_i_alpha
+# LXX aorist variants missing from the generative paradigm (Round 2)
+:vb:ei)/dosan aor2 aor ind act 3rd pl
+:vb:ei)=dan aor2 aor ind act 3rd pl
+:vb:i)de/twsan aor2 aor imperat act 3rd pl
+:vb:ei)/dhsan aor2 aor ind act 3rd pl ionic
 
 :le:o)rga/zw
 :de:o)rg azw
@@ -36928,6 +36994,9 @@
 :le:e)gghrotrofe/w
 :de:e)gghrotrof ew_denom
 
+:le:e)ggi/zw
+:de:e)gg izw
+
 :le:e)ggia/w
 :de:e)gg iaw_denom
 
@@ -45912,6 +45981,9 @@
 
 :le:eu)lhmate/w
 :de:eu)lhmat ew_denom
+
+:le:eu)loge/w
+:de:eulog ew_denom
 
 :le:eu)logi/zw
 :de:eu)log izw

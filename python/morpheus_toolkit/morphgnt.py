@@ -1,6 +1,6 @@
 """
-Map a Morpheus analysis to MorphGNT/CCAT POS and parsing codes, so results can be
-compared with (or merged into) MorphGNT-style corpora.
+Map a Morpheus analysis to MorphGNT-style POS and parsing codes, so results can be
+compared with (or merged into) such tagged corpora.
 
 Parsing code layout (8 chars): person, tense, voice, mood, case, number, gender,
 degree; `-` marks an inapplicable category. E.g. ``3AAI-S--`` (aorist indicative
@@ -41,6 +41,18 @@ def _first(values, table) -> str:
         if value in table:
             return table[value]
     return "-"
+
+
+def coarse_pos(corpus_type: str) -> str:
+    """Map a reference-corpus fine-grained type code to the coarse POS tag.
+
+    Corpus types are lexical classes (``N1A``, ``VAI``, ``VF2``, …); the tagger's
+    state space is the coarse POS, so take the first letter — except two-letter
+    R-codes (RA/RP/RD/RR/RI), which are kept whole.
+    """
+    if len(corpus_type) == 2 and corpus_type.startswith("R"):
+        return corpus_type
+    return corpus_type[:1] or "?"
 
 
 def pos_code(analysis: Analysis) -> str:
