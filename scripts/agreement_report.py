@@ -11,17 +11,21 @@ edition); the column indices are configurable. For every token we report:
   POS           fine-grained POS equals the gold POS
 
 Ranking is frequency-based (and optionally contextual); the reference frequency
-table is the bundled NT table.
+table defaults to the bundled NT table and can be overridden with --frequencies
+(e.g. the bundled LXX or AF tables) — --joint then uses that file's by_pos counts.
+The tagger model likewise defaults to the bundled NT bigrams (--model overrides).
 
 Examples:
   scripts/agreement_report.py --morphgnt-dir ~/Code/bibloi/data/morphgnt --limit 20000
-  scripts/agreement_report.py ~/Code/apostolic-fathers/data/morph/011-didache.txt \
-      --lemma-field 7 --pos-field 2 --lang-field 8 --lang-value grc --by-source
+  scripts/agreement_report.py /path/to/af-corpus/data/morph/*.txt \
+      --lemma-field 7 --pos-field 2 --lang-field 8 --lang-value grc --by-source \
+      --frequencies python/morpheus_toolkit/data/lemma_frequencies_af.json
 """
 from __future__ import annotations
 
 import argparse
 import glob
+import json
 import os
 import sys
 from dataclasses import dataclass, field
@@ -126,6 +130,17 @@ def main() -> int:
     parser.add_argument("--tagger", action="store_true", help="also evaluate the POS-bigram Viterbi tagger")
     parser.add_argument("--emission-weight", type=float, default=3.0)
     parser.add_argument("--joint", action="store_true", help="rank by joint (lemma, POS) frequency")
+    parser.add_argument(
+        "--frequencies",
+        default="",
+        help="path to a lemma-frequency JSON (default: the bundled NT table); "
+             "with --joint its by_pos counts are used for ranking",
+    )
+    parser.add_argument(
+        "--model",
+        default="",
+        help="path to a POS-bigram model JSON (default: the bundled NT model)",
+    )
     args = parser.parse_args()
 
     paths = list(args.paths)
@@ -143,12 +158,17 @@ def main() -> int:
     for row in rows:
         row.beta = to_beta(row.token)
 
+    if args.frequencies:
+        with open(args.frequencies, encoding="utf-8") as handle:
+            freq_data = json.load(handle)
+        frequencies = freq_data.get("frequencies", freq_data)
+        joint = freq_data.get("by_pos") if args.joint else None
+    else:
+        frequencies = load_default_frequencies()
+        joint = load_default_joint_frequencies() if args.joint else None
+
     runner = MorpheusRunner()
-    ranker = Ranker(
-        load_default_frequencies(),
-        use_context=False,
-        joint_frequencies=load_default_joint_frequencies() if args.joint else None,
-    )
+    ranker = Ranker(frequencies, use_context=False, joint_frequencies=joint)
 
     sent = [row for row in rows if row.beta]
     analyses_by_token = runner.analyze_beta([row.beta for row in sent])
@@ -168,9 +188,11 @@ def main() -> int:
 
     tagger_chosen = None
     if args.tagger:
-        tagger_chosen = PosTagger(
-            load_default_pos_model(), emission_weight=args.emission_weight
-        ).tag(scored)
+        model = (
+            json.load(open(args.model, encoding="utf-8"))
+            if args.model else load_default_pos_model()
+        )
+        tagger_chosen = PosTagger(model, emission_weight=args.emission_weight).tag(scored)
 
     for index, row in enumerate(sent):
         analyses = analyses_by_token[index]
