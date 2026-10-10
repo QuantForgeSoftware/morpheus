@@ -140,7 +140,8 @@ interjections and a handful of rare forms. The stemlib entries are regenerated w
 
 Two disambiguation models trained on that corpus are bundled in `data/`:
 `pos_bigram_lxx.json` (16 coarse POS tags) and `lemma_frequencies_lxx.json`
-(12,943 lemmas). Rebuild them from a local checkout of the reference corpus:
+(12,943 lemmas, with plain frequencies plus joint lemma×POS counts). Rebuild
+them from a local checkout of the reference corpus:
 
 ```bash
 scripts/build_pos_model.py --format mlxx --corpus-dir /path/to/lxx-corpus
@@ -156,18 +157,43 @@ with `parse` = Morpheus's full 8-char parsing code):
 
 ```bash
 scripts/build_morph_lxx.py --corpus-dir /path/to/lxx-corpus \
-    [--out-dir tmp/lxx/morph-lxx]
+    [--out-dir tmp/lxx/morph-lxx] [--dictionary-forms] [--base-lemmas]
 ```
 
 Tokens with no candidate fall back to the corpus's own annotation (counted per book
 in `summary.txt`), so the output is complete. Lemma convention is compound lemmas in
 canonical beta, uppercased to match the corpus style.
 
-Agreement with the reference corpus on Morpheus-analyzed tokens: lemma **90.01%**,
-coarse POS **85.11%**, parse fields **76.24%**. Both models were trained on this same
-corpus, so these numbers measure domain consistency as much as absolute accuracy — a
-floor for untagged LXX text, not a ceiling claim. The largest disagreement is
-dictionary-form convention (articles/pronouns), which is flip-able in a follow-up.
+Two opt-in convention modes align the output with the reference's dictionary-form
+practice (both off = natural Morpheus output):
+
+- **`--dictionary-forms`** — closed-set surface forms get the reference's
+  dictionary-form convention: articles → ὁ/RA, personal pronouns → ἐγώ|σύ/RP,
+  demonstratives → family nominative/RD (three embedded tables derived from the
+  corpus; unambiguous forms are forced before Viterbi, homographic article/relative
+  pairs stay contextual). Where Morpheus offers the target lemma in several same-POS
+  feature readings (masc/neut homographs), a per-spelling tie-break table decides —
+  the reference's own accent notation correlates strongly with the reading
+  (`AU)TOU=` is 97% GSM, `AU)TOU\S` ~100% APM).
+- **`--base-lemmas`** — compound verbs lemmatize to the base verb (the preverb stays
+  in the prefix column). A preverb is stripped only when the remainder resolves as an
+  attested verb; contracted compounds (δια+ἔρχομαι → διέρχομαι) are recovered by
+  tail-matching guarded on attested preverb remnants.
+
+Agreement with the reference corpus on Morpheus-analyzed tokens, natural output vs
+both conventions enabled:
+
+| mode | lemma | coarse POS | parse fields |
+|---|---|---|---|
+| natural (no flags) | 90.25% | 85.09% | 76.26% |
+| `--dictionary-forms --base-lemmas` | **94.23%** | **90.54%** | **79.75%** |
+
+Both models were trained on this same corpus, so these numbers measure domain
+consistency as much as absolute accuracy — a floor for untagged LXX text, not a
+celling claim. Residual disagreement is dominated by documented reference quirks
+(surface-form lemmas like τοῦ→τοῦ; ἰδοὺ lemmatized as ὁράω), the ἕως/ἠώς homograph
+(277 tokens), and ~286 compound verbs the reference keeps unstripped while the
+base-lemma heuristic strips (etymologically they are compounds).
 
 ## Known limitations
 

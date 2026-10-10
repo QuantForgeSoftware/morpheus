@@ -87,6 +87,32 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   Scripts take `--corpus-dir` / env `LXX_CORPUS_DIR`; generated reports use a neutral
   label. The user greps the working tree — committed files, tmp/ scratch, and build
   artifacts must all stay clean.
+- **The reference corpus is UPPERCASE beta code with its own dialect quirks**
+  (Round 6): breathings follow the letter (`A)PE...`, not `APE...`), `/` is a plain
+  syllable separator inside words (`KURI/OU` = κυρίου — substring greps like `RIOU`
+  miss it), and `\`, `=`, `|` are accent markers used inconsistently for the same word
+  (αὐτοῦ appears as `AU)TOU=`, `AU)TOU\S`, `AU)TOU/S`). Never assume a spelling: key
+  everything through `canon()` (`to_beta∘from_beta` + lowercase), and remember one word
+  can occupy several canon keys that must all be covered by any table.
+- **The eval's "top lemma disagreements" list is misleading** (Round 6): it sorts by
+  *total* form frequency and prints only the first disagreeing line, so a rare quirk on a
+  frequent form looks like a mass error (ὅτι read as ×4,044; actually 7/4044). Always
+  verify with true per-form mismatch counts before sizing a "prize pool".
+- **Joint-frequency fallback: score unattested (lemma, POS) pairs at a floor of one
+  occurrence — never zero, never full plain frequency** (Round 6): the reference's type
+  scheme and Morpheus's POS disagree for the same lemma (αὐτός A vs RD), so zero kills
+  correct candidates; full plain frequency over-credits them (σός(N) 0.432 vs σύ(RP)
+  0.838 left a gap bigram context flips). An unattested pair can never be the gold reading
+  of any token, so the floor only removes wrong answers.
+- **The Viterbi tagger keeps one candidate per coarse POS (first on score ties)**
+  (Round 6): feature-level ambiguity within a POS — masc/neut homographs, duals — is
+  resolved arbitrarily, and candidates with empty parse codes pass field comparison
+  vacuously (no comparable pairs ⇒ True). Break same-POS ties explicitly (per-spelling
+  reference aggregates; the corpus's accent notation encodes readings) instead of trusting
+  Morpheus's internal candidate order.
+- **`Analysis.lemma`/`.variants()` are Unicode, frequency-table keys normalized Unicode**
+  (Round 6): compare via `normalize_lemma()`, never raw literal equality — `from_beta`
+  can return NFD and precomposed Greek literals won't match it.
 
 ## Python
 

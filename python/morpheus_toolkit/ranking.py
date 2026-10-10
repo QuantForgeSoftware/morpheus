@@ -97,16 +97,32 @@ class Ranker:
     def frequency_score(self, analysis: Analysis) -> float:
         # Prefer the joint (lemma, POS) count when we have it: it separates
         # homographs such as o( as an article (RA) vs a relative pronoun (RR).
+        # The reference type scheme and Morpheus's POS do not always agree for
+        # the same lemma (αὐτός is tagged A here but RD in the reference), so a
+        # candidate whose POS has no joint count must not score zero.
         if self.joint:
             best = 0
             seen = False
+            known = False
             for variant in analysis.variants():
                 row = self.joint.get(normalize_lemma(variant))
-                if row:
+                if not row:
+                    continue
+                known = True
+                count = row.get(analysis.pos, 0)
+                if count:
                     seen = True
-                    best = max(best, row.get(analysis.pos, 0))
+                    best = max(best, count)
             if seen:
                 return math.log1p(best) / self.log_max_joint if self.log_max_joint else 0.0
+            if known:
+                # The reference knows this lemma but never pairs it with this POS.
+                # Such a pair cannot be the gold reading of any token, so score it
+                # as a single occurrence: enough to beat unlisted lemmas (which
+                # have no row and thus no plain frequency), not enough to outrank
+                # attested readings — crediting it with full lemma frequency would
+                # over-promote e.g. σός(N) past σύ(RP) or ὅστις(RR) past ὅτι(C).
+                return math.log1p(1) / self.log_max_joint if self.log_max_joint else 0.0
         frequency = max(
             (self.frequencies.get(normalize_lemma(variant), 0) for variant in analysis.variants()),
             default=0,
