@@ -1,0 +1,35 @@
+# Elided prepositions and conjunctions (apocope before a vowel), Round 7.
+# The classical stemlibs carry only the full forms; Koine texts (Apostolic
+# Fathers) use elided spellings (δι', κατ', ...) that Morpheus could not
+# analyze at all. Lemmas match the existing full-form entries exactly so both
+# spellings share one lemma for frequency ranking. Hand-curated source file
+# (picked up automatically by the nomind build: stemsrc/nom.* glob).
+
+:le:a)po/
+:wd:a)p prep
+:wd:a)f prep
+
+:le:e)pi/
+:wd:e)p prep
+:wd:e)f prep
+
+:le:kata/
+:wd:kat prep
+:wd:kaq prep
+
+:le:para/
+:wd:par prep
+
+:le:meta/
+:wd:met prep
+:wd:meq prep
+
+:le:u(po/
+:wd:u(p prep
+:wd:u(f prep
+
+:le:dia/
+:wd:di prep
+
+:le:a)lla/
+:wd:a)ll conj

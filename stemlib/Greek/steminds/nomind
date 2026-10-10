@@ -24,7 +24,7 @@
 *(agnw :*(/agnwn:n_nos:masc
 *(agnwnei :*(/agnwn:os_h_on
 *(agnwnid :*(agnwni/dhs:hs_ou:masc:stem_acc
-*(a|d :*(/aidhs-pl:hs_ou:masc:dual:pers_name :*(/aidhs-pl:hs_ou:masc:pl :*(/aidhs-pl:hs_ou:masc:sg:pers_name :*(/aidhs:hs_ou:masc:sg:pers_name
+*(aid :*(/aidhs-pl:hs_ou:masc:dual:pers_name :*(/aidhs-pl:hs_ou:masc:pl :*(/aidhs-pl:hs_ou:masc:sg:pers_name :*(/aidhs:hs_ou:masc:sg:pers_name
 *(aidobat :*(aidoba/ths:hs_ou:masc:stem_acc
 *(aidofoit :*(aidofoi/ths:hs_ou:masc:stem_acc
 *(al :*(/alai:h_hs:fem:pl:suff_acc :*(/alis:is_ews:masc :*(/alos:os_ou:masc :*(/alus:us_uos:fem :*(aleu/s:eus_ews:masc:suff_acc
@@ -22334,6 +22334,7 @@
 2a)ekhti a)e/khti:a)e/khti:adverb:epic
 2a)erdhn a)e/rdhn:a)e/rdhn:adverb
 2a)eroqen a)ero/qen:a)ero/qen:adverb
+2a)f :a)po/:prep
 2a)fanei a)fanei/:a)fanei/:adverb
 2a)far a)/far:a)/far:adverb:poetic
 2a)farei a)farei/:a)farei/:adverb
@@ -22434,6 +22435,7 @@
 2a)lhqes a)/lhqes:a)lhqh/s:adverb
 2a)lkar a)/lkar:a)/lkar:irreg_decl3:neut:nom/voc/acc
 2a)lki a)lki/:a)lki/:irreg_decl3:fem:dat:sg
+2a)ll :a)lla/:conj
 2a)lla a)lla/:a)lla/:adverb
 2a)llac a)lla/c:a)lla/c:adverb
 2a)llagdhn a)lla/gdhn:a)lla/gdhn:adverb
@@ -22683,6 +22685,7 @@
 2a)nwterw a)nwte/rw:a)/nw2:adverb:irreg_comp
 2a)nwterwqen a)nwte/rwqen:a)nwte/rwqen:adverb
 2a)ollhdhn a)ollh/dhn:a)ollh/dhn:adverb
+2a)p :a)po/:prep
 2a)pacaplws a)pacaplw=s:a)pacaplw=s:adverb
 2a)page a)/page:a)/page:adverb
 2a)pai a)pai/:a)po/:prep:poetic
@@ -23159,6 +23162,7 @@
 2dhqa dhqa/:dhqa/:adverb:epic
 2dhqen dh=qen:dh=qen:adverb
 2dhta dh=ta:dh=ta:adverb
+2di :dia/:prep
 2dia di=a:di=os:os_h_on:fem:nom/voc:sg:epic dia/:dia/:prep
 2diaferontws diafero/ntws:diafero/ntws:adverb
 2diai diai/:dia/:prep:poetic
@@ -23501,6 +23505,7 @@
 2e)eikosi e)ei/kosi:ei)/kosi:numeral:epic
 2e)eikosin e)ei/kosin:ei)/kosi:numeral:epic e)ei/kosin:ei)/kosi:numeral:epic:nu_movable
 2e)eldwr e)e/ldwr:e)/ldwr:irreg_decl3:neut:nom/voc/acc:sg:epic
+2e)f :e)pi/:prep
 2e)fapac e)fa/pac:e)fa/pac:adverb
 2e)fechs e)fech=s:e)fech=s:adverb
 2e)fodeutikws e)fodeutikw=s:e)fodeutikw=s:adverb
@@ -23745,6 +23750,7 @@
 2e)nwpion e)nw/pion:e)nw/pios:prep
 2e)oikotws e)oiko/tws:e)oiko/tws:adverb
 2e)ontws e)o/ntws:o)/ntws:adverb:ionic
+2e)p :e)pi/:prep
 2e)paigdhn e)pai/gdhn:e)pai/gdhn:adverb
 2e)painoumenws e)painoume/nws:e)painoume/nws:adverb
 2e)pallac e)palla/c:e)palla/c:adverb
@@ -24386,6 +24392,7 @@
 2kanaxhdon kanaxhdo/n:kanaxhdo/n:adverb
 2kap ka/p:kata/:prep:poetic
 2kappa ka/ppa:ka/ppa:alphabetic:neut
+2kaq :kata/:prep
 2kaqa kaqa/:kaqa/:adverb
 2kaqapac kaqa/pac:kaqa/pac:adverb
 2kaqapan kaqa/pan:kaqa/pan:adverb
@@ -24413,7 +24420,7 @@
 2karroqen karro/qen:karro/qen:adverb
 2karta ka/rta:ka/rta:adverb
 2karterountws karterou/ntws:karterou/ntws:adverb
-2kat ka/t:kata/:prep:poetic
+2kat :kata/:prep ka/t:kata/:prep:poetic
 2kata ka/ta:kata/:prep kata/:kata/:prep
 2katabadhn kataba/dhn:kataba/dhn:adverb
 2katabeblhmenws katabeblhme/nws:katabeblhme/nws:adverb
@@ -24824,6 +24831,7 @@
 2menta)n me/nta)n:me/ntoi:particle menta)/n:me/ntoi:particle
 2mentoi me/ntoi:me/ntoi:particle
 2meo :e)gw/:pron1:masc/fem:gen:1st:sg:epic:enclitic
+2meq :meta/:prep
 2meqo meqo/:meqo/:adverb
 2mequ me/qu:me/qu:irreg_decl3:neut:nom/acc:sg
 2mequperbatws mequperbatw=s:mequperbatw=s:adverb
@@ -24841,6 +24849,7 @@
 2messhgus messhgu/s:meshgu/:adverb:epic
 2messoqen messo/qen:messo/qen:adverb
 2messoqi me/ssoqi:me/ssoqi:adverb messo/qi:messo/qi:adverb:poetic
+2met :meta/:prep
 2meta me/ta:meta/:prep meta/:meta/:prep
 2metabhxas :metabhxas:indecl:fem:sg:pers_name
 2metacu metacu/:metacu/:adverb
@@ -25711,7 +25720,7 @@
 2papappapappapappapai papappapappapappapai=:papappapappapappapai=:exclam
 2pappapappapai pappapappapai=:papai=:exclam pappapappapai=:pappapappapai=:exclam
 2pappwnumikws pappwnumikw=s:pappwnumikw=s:adverb
-2par pa/r:para/:prep:poetic
+2par :para/:prep pa/r:para/:prep:poetic
 2para pa/ra:para/:prep para/:para/:prep
 2parabeblhmenws parabeblhme/nws:parabeblhme/nws:adverb
 2parabebusmenws parabebusme/nws:parabebusme/nws:adverb
@@ -27134,6 +27143,7 @@
 2u(esin u(/esin:u(=s:irreg_decl3:masc/fem:dat:pl:nu_movable:poetic u(e/sin:ui(o/s:irreg_decl3:masc:dat:pl:nu_movable
 2u(essi u(/essi:u(=s:irreg_decl3:masc/fem:dat:pl:epic:aeolic
 2u(essin u(/essin:u(=s:irreg_decl3:masc/fem:dat:pl:epic:aeolic:nu_movable
+2u(f :u(po/:prep
 2u(feimenws u(feime/nws:u(feime/nws:adverb
 2u(fwmadon u(fwmado/n:u(fwmado/n:adverb
 2u(gia u(gia=:u(gih/s:hs_es:masc/fem:acc:sg u(gia=:u(gih/s:hs_es:neut:nom/voc/acc:pl
@@ -27152,6 +27162,7 @@
 2u(oiin u(/oii+n:u(=s:irreg_decl3:masc/fem:gen/dat:dual:epic
 2u(oin u(oi=n:u(=s:irreg_decl3:masc/fem:gen/dat:dual
 2u(os u(o/s:u(=s:irreg_decl3:masc/fem:gen:sg
+2u(p :u(po/:prep
 2u(pai u(pai/:u(po/:prep:epic
 2u(paiqa u(/paiqa:u(/paiqa:adverb
 2u(panta u(/panta:u(/panta:adverb
@@ -34746,7 +34757,7 @@ a)poklau :a)po/klauma:ma_matos:neut
 a)pokleis :a)po/kleisis:is_ews:fem :a)po/kleisma:ma_matos:neut
 a)pokleism :a)pokleismo/s:os_ou:masc:suff_acc
 a)pokleist :a)po/kleistos:os_on
-a)poklhis :a)po/kleisis:is_ews:fem
+a)poklh|s :a)po/kleisis:is_ews:fem
 a)poklhr :a)po/klhros:os_on
 a)poklhronom :a)poklhro/nomos:os_on
 a)poklhrws :a)poklh/rwsis:is_ews:fem
@@ -64107,7 +64118,7 @@ lhinom :lhino/mos:os_on:stem_acc
 lhist :lhi/stwr:wr_oros:masc:stem_acc :lh|sth/s:hs_ou:masc:ionic:suff_acc :lhisth/s:hs_ou:masc:suff_acc :lh|sth/s:hs_ou:masc:suff_acc :lhisto/s:os_h_on:suff_acc :lhistu/s:us_uos:fem:suff_acc
 lh|starx :lh/|starxos:os_ou:masc :lh|sta/rxhs:hs_ou:masc:stem_acc
 lh|stei :lh|stei/a:h_hs:fem:stem_acc
-lhisth :lhisth/r:r_ros:masc:stem_acc :lh|sth/r:r_ros:masc:stem_acc
+lh|sth :lh|sth/r:r_ros:masc:stem_acc :lhisth/r:r_ros:masc:stem_acc
 lh|sthri :lh|sth/rion:os_ou:neut
 lh|stik :lh|stiko/s:os_h_on:suff_acc
 lh|stodiwkt :lh|stodiw/kths:hs_ou:masc:stem_acc
