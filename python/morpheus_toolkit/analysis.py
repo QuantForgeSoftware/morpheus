@@ -65,9 +65,16 @@ class Analysis:
         return self.lemma_variants or (self.lemma,)
 
     def matches_lemma(self, gold: str) -> bool:
+        """True if any lemma variant equals ``gold`` after canonical normalization.
+
+        Both sides go through :func:`normalize_lemma` (NFC, lower-case,
+        homonym digits and internal markers stripped), so callers may pass raw
+        reference-corpus lemmas in either normalization form.
+        """
         from .beta import normalize_lemma
 
-        return any(normalize_lemma(variant) == gold for variant in self.variants())
+        target = normalize_lemma(gold)
+        return any(normalize_lemma(variant) == target for variant in self.variants())
 
     def feature_string(self) -> str:
         return " ".join(f"{key}={','.join(values)}" for key, values in self.features.items())

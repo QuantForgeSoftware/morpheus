@@ -64,8 +64,11 @@ def main() -> int:
         with open(path, encoding="utf-8", errors="replace") as handle:
             for line in handle:
                 fields = line.split()
-                if len(fields) < 3 or not re.search(r"[A-Za-z]", fields[0]):
-                    continue  # blank / chapter-verse header lines
+                # The letter guard is mlxx-only: LXX token lines start with a beta
+                # word while headers ("Gen 1:1") do not; MorphGNT-style files have
+                # numeric reference numbers in field 0 and no header lines.
+                if len(fields) < 3 or (args.format == "mlxx" and not re.search(r"[A-Za-z]", fields[0])):
+                    continue
                 if args.format == "mlxx":
                     if len(fields) >= 4 and PARSE_RE.fullmatch(fields[2]):
                         lemma_b = fields[3]
