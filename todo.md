@@ -1,78 +1,66 @@
-# Active plan — Morpheus × Apostolic Fathers (Round 7)
+# Active plan — Round 8 candidates: new corpora (needs approval)
 
-Rounds 1–6 live in [completed.md](completed.md). **User direction: do NOT change
-anything NT-related; improve Morpheus against the Apostolic Fathers corpus.**
-All five approved items are implemented, verified and committed. Working files in
-`tmp/af/` (git-ignored): evaluators (`eval_af.py`, `eval_out.py`, `bd_acc.py`,
-`gaps_af*.py`), snapshots (`ev2_*.txt`, `ev3_*.txt`), driver outputs
-(`morph-af/`, `morph-af-nocconv/`, `morph-af-top1/`), and the AF table sources.
+Round 7 (Apostolic Fathers) is complete and committed (`d760a3e`, `259df21`,
+`23b33d3`, `b3707de`); its full record now lives in [completed.md](completed.md).
+Working files for Round 8 go in `tmp/<corpus>/` (git-ignored).
 
-## Round 7 plan (all complete)
+## Context: where Morpheus stands, and what "improve" can still mean
 
-1. ✅ **Commit the two toolkit fixes** (guard fix + matches_lemma hardening) —
-   `d760a3e`. Verified: pytest 33/33; LXX rebuild byte-identical.
-2. ✅ **AF convention table + annotation pipeline** — `scripts/build_morph_af.py`
-   (`23b33d3`). Convention layer derived at run time from MorphGNT-derived gold
-   with three guards (single target per source lemma, ≥10 tokens, and M==0: no
-   agreeing trustworthy token for that choice). The M==0 guard rejects
-   form-dependent splits — κύριος/κυρία gender (10 mismatching vs 613 agreeing),
-   ἐγώ/κἀγώ enclitic (22/1198), ἐπεί/ἐπειδή (17/33) — which a plain single-target
-   guard would have applied globally and broken. Rejected pairs are printed in the
-   summary for auditability.
-3. ✅ **Stemlib additions for elided forms** — `stemsrc/nom.elided` + rebuilt
-   nomind (`259df21`). 13 elided forms (δι, κατ, παρ, μετ, ἀπ, ὑπ, ἐπ, ἀφ, ὑφ, ἐφ,
-   καθ, μεθ, ἀλλ) mapping to the existing full-form lemmas; resolve only in
-   accent-insensitive mode (`-n`), so default-mode behavior is unchanged and vbind
-   is byte-identical.
-4. ✅ **Bundle AF tables + repo tooling** — `lemma_frequencies_af.json` /
-   `pos_bigram_af.json` in `python/morpheus_toolkit/data/` (neutral source label,
-   LXX precedent); `scripts/agreement_report.py` gained `--frequencies/--model`
-   flags (`23b33d3`).
-5. ✅ **Upgrade the AF repo** — `tools/morpheus/analyze.py` rewritten as a
-   self-contained mirror of build_morph_af.py (runtime-derived tables, no stale
-   bundled copies; conventions on by default with `--no-conventions` escape); all
-   15 `data/morph-morpheus/*.txt` regenerated + new `.fb` sidecars and
-   `summary.txt`; README rewritten (reference-corpus name mentions removed);
-   committed locally in the AF repo (`2b51d98`, branch `morpheus-analysis`)
-   — **not pushed**.
+The Greek biblical side is near saturation: LXX 99.81% coverage (Round 2), NT
+~95% top-1 after the name additions, AF 99.35% / 96.6–97.4% lemma (Round 7).
+Remaining levers found in corpus research (2026-10-11):
 
-## Review section
+**Key caveat — most Perseus "morph texts" are circular.** Celano's OGA/OLA
+treebanks (45M Greek / 17M Latin words; the data behind morph.perseus.org) were
+auto-annotated *with Morpheus* (LemmatizedAncientGreekXML). They cannot serve as
+independent gold for improving Morpheus — at best a scale benchmark or POS-bigram
+source. The valuable resources are the **manually curated treebanks** and a few
+independent lemmatized corpora:
 
-**Headline numbers** (63,222 Greek tokens; driver = accent-insensitive mode +
-AF frequency ranking + top-1 candidate + convention layer):
+| corpus | size | annotation | license / access | improves |
+|---|---:|---|---|---|
+| **PapyGreek Treebanks** (Helsinki; Zenodo `10.5281/zenodo.5074307`) | 44K tokens, documentary papyri ca. 300 BCE–700 CE (Zenon archive letters, petitions) | semi-manual + reviewed, dependency-morphosyntax; TEI XML | CC BY-SA 4.0, free | **new Koine domain** — first test of Morpheus on papyrological Greek; safe stemlib additions from human-reviewed gold |
+| **PROIEL greek-nt** (Tischendorf 1869) | 140,763 tokens | fully manual morphosyntax + info structure; PROIEL XML **and CoNLL-X** | CC-BY-**NC**-SA 3.0, GitHub (`syntacticus/syntacticus-treebank-data`) | independent second NT gold — validates how much of our SBLGNT-based NT numbers are robust vs convention-fitted (some sections unannotated: HEB 13, catholics) |
+| **PROIEL latin-nt** (Jerome's Vulgate) + caes-gal/cic-att/per-aeth/pal-agr | ~113K tokens total | manual; CoNLL-X available | CC-BY-**NC**-SA 3.0, GitHub | first benchmark of the **Latin analyzer** (this checkout ships a full Latin stemlib — ~286K source lines — that has never been measured) |
+| **AGLDT / Perseids v2.1** (`PerseusDL/treebank_data`) | Greek ~190K words (Homer, Hesiod, Aeschylus, Sophocles, Thucydides 1, Aesop); Latin: Caesar, Cicero, Ovid, Petronius, Vergil… | manual by 200+ annotators; free on GitHub | open | classical register — expands/validates both languages beyond the biblical domain |
+| **Index Thomisticus** (Busa) | 11M lemmatized words, medieval Latin | classic lemma+POS per word; plain text at corpus.thomisticum.org (+ treebank subset) | free | large-scale Latin frequency table source |
+| OGA/OLA/GLAUx (Celano 2024) | 45M / 17M words | **auto, Morpheus-derived** → circular | open | not gold; scale benchmark only |
+| TLG | huge | subscription; abridged untagged | paid | skip unless user has access |
+| Hebrew (OSHB/SBLHBT) | — | — | free | N/A — this checkout has no Hebrew component |
 
-| subset | tokens | lemma | acc-insens lemma | POS | coverage |
-|---|---:|---:|---:|---:|---:|
-| all Greek | 63,222 | 91.1% | 92.1% | 75.3% | 99.35% (413 fallbacks) |
-| `source=MorphGNT` (trustworthy) | 52,094 | **96.6%** | **97.4%** | 75.7% | 99.95% |
-| `source=grc_proiel_lg` (machine gold) | 11,128 | 65.4% | 67.2% | 73.1% | 96.5% |
+No large freely available *patristic* tagged corpus exists (the AF repo remains
+the main one); PapyGreek is the closest new-domain gold in the user's register.
 
-- Baseline before this round: 90.4/74.3 (ALL), 96.3/75.5 (MG subset) with NT
-  tables, no `-n`, ~1,027 misses. The convention layer lifts the trustworthy
-  subset to 96.6% exact / 97.4% accent-insensitive lemma; `-n` mode cuts misses
-  from ~1,027 to 413 (elided forms + unaccented spellings).
-- **Config trade measured**: Viterbi (`--tagger`) costs ~1.4pp MG-subset lemma for
-  +1.0pp POS — the opposite of LXX, where it was net positive. Default is top-1
-  (lemma-first); `--tagger`/`--joint` available for POS-optimized output.
-- **Verification**: saved ev2 evaluator snapshots re-run byte-identical after all
-  toolkit changes (no behavioral drift); pytest 33/33; AF repo's analyze.py output
-  verified byte-identical to morpheus's build_morph_af.py across all 15 files.
-- **NT/LXX untouched**: no shared stemlib lemma changes, no NT table changes; the
-  elided entries resolve only in `-n` mode (default-mode controls re-checked).
+## Round 8 candidate plan (checkable; needs approval before implementation)
 
-**Decisions made this round** (veto-able):
-- Convention table derived at run time from gold rather than hardcoded: fully
-  reproducible from the corpus, self-auditing via the summary's applied/rejected
-  lists, and no Greek lemma pairs committed to morpheus.
-- Fallbacks keep the corpus's own annotation (original fields + source) with `.fb`
-  sidecars — LXX-driver parity; gaps stay visible instead of being dropped or
-  invented as synthetic proper nouns.
-- AF repo tables are derived at run time from its own gold (always current);
-  README pins morpheus master ≥ `23b33d3`. origin/master already contained every
-  toolkit feature analyze.py needs, so the AF repo is reproducible without a push.
+1. **PapyGreek round** (top priority for this project's domain): download the
+   Zenodo release; write a TEI-XML→TSV reader (token/lemma/morph, `_orig` vs
+   `_reg` layers); measure Morpheus coverage + lemma agreement on all 44K tokens;
+   add stemlib entries for missed forms (human-reviewed gold — safe to encode,
+   unlike machine gold); derive a papyrus frequency table if the numbers warrant.
+2. **Latin benchmark round**: read PROIEL latin-nt + AGLDT Latin via CoNLL-X;
+   measure coverage/lemma/POS of the Latin analyzer for the first time; build
+   `lemma_frequencies_latin.json` (Index Thomisticus or treebank gold) and a
+   first tuning pass mirroring Rounds 3–4. ⚠️ PROIEL is CC-BY-NC-SA: use it for
+   measurement/docs, but keep any derived tables out of committed files unless
+   the user accepts the license terms (Index Thomisticus-derived tables avoid
+   this).
+3. **PROIEL Greek NT cross-validation**: CoNLL-X reader; measure our current NT
+   numbers against a second independent human-verified text; document how much
+   holds up (and where SBLGNT conventions were overfit). Same NC-SA caveat for
+   committed artifacts — validation numbers in docs are fine.
+4. **Optional: classical Greek** (AGLDT ~190K words) if the user wants Morpheus
+   usable on classical texts; otherwise skip — register mismatch with the
+   biblical focus, and the stemlib already carries LSJ roots.
 
-**Open questions for the user:**
-- Push morpheus origin/master? (Round 7 adds three commits: `d760a3e`, `259df21`,
-  `23b33d3`.) The AF README pins `23b33d3`; pushing makes that pin real.
-- Push the AF repo's `morpheus-analysis` branch to its remote? (Currently local
-  only, per this round's default.)
+Each item is the same shape as Rounds 2–7 (format reader + measurement +
+optional tables/convention layer), so roughly one round each; items 1 and 3 are
+small enough to finish quickly. Working files in `tmp/papygreek/`,
+`tmp/proiel-nt/`, `tmp/latin/`.
+
+## Decisions needed from the user
+
+- Which item(s) to approve (and in what order)? Item 1 is the recommendation.
+- Round 7 leftovers: push morpheus origin/master (4 commits ahead of `75fface`)?
+  Push the AF repo's `morpheus-analysis` branch?
+- License comfort with CC-BY-NC-SA (PROIEL) for anything that would be committed.

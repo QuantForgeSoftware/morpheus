@@ -541,3 +541,81 @@ matching gold exactly); `summary.txt` reports the active conventions; pytest 33 
 - **Structural limit:** the tagger keys states by coarse POS, so feature-level ambiguity within
   a POS (masc/neut homographs of article forms) is resolved only where the reference's accent
   notation carries signal; genuinely ambiguous cases stay at chance.
+
+# Round 7: Morpheus × Apostolic Fathers — AF pipeline, convention layer, elided forms ✅
+
+**User direction: do NOT change anything NT-related; improve Morpheus against the
+Apostolic Fathers corpus instead.** All five approved items implemented, verified
+and committed (`d760a3e`, `259df21`, `23b33d3`, `b3707de`). Working files in
+`tmp/af/` (git-ignored): evaluators (`eval_af.py`, `eval_out.py`), snapshots
+(`ev2_*.txt`, `ev3_*.txt`), driver outputs, AF table sources.
+
+## Evidence gathered (63,222 Greek tokens: 52,094 MorphGNT-derived gold + 11,128 machine-model gold)
+
+- Verb mismatches on trustworthy gold are ~97% convention differences, not errors
+  (reduplication γίγνομαι→γίνομαι ×249; augment ἐθέλω→θέλω ×95; aorist-vs-base
+  εἶδον/εἶπον→ὁράω/λέγω ~160; accents ~116; act/mid ~90) — the Round-6 pattern.
+- The "interrogative gap" was an accent artifact (MorphGNT writes τίς, HF lines
+  τις): 42.6% → 0.2% under accent-insensitive comparison. No analyzer change needed.
+- Elided forms (544 tokens, all HF-sourced) were a real analyzer gap: Morpheus
+  returned no candidates for any of them.
+- Joint ranking hurts lemma on AF (unlike LXX): the reference tags adjectives N
+  where Morpheus says A; plain frequency is best for lemma, joint only for POS.
+
+## Tasks
+
+- [x] 1. Commit the two toolkit fixes (frequency-builder guard for MorphGNT-format
+      corpora — previously all token lines skipped, 106 vs 5,874 lemmas; and
+      `Analysis.matches_lemma()` normalizing both sides). Verified: pytest 33/33,
+      LXX rebuild byte-identical. (`d760a3e`)
+- [x] 2. AF convention table + annotation pipeline — `scripts/build_morph_af.py`
+      mirroring the LXX driver (accent-insensitive mode, AF frequency ranking,
+      optional Viterbi/joint). Convention layer derived at run time from
+      MorphGNT-derived gold with three guards: single target per source lemma,
+      ≥10 tokens, and **M==0** — no trustworthy token with that choice may agree
+      with the gold. The M==0 guard rejects form-dependent splits (κύριος/κυρία
+      gender 10-vs-613; ἐγώ/κἀγώ enclitic 22-vs-1198; ἐπεί/ἐπειδή 17-vs-33) that a
+      plain single-target guard would have applied globally and broken. Rejected
+      pairs are printed in the summary for auditability. (`23b33d3`)
+- [x] 3. Stemlib additions for elided forms — `stemsrc/nom.elided` (13 forms: δι,
+      κατ, παρ, μετ, ἀπ, ὑπ, ἐπ, ἀφ, ὑφ, ἐφ, καθ, μεθ, ἀλλ) mapping to existing
+      full-form lemmas; rebuilt nomind. Entries resolve only in accent-insensitive
+      mode (`-n`), so default-mode behavior is unchanged and vbind byte-identical.
+      (`259df21`)
+- [x] 4. Bundle AF tables + repo tooling — `lemma_frequencies_af.json` /
+      `pos_bigram_af.json` in `python/morpheus_toolkit/data/` (neutral source
+      label, LXX precedent); `scripts/agreement_report.py` gained
+      `--frequencies/--model` flags. (`23b33d3`)
+- [x] 5. Upgrade the AF repo — `tools/morpheus/analyze.py` rewritten as a
+      self-contained mirror (tables derived at run time from its own gold;
+      conventions on by default with `--no-conventions` escape); all 15
+      `data/morph-morpheus/*.txt` regenerated + new `.fb` sidecars and
+      `summary.txt`; README rewritten. Committed locally in the AF repo
+      (`2b51d98`, branch `morpheus-analysis`) — not pushed.
+
+## Review (Round 7)
+
+Headline numbers (driver = accent-insensitive mode + AF frequency ranking + top-1
+candidate + convention layer):
+
+| subset | tokens | lemma | acc-insens lemma | POS | coverage |
+|---|---:|---:|---:|---:|---:|
+| all Greek | 63,222 | 91.1% | 92.1% | 75.3% | 99.35% (413 fallbacks) |
+| `source=MorphGNT` (trustworthy) | 52,094 | **96.6%** | **97.4%** | 75.7% | 99.95% |
+| `source=grc_proiel_lg` (machine gold) | 11,128 | 65.4% | 67.2% | 73.1% | 96.5% |
+
+- Baseline before the round: 90.4/74.3 (ALL), 96.3/75.5 (MG subset) with NT
+  tables, no `-n`, ~1,027 misses. The convention layer lifts the trustworthy
+  subset to 96.6% exact / 97.4% accent-insensitive; `-n` mode cuts misses from
+  ~1,027 to 413 (elided forms + unaccented spellings).
+- **Config trade measured**: Viterbi (`--tagger`) costs ~1.4pp MG-subset lemma for
+  +1.0pp POS — the opposite of LXX, where it was net positive. Default is top-1
+  (lemma-first); `--tagger`/`--joint` available for POS-optimized output.
+- **Verification**: saved ev2 evaluator snapshots re-run byte-identical after all
+  toolkit changes; pytest 33/33; AF repo's analyze.py output verified
+  byte-identical to morpheus's build_morph_af.py across all 15 files; LXX driver
+  spot-check clean. NT/LXX untouched (no shared stemlib lemma changes).
+
+**Open questions for the user:** push morpheus origin/master (4 commits ahead of
+`75fface`; the AF README pins `23b33d3`, so pushing makes that pin real)? Push the
+AF repo's `morpheus-analysis` branch?
