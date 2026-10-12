@@ -1,0 +1,207 @@
+{
+ "source": "Greek letter numerals from the PapyGreek Treebanks v1.01 (CC BY-SA 4.0); Round 9 item 3",
+ "tokens_trained": 839,
+ "min_count": 2,
+ "forms": {
+  "*a": {
+   "lemma": "Α",
+   "count": 7
+  },
+  "*au": {
+   "lemma": "Αυ",
+   "count": 2
+  },
+  "*bf": {
+   "lemma": "Βφ",
+   "count": 2
+  },
+  "*e": {
+   "lemma": "Ε",
+   "count": 5
+  },
+  "*g": {
+   "lemma": "Γ",
+   "count": 4
+  },
+  "b": {
+   "lemma": "β",
+   "count": 74
+  },
+  "d": {
+   "lemma": "δ",
+   "count": 45
+  },
+  "f": {
+   "lemma": "φ",
+   "count": 3
+  },
+  "g": {
+   "lemma": "γ",
+   "count": 50
+  },
+  "i": {
+   "lemma": "ι",
+   "count": 24
+  },
+  "ib": {
+   "lemma": "ιβ",
+   "count": 24
+  },
+  "id": {
+   "lemma": "ιδ",
+   "count": 12
+  },
+  "ig": {
+   "lemma": "ιγ",
+   "count": 16
+  },
+  "iq": {
+   "lemma": "ιθ",
+   "count": 65
+  },
+  "iz": {
+   "lemma": "ιζ",
+   "count": 21
+  },
+  "iϛ": {
+   "lemma": "ιϛ",
+   "count": 22
+  },
+  "k": {
+   "lemma": "κ",
+   "count": 67
+  },
+  "kb": {
+   "lemma": "κβ",
+   "count": 21
+  },
+  "kd": {
+   "lemma": "κδ",
+   "count": 31
+  },
+  "kg": {
+   "lemma": "κγ",
+   "count": 14
+  },
+  "kq": {
+   "lemma": "κθ",
+   "count": 55
+  },
+  "kz": {
+   "lemma": "κζ",
+   "count": 9
+  },
+  "kϛ": {
+   "lemma": "κϛ",
+   "count": 13
+  },
+  "l": {
+   "lemma": "λ",
+   "count": 42
+  },
+  "lb": {
+   "lemma": "λβ",
+   "count": 4
+  },
+  "ld": {
+   "lemma": "λδ",
+   "count": 9
+  },
+  "le": {
+   "lemma": "λε",
+   "count": 11
+  },
+  "lg": {
+   "lemma": "λγ",
+   "count": 6
+  },
+  "lz": {
+   "lemma": "λζ",
+   "count": 5
+  },
+  "lϛ": {
+   "lemma": "λϛ",
+   "count": 11
+  },
+  "m": {
+   "lemma": "μ",
+   "count": 5
+  },
+  "mg": {
+   "lemma": "μγ",
+   "count": 2
+  },
+  "n": {
+   "lemma": "ν",
+   "count": 4
+  },
+  "nb": {
+   "lemma": "νβ",
+   "count": 3
+  },
+  "ng": {
+   "lemma": "νγ",
+   "count": 3
+  },
+  "nϛ": {
+   "lemma": "νϛ",
+   "count": 4
+  },
+  "oe": {
+   "lemma": "οε",
+   "count": 2
+  },
+  "p": {
+   "lemma": "π",
+   "count": 3
+  },
+  "q": {
+   "lemma": "θ",
+   "count": 17
+  },
+  "qi": {
+   "lemma": "ιθ",
+   "count": 3
+  },
+  "r": {
+   "lemma": "ρ",
+   "count": 11
+  },
+  "rc": {
+   "lemma": "ρξ",
+   "count": 4
+  },
+  "rn": {
+   "lemma": "ρν",
+   "count": 5
+  },
+  "sm": {
+   "lemma": "σμ",
+   "count": 2
+  },
+  "sn": {
+   "lemma": "σν",
+   "count": 2
+  },
+  "t": {
+   "lemma": "τ",
+   "count": 2
+  },
+  "x": {
+   "lemma": "χ",
+   "count": 3
+  },
+  "z": {
+   "lemma": "ζ",
+   "count": 16
+  },
+  "ϙb": {
+   "lemma": "ϙβ",
+   "count": 2
+  },
+  "ϛ": {
+   "lemma": "ϛ",
+   "count": 29
+  }
+ }
+}

@@ -141,6 +141,13 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
 
 ## Corpus tooling (annotation pipelines)
 
+- **Short beta forms collide with real words under accent-insensitive matching**
+  (Round 9): letter numerals like κε/κα/ιε match actual stems in `-n` mode
+  (κε→ἄν, ιε→εἶμι, ιη→κερατέα — 315 of PapyGreek's 348 "analyzed" letter-numeral hits
+  carry the wrong top-1), and conversely real one/two-letter particles exist in other
+  corpora. So synthetic-analysis features must fire only on UNANALYZED tokens, never
+  override analyzed ones; and "covered" ≠ correct — always check top-1 on the covered
+  set before celebrating a coverage gain.
 - **PapyGreek ALDT specifics** (Round 8): postag is 9 chars — pos person number
   tense mood voice GENDER CASE degree; gender precedes case (opposite of
   MorphGNT's order) and letters are lowercase. The editorial-marker zoo beyond

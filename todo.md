@@ -41,13 +41,13 @@ out of committed files (NC-SA), default NT behavior unchanged. Working files go 
    - [x] Verify: measured +0.6–1.6pp top-1 on SBLGNT/AF/PapyGreek (below the
      +2–4pp target — see review for why that is the ceiling); transfers to PROIEL
      greek-nt (independent gold); pytest 33/33.
-3. **PapyGreek numerals** (opt-in mode)
-   - [ ] Inspect ALDT numeral gold (postag `m`): forms, lemmas, marker patterns.
-   - [ ] Build bundled papyrus-numeral table from PapyGreek gold (CC BY-SA);
+3. **PapyGreek numerals** ✅ (see review below)
+   - [x] Inspect ALDT numeral gold (postag `m`): forms, lemmas, marker patterns.
+   - [x] Build bundled papyrus-numeral table from PapyGreek gold (CC BY-SA);
      opt-in flag emits synthetic analyses for unanalyzed numeral tokens
      (`unknown_as_proper` precedent) — never silent stemlib additions.
-   - [ ] Verify: coverage gain on PapyGreek; AF/LXX/NT snapshots byte-identical;
-     pytest 33/33.
+   - [x] Verify: coverage +2.2pp on PapyGreek; AF/SBLGNT default paths
+     byte-identical, PG baseline matches Round 8's snapshot; pytest 33/33.
 
 ## Review (Round 9, item 1: classical Greek) ✅
 
@@ -145,6 +145,47 @@ captured in `lessons.md`).
 
 **Verification**: pytest 33/33; AF default-path re-run byte-identical to Round 9's
 check snapshot (`tmp/af/ev2_af_r9check.txt`) — flag off is a proven no-op.
+
+## Review (Round 9, item 3: PapyGreek numerals) ✅
+
+**Gold profile.** The ALDT treebank has **1,454 numeral tokens** (postag `m`); **853
+are currently missed — all bare Greek-letter numerals** (β = 2, κθ = 90, λϛ = 36 …;
+the corpus stores them without a visible numeral sign), only 83 distinct forms. Of the
+601 "analyzed" numerals: word-numerals Morpheus handles fine (χίλιοι, δέκα — tagged N in
+85% of cases) plus **false hits**: short betas collide with real stems under
+accent-insensitive matching (κε→ἄν, ιε→εἶμι, ιη→κερατέα — 315 of 348 letter-numeral hits
+carry the wrong top-1). Those are deliberately NOT touched: overriding analyzed tokens
+would corrupt real one/two-letter particles (κε = καί) in other corpora.
+
+**Feature.** `data/papyrus_numerals.json` (**50 forms**; PapyGreek numeral gold, CC BY-SA):
+for each form Morpheus misses, the majority-vote gold lemma keyed by beta code. Rebuild:
+`scripts/build_papyrus_numerals.py` (pipe annotations stripped from lemmas too; only pure
+letter lemmas count as reliable — a handful of decimal-annotated tokens like `Ατ→1300`
+are excluded). Opt-in via `Morpheus(numerals=True)` / CLI `--numerals` (new module
+`morpheus_toolkit/numerals.py`, Greek only): unanalyzed tokens whose beta is in the table
+get a synthetic analysis (POS N, `proposed=True`). Runs before `unknown_as_proper`
+(more specific wins); off by default — no table loaded, behavior unchanged.
+
+**Result (PG evaluator + PG frequency table; flag off → on):**
+
+| metric | off | on |
+|---|---:|---:|
+| coverage | 92.9% | **95.1%** (+2.2pp) |
+| numerals missed | 853/1454 | **38/1454** |
+| top-1 ranked (exact / acc-insens) | 83.7 / 85.1% | **85.9 / 87.2%** (+2.2pp) |
+
+All 815 missed tokens whose beta is in the table are recovered; the residual 38 are forms
+below `min_count=2` (one-off editorial variants). Recovered numerals are correct by
+construction (lemma = gold letter string), so top-1 rises too — except a handful of
+decimal-annotated tokens that now count as covered-but-mismatching, and **4 in-domain false
+positives** (τ = ἀντί abbreviation ×3 + one editorial placeholder) get labeled numerals;
+consumers can filter on `proposed=True`. The POS metric drops 81.7→79.8% purely as a
+denominator artifact: that evaluator maps treebank `m` → class X and Morpheus has no numeral
+tag, so every papyrus numeral counts as a POS mismatch both before and after.
+
+**Verification**: pytest 33/33; PG baseline byte-identical to Round 8's saved snapshot;
+AF re-run byte-identical (`tmp/af/ev2_af_r9check.txt`); SBLGNT flag-off A/B line identical —
+default path unchanged on all three corpora.
 
 ## Not doing (standing constraints)
 

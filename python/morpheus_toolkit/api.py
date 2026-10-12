@@ -47,6 +47,7 @@ class Morpheus:
         unknown_as_proper: bool = False,
         ignore_accents: bool = False,
         use_homograph_context: bool = False,
+        numerals: bool = False,
         language: str = "greek",
     ):
         self.language = (language or "greek").lower()
@@ -64,6 +65,9 @@ class Morpheus:
         # Opt-in: re-rank ambiguous forms by context-conditional gold counts
         # (data/homograph_contexts.json). Off by default — behavior unchanged.
         self.use_homograph_context = use_homograph_context
+        # Opt-in: unanalyzed Greek letter-numeral tokens get a synthetic analysis
+        # from data/papyrus_numerals.json. Off by default — behavior unchanged.
+        self.numerals = numerals
 
     @property
     def is_latin(self) -> bool:
@@ -96,6 +100,8 @@ class Morpheus:
     def _finish(self, results: List[TokenResult]) -> List[TokenResult]:
         if self.ignore_accents:
             self._recover_unaccented(results)
+        if self.numerals and not self.is_latin:
+            self._apply_numerals(results)
         if self.unknown_as_proper:
             for result in results:
                 if not result.analyses and result.beta:
@@ -125,6 +131,21 @@ class Morpheus:
             nxt = (results[i + 1].analyses[0].pos
                    if i + 1 < len(results) and results[i + 1].analyses else None)
             result.analyses = rerank(result.analyses, result.beta, prev, nxt)
+
+    def _apply_numerals(self, results: List[TokenResult]) -> None:
+        """Give unanalyzed letter-numeral tokens a synthetic analysis (opt-in).
+
+        Fires only on tokens with NO analyses — analyzed forms are never
+        overridden, so real short words/particles in other corpora stay safe.
+        Runs before the proper-noun fallback: the numeral table is more specific.
+        """
+        from .numerals import propose
+
+        for result in results:
+            if not result.analyses and result.beta:
+                analysis = propose(result.beta)
+                if analysis is not None:
+                    result.analyses = [analysis]
 
     def _recover_unaccented(self, results: List[TokenResult]) -> None:
         """Retry, without accents, the words the accented match missed.

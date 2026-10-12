@@ -284,6 +284,24 @@ Cross-checked against PROIEL Herodotus (CC BY-NC-SA, measurement only): coverage
 99.8%, ranked top-1 90.2% exact — the classical table beats the Koine one by +4pp
 on that independent text.
 
+## Papyrus numerals
+
+Papyri write numbers as bare Greek letters (β = 2, κθ = 90, λϛ = 36 …), and the
+stemlib has no entries for them — in the PapyGreek treebank they are the single
+largest miss family (853 of its 1,454 numeral tokens). `--numerals` (API:
+`Morpheus(numerals=True)`) gives unanalyzed tokens a synthetic analysis from the
+bundled table `data/papyrus_numerals.json` (50 forms; built from the PapyGreek
+Treebanks' numeral gold, CC BY-SA — rebuild with
+`scripts/build_papyrus_numerals.py`).
+
+The flag fires **only on tokens Morpheus cannot analyze** and never overrides an
+existing analysis: short betas like `ke`/`ka` also match real words under
+accent-insensitive matching (and are real particles elsewhere), so overriding would
+corrupt them. Synthetic analyses carry POS N and `proposed=True`. On PapyGreek the
+flag lifts coverage 92.9% → **95.1%** and ranked top-1 lemma 83.7% → **85.9%**; a
+handful of single-letter abbreviations (τ for ἀντί) get labeled as numerals — filter
+on `proposed` if that matters. Off by default; with it off behavior is unchanged.
+
 ## Known limitations
 
 - **POS granularity.** Morpheus tags nouns, adjectives, pronouns, articles and
@@ -295,6 +313,9 @@ on that independent text.
   merely matches frequency ranking; both are off by default. The exception is the
   homograph-context re-ranker (`--homographs`, see Ranking), which measured a small
   positive gain on every corpus tested — also opt-in, Greek only.
+- **Papyrus letter-numerals are misses** (β = 2, κθ = 90 …): the stemlib has no
+  entries for bare-letter numerals. Enable `--numerals` to give unanalyzed ones a
+  synthetic analysis from the bundled PapyGreek-derived table (see Papyrus numerals).
 - **Coverage.** A small fraction of NT tokens gets no analysis, historically dominated
   by **biblical proper names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`;
   coverage improved slightly after the LXX additions (`nom.lxx`) since many biblical
