@@ -14,13 +14,21 @@ _TRAILING_HOMONYM = re.compile(r"[\d#]*$")
 # editors use the curly variants.
 _APOSTROPHES = str.maketrans({"\u2019": "'", "\u2018": "'", "\u02bc": "'", "\u00b4": "'"})
 
+# Classical editions (e.g. AGLDT) mark elision with a word-final combining comma
+# above (U+0313, the ypogegrammeni): δ̓ = δέ before a vowel. Only at end of word —
+# mid-word combining marks are letter parts and must be left alone.
+_ELISION_COMMA = "\u0313"
+
 
 def to_beta(text: str) -> str:
     """Convert Unicode Greek to beta code (returns '' on failure)."""
     if not text:
         return ""
     try:
-        return greek_to_beta_code(text.translate(_APOSTROPHES))
+        t = text.translate(_APOSTROPHES)
+        if len(t) > 1 and t[-1] == _ELISION_COMMA:
+            t = t[:-1] + "'"
+        return greek_to_beta_code(t)
     except Exception:
         return ""
 

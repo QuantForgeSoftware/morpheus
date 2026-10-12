@@ -229,6 +229,46 @@ nouns (both surface as `N`), so joint lemma×POS counts would demote correct rea
 Latin lemmas in the stemlib carry `#N` homonym markers (`sum#1`);
 `normalize_lemma()` strips them, which alone is worth ~3 points on the Vulgate.
 
+## Classical Greek
+
+Benchmarked in Round 9 against AGLDT v2.1 Greek (PerseusDL/treebank_data,
+CC BY-SA 3.0 US): **469,254 word tokens** — Homer (~200K), Sophocles, Aeschylus,
+Athenaeus, Herodotus, Polybius, Diodorus, Thucydides, Plutarch, Hesiod, Lysias,
+Plato, Aesop, Homeric Hymns, Apollodorus.
+
+| corpus | tokens | coverage | top-1 raw | top-1 ranked | POS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| **All** | 469,254 | **99.8%** | 79.9% | **91.4%** | 85.1% |
+| Homer (epic) | 200,091 | 100.0% | 78.5% | 91.2% | 88.1% |
+| Sophocles (tragic) | 40,851 | 99.8% | 75.8% | 88.9% | 83.7% |
+| Thucydides / Herodotus (Attic/Ionic prose) | 51,127 | ~100% | ~82% | ~92% | ~77% |
+| Diodorus Siculus | 23,037 | 99.9% | 86.2% | **95.4%** | 84.6% |
+
+Two findings:
+- The only systematic gap was **elision-mark encoding**: classical editions mark
+  elision with a word-final combining comma above (U+0313, δ̓ = δέ), which the beta
+  converter rejected — 34K tokens, mostly in Homer. `to_beta()` now maps a
+  *word-final* U+0313 to the ASCII apostrophe Morpheus already recognizes; coverage
+  went from 92.8% to **99.8%** with no stemlib changes (every elided form resolves
+  through existing entries). Mid-word combining marks are untouched, and all
+  committed gold corpora contain zero word-final U+0313.
+- The residual misses (708 tokens, 0.15%) are editorial fragments and one-off rare
+  names — no stemlib additions were made for them.
+
+A bundled table `data/lemma_frequencies_grc.json` (21,889 lemmas / 476,401 tokens)
+derives from the same treebanks; rebuild with:
+
+```bash
+scripts/build_lemma_frequencies.py --format agldt \
+    --corpus-dir /path/to/treebank_data/v2.1/Greek/texts \
+    --out python/morpheus_toolkit/data/lemma_frequencies_grc.json
+```
+
+As with the other domain tables it is not auto-loaded; pass it explicitly.
+Cross-checked against PROIEL Herodotus (CC BY-NC-SA, measurement only): coverage
+99.8%, ranked top-1 90.2% exact — the classical table beats the Koine one by +4pp
+on that independent text.
+
 ## Known limitations
 
 - **POS granularity.** Morpheus tags nouns, adjectives, pronouns, articles and

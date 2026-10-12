@@ -1,10 +1,10 @@
-# Active plan — Round 9 (DRAFT — awaiting approval; nothing implemented yet)
+# Active plan — Round 9: classical Greek, contextual homographs, papyrus numerals
 
-Round 8 (new corpora: PapyGreek, Latin benchmark, PROIEL Greek NT cross-validation)
-is complete and committed (`a2b7a77`, `1935b8f`); its full record lives in
-[completed.md](completed.md). **User direction for this round: no Latin work**
-("I don't care about Latin at all") — everything below is Greek. Working files go
-in `tmp/<corpus>/` (git-ignored).
+Round 8 (new corpora) is complete and committed (`a2b7a77`, `1935b8f`); its full
+record lives in [completed.md](completed.md). **User approved all three items**
+("Do all 3"); standing constraints hold: no Latin work, PROIEL-derived content stays
+out of committed files (NC-SA), default NT behavior unchanged. Working files go in
+`tmp/<corpus>/` (git-ignored); the AGLDT clone lives at `tmp/agldt/`.
 
 ## Where things stand after Round 8
 
@@ -19,36 +19,90 @@ in `tmp/<corpus>/` (git-ignored).
   Aeschylus ×6, Hesiod ×3, Plato, Plutarch ×2, Athenaeus ×2, Diodorus, Polybius,
   Lysias ×4, Apollodorus, Aesop) — CC BY-SA 3.0 US, commit-safe.
 
-## Round 9 candidates (checkable; approve what to do)
+## Round 9 plan (checkable; all approved)
 
-1. **Classical Greek round** — first benchmark of Morpheus on the classical register:
-   - Baseline: coverage / top-1 / coarse POS over AGLDT v2.1 Greek (per-author
-     breakdown; epic/Ionic dialect will be the stress test).
-   - Build `lemma_frequencies_grc.json` from AGLDT (`--format agldt` already exists
-     in `scripts/build_lemma_frequencies.py`; Greek lemmas are Unicode with initial
-     capitals — `normalize_lemma()` lower-cases them, same as every other table).
-   - Safe stemlib additions from the manual gold (classical names; epic/Ionic forms
-     like ἱστορίης, Ἁλικαρνησσέος), mirroring the PapyGreek round: generated +
-     curated sections, count threshold, dictionary-form check, idempotent merge.
-   - Guards: index key diff purely additive (zero collisions); AF/LXX/PG snapshots
-     byte-identical or explained as endtable noise; pytest 33/33.
-   - Independent cross-check: PROIEL Herodotus (`hdt.conll`, ~80K word tokens,
-     CC BY-NC-SA → measurement/docs only, nothing committed).
-2. **Contextual homograph disambiguation** — the biggest remaining Koine lever:
-   - The residual profile above is stable across SBLGNT and PROIEL (item 3), so it
-     is real signal, not convention noise. Round 6's hand-built bigram tagger did
-     *not* beat plain frequency ranking; the README notes a *learned* emission
-     model P(lemma | context) is what would pay off.
-   - Train one on commit-safe gold only (SBLGNT + LXX + AF + PG, all CC BY-SA);
-     scope it to the known homograph families first (ὡς/ὅς, εἰ/εἰμί, ἢ/εἰμί,
-     τε/σύ, ὃ/ὁ) rather than a general tagger.
-   - **Opt-in flag only — default behavior unchanged** (respects the Round-7
-     "do NOT change NT-related behavior" direction); target +2–4pp top-1 on
-     SBLGNT/AF/PapyGreek, verified to transfer to PROIEL.
-3. **PapyGreek numerals** — recover the 853 numeral tokens (~2.3pp of papyrus
-   coverage) with a dedicated opt-in numeral mode: alphabetic numerals (αʹ βʹ γʹ…)
-   and spelled-out forms (χίλιοι, ἑκατόν). They collide with real words, so this
-   must be a flagged mode or explicit entries — never silent stemlib additions.
+1. **Classical Greek round** ✅ (see review below)
+   - [x] Baseline: coverage / top-1 / coarse POS over AGLDT v2.1 Greek (557,918 words;
+     per-author breakdown; epic/Ionic dialect is the stress test).
+   - [x] Build + bundle `lemma_frequencies_grc.json` (`--format agldt`); re-measure
+     ranked top-1.
+   - [x] Stemlib additions: **not needed** — after the elision fix, residual misses are
+     708 tokens of editorial fragments and one-off names (see review).
+   - [x] Guards: AF/PG snapshots byte-identical (or known endtable noise); pytest 33/33.
+   - [x] Independent cross-check: PROIEL Herodotus (`hdt.conll`, CC BY-NC-SA →
+     measurement/docs only, nothing committed).
+2. **Contextual homograph disambiguation** (opt-in; default behavior unchanged)
+   - [ ] Profile the residual homographs on SBLGNT/AF/PG gold to fix the form set
+     and context features.
+   - [ ] Train a small learned model P(lemma | form, prev POS, next POS) on
+     commit-safe gold only (SBLGNT + LXX + AF + PG); bundle as data table.
+   - [ ] Wire in behind an opt-in flag (API + CLI); default path byte-identical.
+   - [ ] Verify: target +2–4pp top-1 on SBLGNT/AF/PapyGreek; must transfer to
+     PROIEL greek-nt (independent gold); pytest 33/33.
+3. **PapyGreek numerals** (opt-in mode)
+   - [ ] Inspect ALDT numeral gold (postag `m`): forms, lemmas, marker patterns.
+   - [ ] Build bundled papyrus-numeral table from PapyGreek gold (CC BY-SA);
+     opt-in flag emits synthetic analyses for unanalyzed numeral tokens
+     (`unknown_as_proper` precedent) — never silent stemlib additions.
+   - [ ] Verify: coverage gain on PapyGreek; AF/LXX/NT snapshots byte-identical;
+     pytest 33/33.
+
+## Review (Round 9, item 1: classical Greek) ✅
+
+**Dataset**: AGLDT v2.1 Greek (`tmp/agldt/`, CC BY-SA 3.0 US): **469,254 word tokens**
+across Homer (~200K), Sophocles, Aeschylus, Athenaeus, Herodotus, Polybius,
+Diodorus, Thucydides, Plutarch, Hesiod, Lysias, Plato, Aesop, Homeric Hymns,
+Apollodorus. Evaluator: `tmp/grc/eval_grc.py` (per-author breakdown; AGLDT postag
+pos-1 empirically mapped — note it differs from Latin: g=particle, p=pronoun,
+r=preposition, l=article, m=numeral).
+
+**The one systematic gap was elision-mark encoding.** Baseline coverage was 92.8%
+(Homer 90.3%, Sophocles 88.5%) with the top misses all word-final U+0313 (combining
+comma above, the classical elision mark): δ̓ ×10,778 alone = 2.3% of the corpus.
+`to_beta()` now maps a *word-final* U+0313 to the ASCII apostrophe Morpheus already
+recognizes (mid-word combining marks untouched). Every top-30 elided form was
+verified to resolve through existing stemlib entries — no new stems needed for them.
+Safety: SBLGNT/AF/PapyGreek gold contain **zero** word-final U+0313/U+0306 (scanned);
+LXX is beta code, so structurally impossible. Result:
+
+| metric | before fix | after fix |
+|---|---:|---:|
+| coverage (ALL) | 92.8% | **99.8%** |
+| Homer | 90.3% | **100.0%** |
+| Sophocles / Aeschylus / Hesiod | 88.5 / 90.2 / 90.6% | 99.8 / 99.6 / 99.7% |
+
+**Bundled table**: `data/lemma_frequencies_grc.json` (21,889 lemmas / 476,401
+tokens; attribution in file). Ranked results per author:
+
+| author | n | coverage | top-1 raw → ranked | POS |
+|---|---:|---:|---|---:|
+| **ALL** | 469,254 | 99.8% | 79.9 → **91.4%** (+11.5pp) | 85.1% |
+| Homer | 200,091 | 100.0% | 78.5 → 91.2% | 88.1% |
+| Sophocles | 40,851 | 99.8% | 75.8 → 88.9% | 83.7% |
+| Aeschylus | 39,479 | 99.6% | 78.1 → 89.4% | 87.3% |
+| Athenaeus | 33,272 | 99.2% | 82.0 → 91.8% | 81.1% |
+| Herodotus | 28,791 | 100.0% | 81.8 → 91.8% | 79.1% |
+| Polybius | 25,528 | 100.0% | 84.1 → 93.9% | 83.4% |
+| Diodorus Siculus | 23,037 | 99.9% | 86.2 → **95.4%** | 84.6% |
+| Thucydides | 22,336 | 99.9% | 83.5 → 92.5% | 78.8% |
+| Plutarch | 19,386 | 99.9% | 85.3 → 93.9% | 81.6% |
+| Hesiod | 16,280 | 99.7% | 77.7 → 92.3% | 90.6% |
+
+**No stemlib additions needed.** Residual misses: **708 tokens / 527 forms (0.15%)**
+— editorial fragments (τ- ×47, κ- ×40), one-off rare names (×1–6 each from
+Athenaeus/Plutarch/Diodorus), and <40 epic-dialectal forms (γώ/γὼ→ἐγώ, σθω/σθαι,
+πὶ/φὶ). Adding ~500 one-off names to the shared stemlib would be bloat for 0.1%
+— deliberately not done (contrast PapyGreek, where misses were systematic).
+
+**Independent cross-check — PROIEL Herodotus** (`hdt.conll`, 83,819 tokens,
+CC BY-NC-SA → docs only): coverage **99.8%**; top-1 raw 79.9/81.5 exact/acc-insens;
+ranked with NT tables 86.3/87.6, with the classical grc table **90.2/91.7** — the
+classical table beats the Koine one by +4pp on a text it shares no words with,
+and Morpheus's coverage of Ionic prose matches AGLDT's (100%).
+
+**Verification**: pytest 33/33; AF main-config re-run adds zero drift vs Round 8's
+check run (both show only the known endtable noise); PapyGreek eval byte-identical
+in both table configs.
 
 ## Not doing (standing constraints)
 

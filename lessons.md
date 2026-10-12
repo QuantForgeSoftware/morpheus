@@ -121,6 +121,19 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   from nouns (both surface as `N` unless a special stem type fires), so never
   build joint lemma×POS tables for Latin from external gold that tags them
   separately — the Ranker's known-not-seen floor would demote correct readings.
+- **Word-final U+0313 is the classical elision mark, not a letter part**
+  (Round 9): AGLDT Greek marks elision with a combining comma above on the final
+  character (δ̓ = δέ); `to_beta()` used to reject such forms outright — 34K tokens,
+  most of them in Homer, silently unanalyzable. Map it to the ASCII apostrophe
+  Morpheus already recognizes, but ONLY at end of word: mid-word combining marks
+  are letter parts (ϐ, digraphs) and must pass through. Before touching shared
+  conversion code, scan every committed gold corpus for the mark — SBLGNT/AF/
+  PapyGreek had zero word-final occurrences, which made the fix provably neutral.
+- **`runner.analyze_beta()` takes BETA CODE, not Unicode** (Round 9): the API layer
+  converts via `to_beta` first; `_normalize_beta` only lower-cases. An evaluator
+  that feeds raw Unicode gets a silent 0% coverage (cruncher matches nothing,
+  returncode still 0). Unmatched forms also go to stderr, not stdout — probe with
+  `-q` or check both streams.
 
 ## Corpus tooling (annotation pipelines)
 
