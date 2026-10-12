@@ -6,7 +6,9 @@ import unicodedata
 
 from beta_code import beta_code_to_greek, greek_to_beta_code
 
-_TRAILING_HOMONYM = re.compile(r"\d+$")
+# Morpheus disambiguates homonymous lemmas with trailing markers: digits in the
+# Greek stemlib (``le/gw1``) and ``#N`` in the Latin one (``sum#1``).
+_TRAILING_HOMONYM = re.compile(r"[\d#]*$")
 
 # Morpheus recognizes elision only with an ASCII apostrophe (a)ll' -> a)lla/);
 # editors use the curly variants.
@@ -34,7 +36,7 @@ def from_beta(text: str) -> str:
 
 
 def strip_homonym(lemma: str) -> str:
-    """Drop Morpheus's homonym disambiguator digits (``le/gw1`` -> ``le/gw``)."""
+    """Drop Morpheus's homonym disambiguators (``le/gw1`` -> ``le/gw``, ``sum#1`` -> ``sum``)."""
     return _TRAILING_HOMONYM.sub("", lemma or "")
 
 

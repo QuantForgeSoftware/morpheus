@@ -36,17 +36,104 @@ the main one); PapyGreek is the closest new-domain gold in the user's register.
 ## Round 8 plan (checkable)
 
 1. **PapyGreek round** — ✅ complete, see review below.
-2. **Latin benchmark round**: read PROIEL latin-nt + AGLDT Latin via CoNLL-X;
-   measure coverage/lemma/POS of the Latin analyzer for the first time; build
-   `lemma_frequencies_latin.json` (Index Thomisticus or treebank gold) and a
-   first tuning pass mirroring Rounds 3–4. ⚠️ PROIEL is CC-BY-NC-SA: use it for
-   measurement/docs, but keep any derived tables out of committed files unless
-   the user accepts the license terms (Index Thomisticus-derived tables avoid
-   this).
-3. **PROIEL Greek NT cross-validation**: CoNLL-X reader; measure our current NT
-   numbers against a second independent human-verified text; document how much
-   holds up (and where SBLGNT conventions were overfit). Same NC-SA caveat for
-   committed artifacts — validation numbers in docs are fine.
+2. **Latin benchmark round** — ✅ complete, see review below.
+3. **PROIEL Greek NT cross-validation** — ✅ complete, see review below.
+
+## Review (Round 8, item 2: Latin benchmark + AGLDT frequency table) ✅
+
+**First-ever measurement of the Latin analyzer.** Evaluator:
+`tmp/latin/eval_latin.py` (`MorpheusRunner(language="latin")`; PROIEL UPOS mapped to
+lenient Morpheus classes; Morpheus's `#N` homonym markers stripped on both sides).
+Gold: PROIEL CoNLL-X (CC BY-NC-SA 4.0 → measurement/docs only, nothing committed).
+
+| corpus | tokens | coverage | top-1 raw | top-1 ranked (AGLDT) | POS raw→ranked |
+|---|---:|---:|---:|---:|---|
+| latin-nt (Vulgate) | 110,774 | **98.4%** | 81.1% | **90.5%** (+9.4pp) | 78.3→81.9 |
+| caes-gal | 27,397 | 96.9% | 74.3% | **85.1%** (+10.8pp) | 74.4→78.0 |
+| cic-att | 45,580 | 97.1% | 78.0% | **86.5%** (+8.5pp) | 72.9→75.1 |
+| per-aeth | 17,554 | 94.7% | 74.8% | **83.8%** (+9.0pp) | 73.8→78.2 |
+| pal-agr | 11,979 | 97.5% | 75.5% | **85.2%** (+9.7pp) | 71.7→74.3 |
+
+**Table source — license resolution.** Index Thomisticus Treebank is CC BY-**NC**-SA
+3.0 (the Digital Classicist wiki footer's "CC BY" is wrong; the project site states
+NC-SA), and corpusthomisticum.org offers no clear bulk-download license → rejected.
+**AGLDT v2.1 (`PerseusDL/treebank_data`) is CC BY-SA 3.0 US — commit-safe**, and its
+Latin files carry manual lemma annotations (`<word form=… lemma=… postag=…/>`,
+Perseus-style trailing homonym digits). Built from all 11 Latin treebanks (Caesar,
+Cicero, Propertius, Sallust, Vergil Aen. 6, Ovid, Phaedrus, Augustus *Res Gestae*,
+Suetonius, Tacitus, Jerome's Apocalypse): **6,052 lemmas / 55,409 tokens** → bundled
+as `python/morpheus_toolkit/data/lemma_frequencies_latin.json` (attribution in the
+file; editorial artifacts like `-que`/`heu!` filtered).
+
+**What holds up.** The four classical corpora share *no* text with the table, yet
+top-1 rises +8.5 to +10.8pp — ranking generalizes across Latin registers exactly as
+the Greek tables did (item 3's +12pp transfer). The Vulgate row is only partially
+circular: the table contains Jerome's complete Apocalypse and PROIEL latin-nt shares
+**2.85%** of its tokens with it in 10-word sequences — negligible, and even so the
+non-circular AGLDT table (90.5) beats a *fully* circular PROIEL-derived one measured
+earlier this round (88.3).
+
+**The `#` homonym-marker fix.** Morpheus's Latin stemlib disambiguates irregulars
+with `#N` (`sum#1`, `edo#1`, `quis#2`) and the parser kept them in lemma variants,
+so frequency lookups for the most common words in Latin (est→sum) silently missed.
+`normalize_lemma()` now strips trailing `#`/digit runs (Greek lemmas contain neither
+— zero occurrences in all bundled tables; A/B re-run of the AF evaluation with and
+without the change is **byte-identical**). Re-running the circular PROIEL table under
+the new normalization: 88.3 → **91.5** — the fix alone is worth ~+3pp on the Vulgate.
+
+**Decisions.**
+- Table carries plain frequencies only, no joint lemma×POS counts: Morpheus's Latin
+  analyzer cannot separate adjectives from nouns (both surface as `N` unless a special
+  stem type fires), while AGLDT tags them separately — joint counts would systematically
+  demote correct readings. (A future joint table should be derived from Morpheus's own
+  output on a large corpus, self-consistent by construction.)
+- Not auto-loaded: `Morpheus(language="latin")` still ranks with the Koine default
+  unless frequencies are passed — same pattern as the LXX/AF tables. Wiring it in is an
+  open question for the user (see below).
+- No stemlib changes from this item; coverage gaps (94.7–98.4%) are a separate, larger
+  effort (the Latin stemlib predates these corpora's rare forms) — candidate Round 9.
+
+## Review (Round 8, item 3: PROIEL Greek NT cross-validation) ✅
+
+**Dataset**: `syntacticus/syntacticus-treebank-data` (cloned to `tmp/proiel/`,
+git-ignored) → `proiel/greek-nt.conll`: Tischendorf 1869, fully manual
+annotation, **132,366 word tokens** (the CoNLL-X export omits the unannotated
+HEB 13 + Catholic epistles; XML has 140,773). License CC BY-NC-SA 4.0 →
+measurement/docs only; nothing PROIEL-derived is committed.
+
+Evaluator: `tmp/proiel/eval_proiel_nt.py` (CoNLL-X reader; gold = col 3 lemma,
+col 4 UPOS with a lenient class map; SBLGNT-style `#1` homonym suffixes and
+`οὕτω(ς)` optional-parens normalized before comparison).
+
+| metric | value |
+|---|---:|
+| coverage | **99.6%** (492 misses) |
+| top-1 lemma, raw Morpheus order | 78.0 / 79.3 exact/acc-insens |
+| top-1 lemma, ranked with NT tables | **90.7 / 91.7** |
+| POS coarse | 81.6% (n=130,209) |
+
+**What holds up**: the SBLGNT-trained frequency table transfers **+12pp** to a
+text it never saw — ranking is robust, not convention-fitted. The gap vs our
+SBLGNT numbers (~95%) decomposes as:
+- **Lemma-convention differences (~3,100 tokens ≈ 2.4pp)**: PROIEL heads the
+  pronoun families at the plural (ὑμεῖς/ἡμεῖς) where SBLGNT/Morpheus use the
+  singular (σύ/ἐγώ); PROIEL lemmatizes εἶπεν to λέγω where Morpheus keeps the
+  reduplicated aorist εἶπον as its own lemma. Convention-adjusted top-1
+  acc-insens ≈ **94%**.
+- **True residual errors (~7.9pp before adjustment)**: dominated by known
+  homographs — ὡς→ὅς ×455, εἰ→εἰμί ×329, ἢ→εἰμί ×326, τε→σύ ×213,
+  ὃ/ἃ→ὁ ×~280 — the same Round-6 residual profile (not patched there for
+  overfitting reasons; confirmed here to be stable across independent gold).
+- **Misses (492)**: 148 are names, mostly edition spelling/case conventions —
+  PROIEL lowercases σατανᾶς as a common noun while the stemlib entry is
+  uppercase-only (Σατανᾶς resolves fine); PROIEL spells Elijah Ἡλίας (iota)
+  where SBLGNT has Ἠλίας (eta, which resolves). The rest are loanwords/dialectal
+  one-offs (ῥαββεί ×15, ὡσαννὰ, …).
+
+**Decision**: no stemlib changes from this item — the findings are convention
+differences between two human-annotated editions of the same text, and adding
+PROIEL's spellings would change NT behavior (out of scope per user direction)
+and commit NC-SA-derived content. Numbers documented here only.
 
 ## Review (Round 8, item 1: PapyGreek) ✅
 
@@ -120,7 +207,19 @@ domain tables matter for disambiguation, not just coverage.
 
 ## Decisions / open questions for the user
 
-- Push morpheus origin/master (4 commits ahead of `75fface` + this round's)?
-- Push the AF repo's `morpheus-analysis` branch (`2b51d98`)?
-- License comfort with CC-BY-NC-SA (PROIEL) for anything that would be committed
-  (items 2–3 keep PROIEL-derived tables out of the repo regardless).
+All three approved items are complete. Open questions:
+
+1. **Push morpheus origin/master** — now 7 commits ahead of `75fface`
+   (`d760a3e`, `259df21`, `23b33d3`, `b3707de`, `35e2074`, `a2b7a77` + this round's)?
+2. **Push the AF repo's `morpheus-analysis` branch** (`2b51d98`)?
+3. **Auto-load the Latin table?** `Morpheus(language="latin")` currently ranks with
+   the Koine default unless frequencies are passed (same pattern as LXX/AF tables).
+   Wiring in `lemma_frequencies_latin.json` would make out-of-the-box Latin ranking
+   work (+9pp top-1) — a behavior change, so left to your call.
+4. **License comfort with CC-BY-NC-SA (PROIEL)** for anything that would be committed
+   (items 2–3 keep PROIEL-derived tables out of the repo regardless; only AGLDT,
+   CC BY-SA 3.0 US, is bundled).
+5. **Migrate the Round 8 record to completed.md** and stop, or start a new round?
+   Candidate Round-9 items: Latin coverage pass (94.7–98.4% → close the gaps),
+   classical Greek AGLDT benchmark (item 4, never approved), joint lemma×POS table
+   for Latin derived from Morpheus's own output.

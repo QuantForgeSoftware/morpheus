@@ -23,6 +23,11 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   reports, and saved snapshots all retain old strings long after the sources are
   clean. Fix at the root: edit the source, regenerate the artifact, delete stale
   snapshots.
+- **Isolate a code change from snapshot drift with a stash A/B run** (Round 8):
+  when a saved evaluation snapshot no longer matches after your change, re-run it
+  with the change `git stash`ed — if the stashed run drifts identically, the
+  difference is environmental/index noise (see endtable lesson), not yours;
+  diff the two runs against each other to prove neutrality.
 
 ## Beta code / Morpheus internals
 
@@ -106,6 +111,16 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   because no index rebuild happened that round.)
 - **`cruncher <name>` reads `<name>.words`, not `<name>`** — name probe files
   accordingly or it reports "cannot find".
+- **Latin lemmas carry `#N` homonym markers that survived normalization**
+  (Round 8): the Latin stemlib disambiguates irregulars as `sum#1`, `edo#1`,
+  `quis#2`; the parser's trailing-digit strip left the bare `#` in
+  `Analysis.lemma`, so frequency lookups for the most common words in Latin
+  (est→sum) silently scored zero. `_TRAILING_HOMONYM` is now `[\d#]*$`
+  (Greek lemmas contain neither — verified zero occurrences, A/B AF re-run
+  byte-identical). Related: Morpheus's Latin analyzer cannot separate adjectives
+  from nouns (both surface as `N` unless a special stem type fires), so never
+  build joint lemma×POS tables for Latin from external gold that tags them
+  separately — the Ranker's known-not-seen floor would demote correct readings.
 
 ## Corpus tooling (annotation pipelines)
 
@@ -178,6 +193,28 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
 - **`Analysis.lemma`/`.variants()` are Unicode, frequency-table keys normalized Unicode**
   (Round 6): compare via `normalize_lemma()`, never raw literal equality — `from_beta`
   can return NFD and precomposed Greek literals won't match it.
+- **PROIEL CoNLL-X quirks** (Round 8): Greek gold lemmas carry `#1` homonym
+  suffixes and optional-letter parens (`οὕτω(ς)`) — normalize both before
+  comparison or you overstate mismatches (~2.5pp artifact). Latin Morpheus
+  lemmas carry bare `#` markers — strip `#\d*$`. CoNLL-X exports also omit
+  unannotated sections (greek-nt: HEB 13 + Catholic epistles; 132,366 of
+  140,773 XML tokens).
+- **PROIEL lemma conventions differ from SBLGNT/Morpheus** (Round 8): pronoun
+  families headed by the plural (ὑμεῖς/ἡμεῖς vs σύ/ἐγώ), εἶπον kept under λέγω,
+  lowercase σατανᾶς, iota Ἡλίας where SBLGNT has eta Ἠλίας. Cross-corpus
+  "errors" must be split convention-vs-true before sizing fixes (~3,100 tokens
+  ≈ 2.4pp of the PROIEL gap were pure convention).
+- **License footers lie** (Round 8): the Digital Classicist wiki footer said
+  CC BY for the Index Thomisticus Treebank; the project site states
+  CC BY-NC-SA 3.0. Always check the authoritative project page, not aggregator
+  wikis — it decided between two candidate Latin table sources.
+- **AGLDT treebank format** (Round 8): words are `<word form=… lemma=…
+  postag=9chars/>` elements; lemmas carry Perseus-style trailing homonym digits
+  (`for1`) which `normalize_lemma()` already strips. Latin tagset position 1:
+  r=adposition, p=pronoun (opposite of PROIEL UPOS R/P); Greek v2.1 uses
+  Unicode lemmas with initial capitals (normalized lower-case). One reader
+  (`--format agldt`) serves both languages; filter non-letter keys (-que,
+  heu!, bracketed restorations) and skip postag `u`.
 
 ## Python
 

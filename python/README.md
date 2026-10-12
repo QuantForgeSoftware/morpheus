@@ -195,6 +195,40 @@ celling claim. Residual disagreement is dominated by documented reference quirks
 (277 tokens), and ~286 compound verbs the reference keeps unstripped while the
 base-lemma heuristic strips (etymologically they are compounds).
 
+## Latin
+
+The Latin analyzer (`language="latin"`, CLI `--language latin`) was benchmarked for
+the first time in Round 8 against the PROIEL treebanks (CC BY-NC-SA — measurement
+docs only, nothing PROIEL-derived is committed):
+
+| corpus | tokens | coverage | top-1 raw | top-1 ranked | POS |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Vulgate NT (latin-nt) | 110,774 | 98.4% | 81.1% | **90.5%** | 78.3→81.9 |
+| Caesar Gallic War | 27,397 | 96.9% | 74.3% | **85.1%** | 74.4→78.0 |
+| Cicero Atticus letters | 45,580 | 97.1% | 78.0% | **86.5%** | 72.9→75.1 |
+| Persius Satires | 17,554 | 94.7% | 74.8% | **83.8%** | 73.8→78.2 |
+| Palatine Agricultural Poems | 11,979 | 97.5% | 75.5% | **85.2%** | 71.7→74.3 |
+
+A bundled table `data/lemma_frequencies_latin.json` (6,052 lemmas / 55,409 tokens)
+derives from the AGLDT v2.1 Latin treebanks — Caesar, Cicero, Propertius, Sallust,
+Vergil, Ovid, Phaedrus, Augustus's *Res Gestae*, Suetonius, Tacitus and Jerome's
+Apocalypse (PerseusDL/treebank_data, CC BY-SA 3.0 US). It lifts top-1 by +8.5 to
++10.8 points on all five corpora; the four classical ones share no text with the
+table, so the gain is cross-corpus generalization, not memorization.
+
+```bash
+scripts/build_lemma_frequencies.py --format agldt \
+    --corpus-dir /path/to/treebank_data/v2.1/Latin/texts \
+    --out python/morpheus_toolkit/data/lemma_frequencies_latin.json
+```
+
+As with the LXX/AF tables, it is **not** auto-loaded by `Morpheus(language="latin")`;
+pass it explicitly (`frequencies=...`) or use a script that does. The table carries
+plain frequencies only — Morpheus's Latin analyzer cannot separate adjectives from
+nouns (both surface as `N`), so joint lemma×POS counts would demote correct readings.
+Latin lemmas in the stemlib carry `#N` homonym markers (`sum#1`);
+`normalize_lemma()` strips them, which alone is worth ~3 points on the Vulgate.
+
 ## Known limitations
 
 - **POS granularity.** Morpheus tags nouns, adjectives, pronouns, articles and
