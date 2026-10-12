@@ -59,9 +59,9 @@ vbs:	stemsrc/lsj.vbs stemsrc/vbs.irreg stemind/vbind
 enclitics:  
 	cat stemsrc/vbs.irreg stemsrc/nom* | fgrep enclitic > enclitics
 
-stemind/vbind:
+stemind/vbind:	stemsrc/vbs.irreg stemsrc/vbs.simp.ml stemsrc/vbs.simp.02.new stemsrc/lsj.vbs stemsrc/vbs.papyri
 	cat stemsrc/vbs.irreg stemsrc/vbs.simp.ml stemsrc/vbs.simp.02.new stemsrc/lsj.vbs \
-	    > conjfile
+	    stemsrc/vbs.papyri > conjfile
 	do_conj 
 	mv conjfile.short /tmp/vbmorph
 	indexvbs

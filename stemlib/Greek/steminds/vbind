@@ -129,6 +129,7 @@
 1a)rhretai a)rh/retai:a)rari/skw:w_stem:pres:ind:mp:3rd:sg:poetic
 1a)row|s a)ro/w|s:a)ro/w:ow_pr:o_stem:pres:subj:act:2nd:sg:epic
 1a)rteatai a)rte/atai:a)rta/w:perfp_vow:perf:ind:pass:3rd:pl:ionic:no_redupl
+1ai)laba ai)/laba:lamba/nw:emi_aor:aor:ind:act:1st:sg
 1ai)reumenon ai)reu/menon:ai(re/w:ew_pr:pres:part:mid:masc:acc:sg:epic:*hes.
 1bebleatai beble/atai:ba/llw:perfp_vow:perf:ind:mp:3rd:pl:ionic
 1beblh|sqe beblh=|sqe:ba/llw:perfp_vow:perf:subj:mp:2nd:pl
@@ -296,6 +297,7 @@
 1e)kleo e)/kleo:kle/w:w_stem:imperf:ind:pass:2nd:sg:epic
 1e)kteatai e)kte/atai:kta/omai:perfp_vow:perf:ind:mp:3rd:pl:ionic
 1e)kteato e)/kteato:kta/omai:perfp_vow:plup:ind:mp:3rd:pl:ionic
+1e)laba :lamba/nw:emi_aor:aor:ind:act:1st:sg e)/laba:lamba/nw:emi_aor:aor:ind:act:1st:sg
 1e)laban e)/laban:lamba/nw:aor2:aor:ind:act:3rd:pl
 1e)labosan e)la/bosan:lamba/nw:aor2:aor:ind:act:3rd:pl
 1e)lambanosan e)lamba/nosan:lamba/nw:w_stem:imperf:ind:mid:3rd:pl
@@ -510,6 +512,7 @@
 1ei)hte ei)/hte:ei)mi/:irreg_mi:pres:opt:act:2nd:pl
 1ei)hthn ei)/hthn:ei)mi/:irreg_mi:pres:opt:act:3rd:dual
 1ei)hton ei)/hton:ei)mi/:irreg_mi:pres:opt:act:2nd:dual
+1ei)lhfan ei)/lhfan:lamba/nw:emi_aor:aor:ind:act:3rd:pl
 1ei)lhlouqmen ei)lh/louqmen:e)/rxomai:perf_act:perf:ind:act:1st:pl
 1ei)men :ei)mi/:irreg_mi:pres:ind:act:1st:pl:enclitic :ei)mi/:irreg_mi:pres:inf:act:doric:enclitic ei)=men:ei)mi/:irreg_mi:pres:opt:act:1st:pl
 1ei)menai ei)/menai:ei)mi/:irreg_mi:pres:inf:act:doric
@@ -640,10 +643,15 @@
 1gegaate gega/a_te:gi/gnomai:perf_act:perf:ind:act:2nd:pl:epic
 1gegaathn gegaa/thn:gi/gnomai:perf_act:perf:ind:act:3rd:dual:epic
 1gegathn gega/thn:gi/gnomai:perf_act:perf:ind:act:3rd:dual:epic
+1geinwske :gignw/skw:ow_pr:o_stem:pres:ind:act:2nd:sg gei/nwske:gignw/skw:ow_pr:o_stem:pres:ind:act:2nd:sg
+1geinwskein geinw/skein:gignw/skw:ow_pr:o_stem:pres:inf:act
 1geloiwntes geloi/wntes:gela/w:aw_pr:pres:part:act:masc:nom:pl:epic
 1ghranai ghra/nai:ghra/skw:ami_aor:aor:inf:act ghra=nai:ghra/skw:ami_aor:aor:inf:act
 1ghrantessi ghra/ntessi:ghra/skw:ath_secondary:aor:part:act:masc:dat:pl:epic
 1ghrantessin ghra/ntessin:ghra/skw:ath_secondary:aor:part:act:masc:dat:pl:epic:nu_movable
+1ginoske gi/noske:gignw/skw:ow_pr:o_stem:pres:ind:act:2nd:sg
+1ginoskin gino/skin:gignw/skw:ow_pr:o_stem:pres:inf:act
+1ginwskin ginw/skin:gignw/skw:ow_pr:o_stem:pres:inf:act
 1h(ai :i(/hmi:ath_secondary:aor:subj:mid:2nd:sg:epic
 1h(atai h(/atai:h(=mai:ath_primary:perf:ind:mid:3rd:pl:epic
 1h(ato h(/ato:h(=mai:ath_primary:plup:ind:mid:3rd:pl:epic
@@ -963,6 +971,8 @@
 1i)hsqe i)/hsqe:ei)=mi:irreg_mi:pres:subj:act:2nd:pl:epic
 1i)hte i)/hte:ei)=mi:irreg_mi:pres:subj:act:2nd:pl
 1i)hton i)/hton:ei)=mi:irreg_mi:pres:subj:act:2nd:dual i)/hton:ei)=mi:irreg_mi:pres:subj:act:3rd:dual
+1i)lhfasi i)lh/fasi:lamba/nw:emi_aor:aor:ind:act:3rd:pl
+1i)lhfasin i)lh/fasin:lamba/nw:emi_aor:aor:ind:act:3rd:pl i)lh/fasin:lamba/nw:emi_aor:aor:ind:act:3rd:pl:nu_movable
 1i)men :ei)=mi:irreg_mi:pres:ind:act:1st:pl i)/men:ei)=mi:irreg_mi:pres:inf:act:epic
 1i)menai i)/menai:ei)=mi:irreg_mi:pres:inf:act:epic
 1i)mmen i)/mmen:ei)=mi:irreg_mi:pres:inf:act:epic
@@ -1332,6 +1342,9 @@
 1w)si w)=si:ei)mi/:irreg_mi:pres:subj:act:3rd:pl:attic:epic:doric:contr
 1w)sin w)=sin:ei)mi/:irreg_mi:pres:subj:act:3rd:pl:attic:epic:doric:contr:nu_movable
 1w)xato w)/xato:e)/xw:ath_primary:plup:ind:mp:3rd:pl:epic:comp_only
+1xairin xai/rin:xai/rw:ew_pr:pres:inf:act
+1xerein xe/rein:xai/rw:ew_pr:pres:inf:act
+1xerin xe/rin:xai/rw:ew_pr:pres:inf:act
 1xrei :xra/w2:w_stem:part:act:epic
 1xreih xrei/h:xrh/:ath_primary:pres:opt:act:3rd:sg:impersonal
 1xreo xre/o:xra/omai:ew_pr:pres:imperat:mp:2nd:sg:ionic

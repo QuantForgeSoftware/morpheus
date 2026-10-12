@@ -88,8 +88,33 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   `scripts/build.sh`). C binaries resolve data via env **MORPHLIB=<repo>/stemlib**
   and append `/Greek/…` themselves; run `indexnoms` with that env set.
 
+- **`:vb:` stemtype tokens must come from `rule_files/stemtypes.table`, not
+  derivtypes.table** (Round 8, cost an hour): the analyzer's key parser
+  (`ScanAsciiKeys` in morphkeys.c) loads STEMTYPES = stemtypes.table; verb types
+  that exist only in derivtypes.table (`anw`, `airw`, …) are silently indexed but
+  fail at analysis time with "GenIrregForm Error: no stemtype seen". The stored
+  full form doubles as the generation stem, so ANY accepted token works — the
+  generator's identity slot reproduces it and CheckGenWords matches (Round-8
+  vbs.papyri uses emi_aor / ow_pr+o_stem / ew_pr for this reason). Reproduce with:
+  `bin/cruncher -S -n <file>` on a one-word file — the error prints to stderr.
+- **Endtable/deriv regeneration is not byte-stable across builds** (Round 8):
+  after any stemlib index rebuild, saved AF/LXX snapshots can drift ~±0.5pp POS
+  while top-1 stays identical — even when rebuilding from *pristine* sources.
+  Before chasing a snapshot "regression", re-run the evaluator on a clean-source
+  rebuild to separate build noise from your own changes; then refresh the
+  snapshot and note it in the round record. (Round 7's byte-identical result held
+  because no index rebuild happened that round.)
+- **`cruncher <name>` reads `<name>.words`, not `<name>`** — name probe files
+  accordingly or it reports "cannot find".
+
 ## Corpus tooling (annotation pipelines)
 
+- **PapyGreek ALDT specifics** (Round 8): postag is 9 chars — pos person number
+  tense mood voice GENDER CASE degree; gender precedes case (opposite of
+  MorphGNT's order) and letters are lowercase. The editorial-marker zoo beyond
+  LappEpiDoc brackets: ∼∽∤⋰⋱⸢⸣❨❩`<>[]{}()` + U+0324, `|num:N|`/`|g:…|` pipe
+  spans, plus 〚〛 ⊢⊣ ⸌⸍ ⎴⎵ ⦑⦒ ⸜⸝ ⧼ `?` … `-`. Missing any one silently corrupts
+  forms (fake misses); keep ʼ ’ (real elision) and combining diacritics.
 - **`Morpheus.analyze_beta()` returns `TokenResult` wrappers, not raw analysis lists**
   (`result.analyses`). The runner-level method returns bare lists; the API level does not.
 - **Reference-corpus parse codes are position-dependent by lexical class**: verb codes

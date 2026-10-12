@@ -139,13 +139,21 @@
 *(anahl	person
 *(anani/as	person
 *(ananihl	person
+*(aqu/r	person
+*(aqur	person
+*(aramw/ths	person
+*(arbellhs	person
 *(are/tas	person
+*(arendwths	person
 *(arimaqai/a	person
+*(arimouqhs	person
 *(armagedw/n	person
+*(armais	person
 *(armo/nios	person
 *(armo/nios-pl	person	group
 *(armoni/dhs	person
 *(armoni/dhs-pl	person	group
+*(arpahsis	person
 *(arpalei=os	person
 *(arpalei=os-pl	person	group
 *(arpali/wn	person
@@ -158,6 +166,7 @@
 *(arpokra/ths-pl	person	group
 *(arpokrati/wn	person
 *(arpokrati/wn-pl	person	group
+*(arxhbis	person
 *(asebei/as	person
 *(ebdomage/ths	person
 *(ebdomage/ths-pl	person	group
@@ -220,6 +229,9 @@
 *(erdw/nios-pl	person	group
 *(ere/nnios	person
 *(ere/nnios-pl	person	group
+*(eremhsis	person
+*(erianoupis	person
+*(erihou=s	person
 *(erkou/lios	person
 *(erkou/lios-pl	person	group
 *(erku/nios	place
@@ -308,9 +320,11 @@
 *(hra/kleitos-pl	person	group
 *(hra/kwn	person
 *(hra/kwn-pl	person	group
+*(hra=s	person
 *(hrago/ras	person
 *(hrago/ras-pl	person	group
 *(hrai=os	person
+*(hrakla=s	person
 *(hrakle/wn	person
 *(hrakle/wn-pl	person	group
 *(hraklei/dai	ethnic	group
@@ -327,8 +341,10 @@
 *(hraklh=s	person
 *(hre/as	person
 *(hre/as-pl	person	group
+*(hriano/s	person
 *(hrippi/das	person
 *(hrippi/das-pl	person	group
+*(hrkoulano/s	person
 *(hro/dikos	person
 *(hro/dikos-pl	person	group
 *(hro/filos	person
@@ -337,6 +353,7 @@
 *(hro/stratos-pl	person	group
 *(hrofi/lh	person
 *(hrofi/lh-pl	person	group
+*(hroi\s	person
 *(hrw/ndas	person
 *(hrw/ndas-pl	person	group
 *(hrw/|dhs	person
@@ -494,6 +511,7 @@
 *(ragouh=los	person
 *(ragouh=los-pl	person	group
 *(raifa/n	person
+*(raima	person
 *(rama/	person
 *(ramfi/nitos	person
 *(ramfi/nitos-pl	person	group
@@ -816,6 +834,7 @@
 *)/antullos-pl	person	group
 *)/antwn	person
 *)/antwn-pl	person	group
+*)/aouitos	person
 *)/apopis	person
 *)/apopis-pl	person	group
 *)/appios	person
@@ -1023,6 +1042,8 @@
 *)/isandros-pl	person	group
 *)/isauros	person
 *)/isauros-pl	person	group
+*)/isidw/ra	person
+*)/isiggos	person
 *)/ismaros	person
 *)/ismaros-pl	person	group
 *)/isqmia	festival
@@ -1208,6 +1229,7 @@
 *)afareu/s-pl	person	group
 *)afeyi/wn	person
 *)afeyi/wn-pl	person	group
+*)afi/nios	person
 *)afneio/s	person
 *)afneio/s-pl	person	group
 *)afqo/nios	person
@@ -1575,6 +1597,7 @@
 *)amarugkei/+dhs-pl	person	group
 *)amarugkeu/s	person
 *)amarugkeu/s-pl	person	group
+*)amasis	person
 *)amazoni/s	group
 *)amazoniko/s	person
 *)amazw/n	ethnic
@@ -1674,6 +1697,7 @@
 *)ammw/nios	ethnic
 *)ammw/nos	person
 *)ammw/nos-pl	person	group
+*)ammw/nous	person
 *)ammwniako/s	group
 *)ammwniano/s	person
 *)ammwniano/s-pl	person	group
@@ -1933,6 +1957,7 @@
 *)apaiso/s	person
 *)apaiso/s-pl	person	group
 *)apameu/s	ethnic
+*)apammwn	person
 *)apatou/ria	person
 *)apatou/ria-pl	person	group
 *)ape/nnina	place
@@ -1951,6 +1976,7 @@
 *)apisa/wn	person
 *)apisa/wn-pl	person	group
 *)apodexo/meno/s	person
+*)apollina/rios	person
 *)apollo/dwoos	person
 *)apollo/dwoos-pl	person	group
 *)apollo/dworos	person
@@ -1989,6 +2015,7 @@
 *)aqhnai+/s	person
 *)aqhnai+/s-pl	person	group
 *)aqhnai=os	person
+*)aqhndw/ros	person
 *)aqhno/bios	person
 *)aqhnoge/nhs	person
 *)aqhnoge/nhs-pl	person	group
@@ -1998,6 +2025,7 @@
 *)aqrui+/latos-pl	person	group
 *)aqumbro/s	person
 *)aqumbro/s-pl	person	group
+*)aqur	person
 *)aqw=os	person
 *)aqw=os-pl	person	group
 *)ara/bissa	person
@@ -2260,6 +2288,7 @@
 *)artaoua/sdhs-pl	person	group
 *)artau/+kths	person
 *)artau/+kths-pl	person	group
+*)arteima=s	person
 *)artema=s	person
 *)artemisi/a	person
 *)artemisi/a-pl	person	group
@@ -2275,6 +2304,7 @@
 *)artw/rios-pl	person	group
 *)aru/bas	person
 *)aru/bas-pl	person	group
+*)arwtei=os	person
 *)arxa/gaqos	person
 *)arxa/gaqos-pl	person	group
 *)arxaianakti/dai	person
@@ -2364,6 +2394,8 @@
 *)askalwni/ths	person
 *)askani/h	person
 *)askani/h-pl	person	group
+*)askla/pwn	person
+*)askla=s	person
 *)asklh/pios	person
 *)asklh/pios-pl	person	group
 *)asklhpia/dai	group
@@ -2396,6 +2428,7 @@
 *)astaki/dhs	person
 *)astaki/dhs-pl	person	group
 *)astartei=on	person
+*)astartiei=on	person
 *)aste/rios	person
 *)aste/rios-pl	person	group
 *)asteri/s	person
@@ -2470,6 +2503,7 @@
 *)ati/lios-pl	person	group
 *)ati/llios	person
 *)ati/llios-pl	person	group
+*)atienatei/h	person
 *)atla/ntios	place
 *)atlanti/s	person
 *)atlanti/s-pl	person	group
@@ -2522,6 +2556,7 @@
 *)axito/felos-pl	person	group
 *)axlu/s	person
 *)axlu/s-pl	person	group
+*)axomarrhs	person
 *)axradinh/	person	place
 *)aya/lwmos	person
 *)aya/lwmos-pl	person	group
@@ -2650,6 +2685,7 @@
 *)epainh/-pl	person	group
 *)eparxi/dhs	person
 *)eparxi/dhs-pl	person	group
+*)epeif	person
 *)epeigeu/s	person
 *)epeigeu/s-pl	person	group
 *)epeio/s	person
@@ -2678,6 +2714,7 @@
 *)epifa/nios	person
 *)epifa/nios-pl	person	group
 *)epifanh/s	person
+*)epifi	person
 *)epige/ths	person
 *)epige/ths-pl	person	group
 *)epike/leustos	person
@@ -2717,6 +2754,7 @@
 *)ere/xqeion	person
 *)ere/xqeion-pl	person	group
 *)eremboi/	ethnic
+*)eremhsis	person
 *)eretmeu/s	person
 *)eretmeu/s-pl	person	group
 *)eretrieu/s	person	ethnic
@@ -2775,6 +2813,7 @@
 *)erwtiano/s-pl	person	group
 *)erxieu/s	person
 *)erxieu/s-pl	person	group
+*)esarohris	person
 *)esqh\r	person
 *)etewneu/s	person
 *)etewneu/s-pl	person	group
@@ -2951,6 +2990,7 @@
 *)ie/rnh	place
 *)ie/tas	person
 *)ie/tas-pl	person	group
+*)ieddou=s	person
 *)iefqa/e	person
 *)ieremi/as	person
 *)ierousalh/m	person
@@ -3037,6 +3077,7 @@
 *)imi/lkas-pl	person	group
 *)imi/lkwn	person
 *)imi/lkwn-pl	person	group
+*)imouqhs	person
 *)ina/xios 	place
 *)inaxieu/s	person	ethnic
 *)inaxieu/s-pl	person	ethnic	group
@@ -3134,6 +3175,8 @@
 *)isi/gonos-pl	person	group
 *)isiako/s	person
 *)isiako/s-pl	person	group
+*)isidw/ra	person
+*)isis	person
 *)iskariw/q	person
 *)isma/hlos	person
 *)isma/hlos-pl	person	group
@@ -3333,6 +3376,7 @@
 *)onhtori/dhs-pl	person	group
 *)oni/as	person
 *)oni/as-pl	person	group
+*)onnwfris	person
 *)ono/sandros	person
 *)ono/sandros-pl	person	group
 *)ono/skelis	person
@@ -3405,6 +3449,7 @@
 *)osirei=os	person	group
 *)osirei=os-pl	person	group
 *)osiriako/s	person	group
+*)osorapis	person
 *)osta/nhs	person
 *)osta/nhs-pl	person	group
 *)osumandu/hs	person
@@ -3752,6 +3797,7 @@
 *ai)li/wn-pl	person	group
 *ai)liano/s	person
 *ai)liano/s-pl	person	group
+*ai)loura=s	person
 *ai)lu/mas	person
 *ai)lu/mas-pl	person	group
 *ai)mi/lios	person
@@ -4266,6 +4312,7 @@
 *au)=los-pl	person	group
 *au)da/ta	person
 *au)da/ta-pl	person	group
+*au)dnai=os	person
 *au)dole/wn	person
 *au)dole/wn-pl	person	group
 *au)enti=non	place
@@ -4924,6 +4971,7 @@
 *bhsti/as-pl	person	group
 *bi/as	person
 *bi/as-pl	person	group
+*bi/ktwr	person
 *bi/lippos	person
 *bi/lippos-pl	person	group
 *bi/ppos	person
@@ -5088,6 +5136,7 @@
 *bouqan	person
 *bourai+ko/s	person
 *bourai+ko/s-pl	person	group
+*bousi/ris	person
 *bousiri/ths	ethnic
 *bouta/dhs	person
 *bouta/dhs-pl	person	group
@@ -5287,6 +5336,7 @@
 *daisan	person
 *daiswn	person
 *dakeq	person
+*dakoutis	person
 *dalaan	person
 *dalaia	person
 *dalaias	person
@@ -5410,6 +5460,7 @@
 *deca/menos-pl	person	group
 *decame/nh	person
 *decame/nh-pl	person	group
+*deci/laos	person
 *deci/qeos	person
 *deci/qeos-pl	person	group
 *decia/dh	person
@@ -5539,6 +5590,7 @@
 *dhma/retos-pl	person	group
 *dhma/rhtos	person
 *dhma/rhtos-pl	person	group
+*dhma/rion	person
 *dhma=s	person
 *dhmag/oras	person
 *dhmag/oras-pl	person	group
@@ -5557,6 +5609,7 @@
 *dhmhtriano/s-pl	person	group
 *dhmhtriw/n	person
 *dhmhtriw/n-pl	person	group
+*dhmhtrou=s	person
 *dhmiourgo/s	person
 *dhmiourgo/s-pl	person	group
 *dhmo/dikos	person
@@ -5688,6 +5741,7 @@
 *diogeneiano/s	person
 *diogeneiano/s-pl	person	group
 *diogenh/s	group
+*diogeni/s	person
 *diogeniano/s	person
 *diogeniano/s-pl	person	group
 *diome/dwn	person
@@ -5705,6 +5759,7 @@
 *dionuso/dutos-pl	person	group
 *dionusoklh=s	person
 *dionusoklh=s-pl	person	group
+*dionusoqe/wn	person
 *diopei/qhs	person
 *diopei/qhs-pl	person	group
 *dioprei/qhs	person
@@ -5760,6 +5815,7 @@
 *dometiano/s-pl	person	group
 *domi/tios	person
 *domi/tios-pl	person	group
+*domitios	person
 *domni=nos	person
 *domni=nos-pl	person	group
 *dori/maxos	person
@@ -6059,6 +6115,7 @@
 *enwb	person
 *enws	person
 *enwx	person
+*epeif	person
 *epifi	person
 *eqer	person
 *eqi	person
@@ -6067,6 +6124,7 @@
 *erahl	person
 *ereb	person
 *eregaba	person
+*eremhsis	person
 *eremmwn	person
 *erew	person
 *erma	person
@@ -6501,6 +6559,7 @@
 *fagaihl	person
 *faggai	person
 *fagwr	person
+*fahris	person
 *fai/ac	ethnic
 *fai/dimos	person
 *fai/dimos-pl	person	group
@@ -6565,6 +6624,7 @@
 *falwx	person
 *fame/as	person
 *fame/as-pl	person	group
+*famenwq	person
 *fanai=os	person
 *fanai=os-pl	person	group
 *fani/as	person
@@ -6612,6 +6672,8 @@
 *farma/keia-pl	person	group
 *farmaki/des	person
 *farmaki/des-pl	person	group
+*farmou=qi	person
+*farmouqi	person
 *farna/keia	person
 *farna/keia-pl	person	group
 *farnax	person
@@ -6742,6 +6804,7 @@
 *fi/llis-pl	person	group
 *fi/llura	person
 *fi/llura-pl	person	group
+*fibis	person
 *fidhnai=os	ethnic
 *fidwn	person
 *fikol	person
@@ -7471,6 +7534,7 @@
 *gorpiai=os	person
 *gorpiai=os-pl	person	group
 *gosom	person
+*gou=nqos	person
 *gouba/zhs	person
 *gouba/zhs-pl	person	group
 *goudihl	person
@@ -8081,6 +8145,7 @@
 *kabasahl	person
 *kabasi/las	person
 *kabasi/las-pl	person	group
+*kabatokos	person
 *kabesehl	person
 *kabsai+m	person
 *kabsehl	person
@@ -8119,6 +8184,7 @@
 *kaibaiselehl	person
 *kaidi/kios	person
 *kaidi/kios-pl	person	group
+*kaihs	person
 *kaiki/lios	person
 *kaiki/lios-pl	person	group
 *kaikili/a	person
@@ -8361,6 +8427,7 @@
 *katreu/s	person
 *katreu/s-pl	person	group
 *kattaq	person
+*katutis	person
 *kau/aros	person
 *kau/aros-pl	person	group
 *kau/dinos	person	place
@@ -8424,6 +8491,7 @@
 *kelainai/	place
 *keleo/s	person
 *keleo/s-pl	person	group
+*kelera=s	person
 *kelez	person
 *kelsikh/	place
 *kelti/bhr	ethnic
@@ -8445,6 +8513,8 @@
 *kerdu/lios-pl	person	group
 *kerea/lios	person
 *kerea/lios-pl	person	group
+*kerkeosiris	person
+*kerkh	person
 *kerkida=s	person
 *kerkida=s-pl	person	group
 *kerku/wn	person
@@ -8612,6 +8682,7 @@
 *klh/mh	person
 *klh/mhs	person
 *klh/mhs-pl	person	group
+*klhma/tios	person
 *kli/makos	person
 *kli/makos-pl	person	group
 *kliniko/s	person
@@ -8663,6 +8734,7 @@
 *knagi/a	person
 *knagi/a-pl	person	group
 *knh/f	person
+*knhf	person
 *kni/dos	person
 *knou=fis	person
 *knou=fis-pl	person	group
@@ -8711,6 +8783,7 @@
 *kodra/tos-pl	person	group
 *kodri/dhs	person
 *kodri/dhs-pl	person	group
+*kofah/na	person
 *kogko/leros	person
 *kogko/leros-pl	person	group
 *kogkoli/tanos	person
@@ -8733,6 +8806,7 @@
 *kokkh/ios	person
 *kokkh/ios-pl	person	group
 *kolia/dhs	ethnic
+*kollouqhs	person
 *kolluteu/s	person
 *kolluteu/s-pl	person	group
 *kolluto/s	person
@@ -8765,6 +8839,7 @@
 *konsi/dios-pl	person	group
 *konwneu/s	person
 *konwneu/s-pl	person	group
+*kopaneu=s	person
 *kopreu/s	person
 *kopreu/s-pl	person	group
 *kopti/ths	person	ethnic
@@ -8835,6 +8910,7 @@
 *kourh=tes	group
 *kouri/wn	person
 *kouri/wn-pl	person	group
+*kouse/nna	person
 *kra/neios	person
 *kra/neios-pl	person	group
 *kra/ntwr	person
@@ -9195,6 +9271,7 @@
 *lakwnisth/s	person
 *lakwnisth/s-pl	person	group
 *lamas	person
+*lamenqis	person
 *lamex	person
 *lamiako/s	person
 *lampeti/dhs	person
@@ -9495,6 +9572,7 @@
 *lou/koullos-pl	person	group
 *lou/perkos	person
 *lou/perkos-pl	person	group
+*lou/rios	person
 *lou=kar	person	festival
 *lou=kar-pl	person	group	festival
 *lou=skos	person
@@ -9961,6 +10039,7 @@
 *marou/gkinos	ethnic
 *marph/ssh	person
 *marph/ssh-pl	person	group
+*marreu=s	person
 *marrwn	person
 *marso/s	ethnic
 *marti/alios	person
@@ -10180,6 +10259,8 @@
 *megisto/nous-pl	person	group
 *megistw/	person
 *megistw/-pl	person	group
+*megxh=s	person
+*megxhs	person
 *mehra	person
 *mehtabhl	person
 *mei+da	person
@@ -10274,6 +10355,7 @@
 *melxom	person
 *membra	person
 *memfibosqe	person
+*memfis	person
 *memno/neia	place
 *mena/lippos	person
 *mena/lippos-pl	person	group
@@ -10314,6 +10396,7 @@
 *menna/	person
 *mennai=os	person
 *mennai=os-pl	person	group
+*menni/dhs	person
 *meno/dotos	person
 *meno/dotos-pl	person	group
 *meno/dwros	person
@@ -10353,11 +10436,14 @@
 *mese/ntios	person
 *mese/ntios-pl	person	group
 *meshma	person
+*meskhni/os	person
 *mesolabw/n	person
 *mesollam	person
 *mesomh/dhs	person
 *mesomh/dhs-pl	person	group
 *mesopotami/a	person
+*mesorh	person
+*mesorh/	person
 *mesoulam	person
 *messa/pios	person	ethnic
 *messaam	person
@@ -10383,6 +10469,9 @@
 *metanei/ra-pl	person	group
 *meti/lios	person
 *meti/lios-pl	person	group
+*mexeir	person
+*mexi/r	person
+*mexir	person
 *meze/ntios	person
 *meze/ntios-pl	person	group
 *mh/deios	group
@@ -10961,6 +11050,8 @@
 *neemia	person
 *neemias	person
 *neesqan	person
+*nefo/ris	person
+*neforis	person
 *nefqali	person
 *nefqali/m	person
 *nefqaliim	person
@@ -11013,6 +11104,11 @@
 *new/laos	person
 *new/laos-pl	person	group
 *nexaw	person
+*nexouths	person
+*nexqembhs	person
+*nexqenibis	person
+*nexquris	person
+*nextanoupis	person
 *nh/i+on	place
 *nh/rikos	person
 *nh/rikos-pl	person	group
@@ -11052,6 +11148,7 @@
 *nigi/dios-pl	person	group
 *nigri=nos	person
 *nigri=nos-pl	person	group
+*nika/das	person
 *nika/nwr	person
 *nika/twr	person
 *nika/twr-pl	person	group
@@ -11164,6 +11261,7 @@
 *noumidi/a	place
 *noumisiano/s	person
 *noumisiano/s-pl	person	group
+*nourai=os	person
 *nu/ktimos	person
 *nu/ktimos-pl	person	group
 *nu/mfai	group
@@ -11296,6 +11394,8 @@
 *ou)ale/rios-pl	person	group
 *ou)alenti=nos	person
 *ou)alenti=nos-pl	person	group
+*ou)alerei/a	person
+*ou)aleria=s	person
 *ou)alle/ri	person
 *ou)alle/ri-pl	person	group
 *ou)alle/rios	person
@@ -11455,14 +11555,17 @@
 *pa=nes	group
 *pagkra/tis	person
 *pagkra/tis-pl	person	group
+*pagwnis	person
 *pagxai/a	place
 *pagxai=os	ethnic
 *pagxw=os	person	ethnic
+*pahs	person
 *pai/wn	person
 *pai/wn-pl	person	group
 *paia/n	title
 *paida/rhtos	person
 *paida/rhtos-pl	person	group
+*paieus	person
 *paih/wn	person
 *paih/wn-pl	person	group
 *paioni/hs	person
@@ -11501,6 +11604,7 @@
 *palla/ntios	person
 *palla/ntios-pl	person	group
 *pallhneu/s	ethnic
+*palma=s	person
 *palw=des	place
 *pamboiw/tia	person
 *pamboiw/tia-pl	person	group
@@ -11517,6 +11621,7 @@
 *pamu/lhs	person
 *pamu/lhs-pl	person	group
 *pamu/lia	festival
+*pamwnqhs	person
 *pana/keia	person
 *pana/keia-pl	person	group
 *pana/retos	person
@@ -11527,12 +11632,15 @@
 *pana/xaia-pl	person	group
 *panai/twlos	person
 *panai/twlos-pl	person	group
+*panake/stwr	person
 *panaqh/naia	festival
 *panaqhnaiko/s	person
+*panas	person
 *panaxaia/	place
 *panaxaio/s	ethnic
 *pandosi/a	place
 *pane/llhnes	ethnic
+*panebxounis	person
 *pani/dhs	person
 *pani/dhs-pl	person	group
 *pannuxi/s	person
@@ -11553,6 +11661,7 @@
 *pante/leos-pl	person	group
 *panteu/s	person
 *panteu/s-pl	person	group
+*paous	person
 *papei/rios	person
 *papei/rios-pl	person	group
 *papi/as	person
@@ -11561,9 +11670,11 @@
 *papi/rios-pl	person	group
 *papiri/a	person
 *papiri/a-pl	person	group
+*papnoutis	person
 *paqaia	person
 *paqaios	person
 *paqourhs	person
+*paquris	person
 *paraou/hs	person	ethnic
 *paraou/hs-pl	person	ethnic	group
 *parapina/khs	person
@@ -11625,6 +11736,7 @@
 *pataiki/wn-pl	person	group
 *patareu/s	person
 *patareu/s-pl	person	group
+*patous	person
 *patri/kios	person
 *patri/kios-pl	person	group
 *patri/s	place
@@ -11642,12 +11754,15 @@
 *patrw=|os-pl	person	group
 *patrwni/s	person
 *patrwni/s-pl	person	group
+*patseous	person
 *pauli=nos	person
 *pauli=nos-pl	person	group
+*pauni	person
 *pausi/ras	person
 *pausi/ras-pl	person	group
 *pausi/stratos	person
 *pausi/stratos-pl	person	group
+*paxraths	person
 *paxw/mios	person
 *paxw/mios-pl	person	group
 *paxwn	person
@@ -11734,6 +11849,7 @@
 *pepaipiri/s-pl	person	group
 *peprwme/nh	person
 *peprwme/nh-pl	person	group
+*peqeus	person
 *peraiboi/	ethnic
 *pergasi/dhs	person
 *pergasi/dhs-pl	person	group
@@ -11792,7 +11908,11 @@
 *perusi/a-pl	person	group
 *pessinounti/a	person
 *pessinounti/a-pl	person	group
+*petearendwths	person
+*petearsemqeus	person
 *petefrhs	person
+*petenefwths	person
+*petesouxos	person
 *petew/n	person
 *petew/n-pl	person	group
 *petew/s	person
@@ -11802,6 +11922,7 @@
 *peti/nhs-pl	person	group
 *peto/siris	person
 *peto/siris-pl	person	group
+*petosiris	person
 *petrai/a	person
 *petrai/a-pl	person	group
 *petrai=os	person
@@ -12156,6 +12277,7 @@
 *pouluti/wn-pl	person	group
 *poulxeri/a	person
 *poulxeri/a-pl	person	group
+*pouwnsis	person
 *pra/cilla	person
 *pra/cilla-pl	person	group
 *pra/ktios	place
@@ -12256,11 +12378,14 @@
 *ptlemai=os-pl	person	group
 *ptoio/dwros	person
 *ptoio/dwros-pl	person	group
+*ptole/ma	person
 *ptolemaei=s	person
 *ptolemai+ko/s	person
 *ptolemai/s	person
 *ptolemai=os	person
 *ptolemai=os-pl	person	group
+*ptolla=s	person
+*ptolli/wn	person
 *ptuxi/as	person
 *ptuxi/as-pl	person	group
 *pu/gmwn	person
@@ -12494,6 +12619,7 @@
 *qeo/dokos	person
 *qeo/dokos-pl	person	group
 *qeo/dotos	person
+*qeo/doulos	person
 *qeo/gilos	person
 *qeo/gilos-pl	person	group
 *qeo/gnwstos	person
@@ -12524,6 +12650,7 @@
 *qeofo/ros	person
 *qeofula/ktos	person
 *qeofula/ktos-pl	person	group
+*qeogoni/s	person
 *qeoklu/menos	person
 *qeoklu/menos-pl	person	group
 *qeokri/nhs	person
@@ -12542,6 +12669,7 @@
 *qermai	person
 *qermai=os	place
 *qermeleq	person
+*qermouqa=s	person
 *qersa	person
 *qersi/loxos	person
 *qersi/loxos-pl	person	group
@@ -12564,6 +12692,7 @@
 *qeuda/tos-pl	person	group
 *qeuda=s	person
 *qew/rios	person
+*qewnei=nos	person
 *qh/bhqen	place
 *qh/bhsin	person	place
 *qhbai/s	place
@@ -12703,8 +12832,10 @@
 *qwlai+	person
 *qwma=s	person
 *qwma=s-pl	person	group
+*qwq	person
 *qwruki/wn	person
 *qwruki/wn-pl	person	group
+*qwuq	person
 *raa	person
 *raab	person
 *raabia	person
@@ -13094,6 +13225,7 @@
 *sannuri/wn	person
 *sannuri/wn-pl	person	group
 *sansanna	person
+*sansneus	person
 *saou	person
 *saou/l	person
 *saou=los	person
@@ -13164,6 +13296,7 @@
 *satilai=os	person	group
 *satilai=os-pl	person	group
 *satnio/eis	place
+*satornei=los	person
 *satorni=nos	person
 *satorni=nos-pl	person	group
 *satrais	person
@@ -13326,15 +13459,18 @@
 *semrim	person
 *semrwn	person
 *semwiq	person
+*senatumis	person
 *sene/kas	person
 *sene/kas-pl	person	group
 *seneki/wn	person
 *seneki/wn-pl	person	group
+*senhsis	person
 *senna	person
 *sennaan	person
 *sennaar	person
 *sennan	person
 *sennaxhrim	person
+*senpamwnqhs	person
 *seouh=ros	person
 *seouh=ros-pl	person	group
 *sepfam	person
@@ -13364,6 +13500,9 @@
 *serbwni/s-pl	person	group
 *serebias	person
 *sered	person
+*serh=nos	person
+*serhni/lla	person
+*serhnos	person
 *seri	person
 *serou/i+os	person
 *serou/i+os-pl	person	group
@@ -13496,6 +13635,8 @@
 *silano/s	person
 *silano/s-pl	person	group
 *silaqa	person
+*silbano)s	person
+*silbano/s	person
 *siloua=nos	person
 *siloua=nos-pl	person	group
 *silwa/m	person
@@ -13548,6 +13689,7 @@
 *siwn	person
 *siwna	person
 *siwr	person
+*ska/lifos	person
 *ska/mwn	person
 *ska/mwn-pl	person	group
 *ska/ndeia	person
@@ -13699,6 +13841,7 @@
 *soui+/das	person
 *soui+/das-pl	person	group
 *souia	person
+*soukesos	person
 *soulami=tis	person
 *soulpi/kios	person
 *soulpi/kios-pl	person	group
@@ -13897,6 +14040,7 @@
 *sumaer	person
 *sumaeri	person
 *sumarim	person
+*sumbw/ths	person
 *sumewn	person
 *sumobor	person
 *sumown	person
@@ -13932,6 +14076,7 @@
 *sw/sandros	person
 *sw/sandros-pl	person	group
 *sw/stratos	person
+*sw/tas	person
 *sw/teira	person
 *sw/teira-pl	person	group
 *sw=kos	person
@@ -14081,11 +14226,16 @@
 *tablhq	person
 *taci/lhs	person
 *taci/lhs-pl	person	group
+*taelilous	person
 *tafeq	person
 *tafna/s	person
 *tafou	person
 *tafoug	person
 *taghnistai/	title
+*tagws	person
+*tagxais	person
+*tahsis	person
+*takmhis	person
 *taktiko/s	person
 *taktiko/s-pl	person	group
 *tala/sios	person
@@ -14111,9 +14261,13 @@
 *tanta/leios	person
 *tanu	person
 *tanw	person
+*taonnwfris	person
 *taoui/+as	person
+*taous	person
+*taqwtis	person
 *taraq	person
 *tarfallai=oi	person
+*tarhs	person
 *tarkondi/motos	person
 *tarkondi/motos-pl	person	group
 *tarku/nios	person
@@ -14129,14 +14283,18 @@
 *tarsei=s	person
 *tarxh/tios	person
 *tarxh/tios-pl	person	group
+*tasa/xos	person
+*tasouxa/rion	person
 *tatam	person
 *tatami	person
+*tathmis	person
 *tatiano/s	person
 *tatiano/s-pl	person	group
 *tau/geton	person	place
 *tau/geton-pl	person	place	group
 *tau/reos	person
 *tau/reos-pl	person	group
+*tauhs	person
 *taure/as	person
 *taure/as-pl	person	group
 *tauriko/s	place
@@ -14184,6 +14342,7 @@
 *te/xnwn-pl	person	group
 *tebe/rios	person
 *tebe/rios-pl	person	group
+*tebetnu	person
 *tefwn	person
 *tegurh/ios	person
 *tegurh/ios-pl	person	group
@@ -14235,6 +14394,8 @@
 *tere/ntios-pl	person	group
 *terenti/a	person
 *terenti/a-pl	person	group
+*terentiano/s	person
+*terentiano\s	person
 *terme/reion	person
 *terme/reion-pl	person	group
 *termh/nios	person
@@ -14307,7 +14468,9 @@
 *ti=tos-pl	person	group
 *tibe/rios	person
 *tibe/rios-pl	person	group
+*tiberi=nos	person
 *tiberia/s	place
+*tiberianos	person
 *tiberieu/s	ethnic
 *tiboi/ths	person
 *tiboi/ths-pl	person	group
@@ -14316,6 +14479,7 @@
 *tigelli=nos	person
 *tigelli=nos-pl	person	group
 *tilfwssai=on	place
+*tilwqis	person
 *timage/nhs	person
 *timage/nhs-pl	person	group
 *timai/a	person
@@ -14404,6 +14568,7 @@
 *toru/mbas-pl	person	group
 *tosiwpw=n	person
 *tosiwpw=n-pl	person	group
+*totohs	person
 *tou/cion	person	place
 *tou/cion-pl	person	place	group
 *tou/llios	person
@@ -14523,6 +14688,7 @@
 *tu/sklanos	ethnic
 *tu/xh	person
 *tu/xh-pl	person	group
+*tubi	person
 *tudei/+dhs	person
 *tudei/+dhs-pl	person	group
 *tudeu/s	person
@@ -14748,6 +14914,7 @@
 *xarmin	person
 *xarmis	person
 *xarmo/suna	festival
+*xaro/ppas	person
 *xaroub	person
 *xarra/n	person
 *xarran	person
@@ -14803,6 +14970,7 @@
 *xelou/s	person
 *xeloub	person
 *xelxa	person
+*xemtsneus	person
 *xenara	person
 *xenereq	person
 *xereqqi	person
@@ -14869,6 +15037,9 @@
 *xoddad	person
 *xodli	person
 *xodollogomor	person
+*xoia/k	person
+*xoiak	person
+*xoiax	person
 *xolargeu/s	person
 *xolargeu/s-pl	person	group
 *xolasewla	person
@@ -14948,6 +15119,8 @@
 *xwzhba	person
 *ya/mmwn	person
 *ya/mmwn-pl	person	group
+*ya/tos	person
+*yais	person
 *yama/qh	person
 *yama/qh-pl	person	group
 *yammh/tixos	person
@@ -14956,6 +15129,10 @@
 *yaw/n-pl	person	group
 *ye/llos	person
 *ye/llos-pl	person	group
+*yenenou=pis	person
+*yenhsis	person
+*yentahs	person
+*yenxwnsis	person
 *yila=s	person
 *yila=s-pl	person	group
 *yolo/hs	person	group
@@ -14964,6 +15141,7 @@
 *yuttalei/a	person	place
 *yuxh/	person
 *yuxh/-pl	person	group
+*yuxis	person
 *za/gklh	place
 *za/gklos	person
 *za/gklos-pl	person	group
@@ -15096,6 +15274,7 @@
 *ziza	person
 *zogor	person
 *zogora	person
+*zoidou=s	person
 *zoiteu/s	person
 *zoiteu/s-pl	person	group
 *zomzommin	person

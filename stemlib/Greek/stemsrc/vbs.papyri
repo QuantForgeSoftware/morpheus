@@ -1,0 +1,33 @@
+# Dialectal verb forms attested in the PapyGreek treebanks (Round 8, 2026-10;
+# CC BY-SA 4.0). Egyptian-Koine spellings that the generative paradigms do not
+# produce: reduplicated aorists of λαμβάνω with -α/-αν endings, -εισκ-/-οσκ-
+# presents and -ιν infinitives of γιγνώσκω, and -ιν/-εριν infinitive variants
+# of χαίρω. Each form was verified against the rebuilt vbind before inclusion.
+#
+# Note on stemtypes: the analyzer's key parser (ScanAsciiKeys) only accepts
+# tokens from rule_files/stemtypes.table — the lsj.vbs types anw/airw are NOT
+# in that table and their :vb: lines fail with "no stemtype seen". The stored
+# full form doubles as the generation stem, so any accepted token works; we use
+# emi_aor (the -μι aorist type, cf. τιθῆμι), ow_pr+o_stem, and ew_pr.
+# Picked up by the vbind build (Makefile cat list).
+
+:le:lamba/nw
+:vb:i)lh/fasi emi_aor 3rd pl aor ind act
+:vb:e)/laba emi_aor 1st sg aor ind act
+:vb:e)laba emi_aor 1st sg aor ind act
+:vb:i)lh/fasin emi_aor 3rd pl aor ind act
+:vb:ei)/lhfan emi_aor 3rd pl aor ind act
+:vb:ai)/laba emi_aor 1st sg aor ind act
+
+:le:gignw/skw
+:vb:geinw/skein ow_pr o_stem pres inf act
+:vb:gei/nwske ow_pr o_stem 2nd sg pres ind act
+:vb:geinwske ow_pr o_stem 2nd sg pres ind act
+:vb:gi/noske ow_pr o_stem 2nd sg pres ind act
+:vb:ginw/skin ow_pr o_stem pres inf act
+:vb:gino/skin ow_pr o_stem pres inf act
+
+:le:xai/rw
+:vb:xai/rin ew_pr pres inf act
+:vb:xe/rein ew_pr pres inf act
+:vb:xe/rin ew_pr pres inf act

@@ -31,5 +31,10 @@
 :le:dia/
 :wd:di prep
 
+# Papyrological elision (Round 8): ἐγ for ἐκ before a vowel, x16 in the
+# PapyGreek treebanks.
+:le:e)k
+:wd:e)g prep
+
 :le:a)lla/
 :wd:a)ll conj
