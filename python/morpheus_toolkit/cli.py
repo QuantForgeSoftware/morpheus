@@ -39,6 +39,11 @@ def main(argv: List[str] | None = None) -> int:
     analyze.add_argument("--language", default="greek", choices=["greek", "latin"])
     analyze.add_argument("--context", action="store_true", help="enable experimental contextual re-ranking")
     analyze.add_argument(
+        "--homographs",
+        action="store_true",
+        help="re-rank ambiguous forms by context-conditional gold counts (Greek)",
+    )
+    analyze.add_argument(
         "--unknown-as-proper",
         action="store_true",
         help="give unanalyzed tokens (proper names) a synthetic proper-noun analysis",
@@ -54,6 +59,7 @@ def main(argv: List[str] | None = None) -> int:
         use_context=args.context,
         unknown_as_proper=args.unknown_as_proper,
         ignore_accents=args.ignore_accents,
+        use_homograph_context=args.homographs,
         language=args.language,
     )
     tokens = _read_tokens(args)

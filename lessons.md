@@ -132,8 +132,12 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
 - **`runner.analyze_beta()` takes BETA CODE, not Unicode** (Round 9): the API layer
   converts via `to_beta` first; `_normalize_beta` only lower-cases. An evaluator
   that feeds raw Unicode gets a silent 0% coverage (cruncher matches nothing,
-  returncode still 0). Unmatched forms also go to stderr, not stdout — probe with
-  `-q` or check both streams.
+  returncode still 0). In `-S` mode matched forms print to **stdout** and unmatched
+  ones to **stderr** — probe with `-q`, or check both streams.
+- **Beta-code accent markers follow their vowel, so hand-rolled betas are wrong**
+  (Round 9): ὡς is `w(s`, not `ws/`; the marker attaches to the accented letter,
+  and a mistyped beta looks exactly like "form not found". Always generate probe
+  strings via `to_beta()` (or copy an existing table key) instead of typing them.
 
 ## Corpus tooling (annotation pipelines)
 
@@ -212,6 +216,14 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   lemmas carry bare `#` markers — strip `#\d*$`. CoNLL-X exports also omit
   unannotated sections (greek-nt: HEB 13 + Catholic epistles; 132,366 of
   140,773 XML tokens).
+- **Decompose residual mismatches into rankable vs convention before sizing a
+  learned model's payoff** (Round 9): of the 644 homograph-table forms, only 42 had
+  non-degenerate gold marginals and just 13 any context split — Koine gold is
+  ~95–100% one-way for most ambiguous forms. The famous "residuals" (ὡς/ὅς,
+  εἰ/εἰμί) are unanimous in the training corpora; their disagreement with PROIEL is
+  inter-edition annotation convention a ranker correctly doesn't chase. Measured gain
+  was +0.6–1.6pp, not the +2–4pp target — that is the ceiling of what context can buy
+  here, not an implementation bug.
 - **PROIEL lemma conventions differ from SBLGNT/Morpheus** (Round 8): pronoun
   families headed by the plural (ὑμεῖς/ἡμεῖς vs σύ/ἐγώ), εἶπον kept under λέγω,
   lowercase σατανᾶς, iota Ἡλίας where SBLGNT has eta Ἠλίας. Cross-corpus

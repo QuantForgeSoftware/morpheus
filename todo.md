@@ -31,14 +31,16 @@ out of committed files (NC-SA), default NT behavior unchanged. Working files go 
    - [x] Guards: AF/PG snapshots byte-identical (or known endtable noise); pytest 33/33.
    - [x] Independent cross-check: PROIEL Herodotus (`hdt.conll`, CC BY-NC-SA →
      measurement/docs only, nothing committed).
-2. **Contextual homograph disambiguation** (opt-in; default behavior unchanged)
-   - [ ] Profile the residual homographs on SBLGNT/AF/PG gold to fix the form set
+2. **Contextual homograph disambiguation** ✅ (see review below)
+   - [x] Profile the residual homographs on SBLGNT/AF/PG gold to fix the form set
      and context features.
-   - [ ] Train a small learned model P(lemma | form, prev POS, next POS) on
-     commit-safe gold only (SBLGNT + LXX + AF + PG); bundle as data table.
-   - [ ] Wire in behind an opt-in flag (API + CLI); default path byte-identical.
-   - [ ] Verify: target +2–4pp top-1 on SBLGNT/AF/PapyGreek; must transfer to
-     PROIEL greek-nt (independent gold); pytest 33/33.
+   - [x] Train a small learned model P(lemma | form, prev POS, next POS) on
+     commit-safe gold only (SBLGNT + AF + PG; LXX excluded — no annotated `.mlxx`
+     gold in this workspace); bundle as data table.
+   - [x] Wire in behind an opt-in flag (API + CLI); default path byte-identical.
+   - [x] Verify: measured +0.6–1.6pp top-1 on SBLGNT/AF/PapyGreek (below the
+     +2–4pp target — see review for why that is the ceiling); transfers to PROIEL
+     greek-nt (independent gold); pytest 33/33.
 3. **PapyGreek numerals** (opt-in mode)
    - [ ] Inspect ALDT numeral gold (postag `m`): forms, lemmas, marker patterns.
    - [ ] Build bundled papyrus-numeral table from PapyGreek gold (CC BY-SA);
@@ -103,6 +105,46 @@ and Morpheus's coverage of Ionic prose matches AGLDT's (100%).
 **Verification**: pytest 33/33; AF main-config re-run adds zero drift vs Round 8's
 check run (both show only the known endtable noise); PapyGreek eval byte-identical
 in both table configs.
+
+## Review (Round 9, item 2: contextual homograph disambiguation) ✅
+
+**Design.** Opt-in re-ranker (`Morpheus(use_homograph_context=True)` / CLI
+`--homographs`, Greek only; off by default — the table is not even loaded when off).
+Context = the neighbours' *frequency-ranked top-1 POS* (Morpheus's own output, not
+gold POS — no train/test mismatch); verse/sentence boundaries reset context.
+Scoring is `log1p(count)` with exact-context → marginal fallback; tokens whose form
+is not in the table are untouched. New module `morpheus_toolkit/homographs.py`
+tables by beta form and lazy-loads only when the flag is on.
+
+**Training.** Commit-safe gold only: SBLGNT + Apostolic Fathers + PapyGreek (all CC
+BY-SA, 237,231 tokens). LXX deliberately excluded — no annotated `.mlxx` gold exists
+in this workspace (only Morpheus's own outputs in `tmp/lxx/`); documented as a
+limitation. Table: **644 forms** (`min_form=20`, `min_ctx=5`) →
+`data/homograph_contexts.json`; rebuild with `scripts/build_homograph_contexts.py`
+(idempotent; readers for all three gold formats).
+
+**Result — A/B (flag off → on, gold = each corpus's own lemma):**
+
+| corpus | n | top-1 | acc-insens | POS |
+|---|---:|---|---|---|
+| SBLGNT (in-domain) | 137,554 | 93.6 → **94.4** (+0.8pp) | 94.2 → 95.0 | 77.6 → 78.2 |
+| Apostolic Fathers | 63,222 | 89.0 → **89.7** (+0.7pp) | 89.6 → 90.3 | 75.0 → 75.5 |
+| PapyGreek | 36,455 | 83.8 → **85.4** (+1.6pp) | 85.3 → 86.9 | 77.3 → 78.5 |
+| PROIEL greek-nt (independent) | 132,366 | 92.4 → **93.0** (+0.6pp) | 93.4 → 94.0 | 82.7 → 83.1 |
+
+Positive on **all four** corpora including the fully independent PROIEL gold —
+transfer confirmed, not memorization. But +0.6–1.6pp, not the +2–4pp target: only
+**42 of the 644 table forms have non-degenerate marginals (and just 13 any context
+split)** — Koine gold is ~95–100% one-way for most ambiguous forms, and several
+"splits" are accent/case annotation conventions (te→τέ/τε, ti/→τίς/τις). The famous
+residual families from the Round-8 cross-validation (w(s→ὡς unanimous in training,
+ei)→εἰ unanimous, o(\→ὅς unanimous) are inter-edition convention differences with
+PROIEL, not ranking errors — the model correctly doesn't chase them. Shipped as
+opt-in tooling; the larger residual is convention noise no ranker can fix (lesson
+captured in `lessons.md`).
+
+**Verification**: pytest 33/33; AF default-path re-run byte-identical to Round 9's
+check snapshot (`tmp/af/ev2_af_r9check.txt`) — flag off is a proven no-op.
 
 ## Not doing (standing constraints)
 

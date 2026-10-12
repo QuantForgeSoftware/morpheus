@@ -129,6 +129,21 @@ frequency ranking, so both are off by default:
 They need a *learned* emission model (P(lemma | tag)) and a proper tagger to pay
 off; the bundled hand-built model is not enough.
 
+A third approach **does** measure positive on exactly the ambiguity plain frequency
+can't resolve — function-word homographs whose reading depends on the neighbours
+(ὃ → ὁ/ὅς, τε → σύ/τε, ἢ → εἰμί/ἠμί/ἤ/ἦ). `--homographs` (API:
+`use_homograph_context=True`) re-ranks a token's candidates by P(gold lemma | form,
+prev POS, next POS) from the bundled table `data/homograph_contexts.json` (644
+forms; trained on SBLGNT + Apostolic Fathers + PapyGreek, all CC BY-SA — rebuild
+with `scripts/build_homograph_contexts.py`). Context is the neighbours' own ranked
+top-1 POS and resets at verse/sentence boundaries, so there is no train/test
+mismatch. Measured (flag off → on): SBLGNT 93.6→**94.4%**, Apostolic Fathers
+89.0→**89.7%**, PapyGreek 83.8→**85.4%** top-1, and +0.6pp on the independent PROIEL
+Greek NT gold — the gain transfers to unseen text. Off by default; with it off,
+behavior is byte-identical. Most of Morpheus's ambiguous forms are in fact
+unambiguous in the gold (only 42/644 table forms have a split), so the effect is
+small but real and positive on every corpus measured.
+
 ## The Septuagint (LXX)
 
 Morpheus's Greek stemlibs carry a generated `nom.lxx` with ~4,500 proper names and
@@ -277,7 +292,9 @@ on that independent text.
   agreement.
 - **Contextual ranking is experimental.** The hand-written context rules in
   `ranking.py` *hurt* accuracy and the POS-bigram Viterbi tagger in `tagger.py`
-  merely matches frequency ranking; both are off by default.
+  merely matches frequency ranking; both are off by default. The exception is the
+  homograph-context re-ranker (`--homographs`, see Ranking), which measured a small
+  positive gain on every corpus tested — also opt-in, Greek only.
 - **Coverage.** A small fraction of NT tokens gets no analysis, historically dominated
   by **biblical proper names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`;
   coverage improved slightly after the LXX additions (`nom.lxx`) since many biblical

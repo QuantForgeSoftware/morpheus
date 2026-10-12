@@ -46,6 +46,7 @@ class Morpheus:
         runner: Optional[MorpheusRunner] = None,
         unknown_as_proper: bool = False,
         ignore_accents: bool = False,
+        use_homograph_context: bool = False,
         language: str = "greek",
     ):
         self.language = (language or "greek").lower()
@@ -60,6 +61,9 @@ class Morpheus:
         # When set, tokens the accented match misses are retried without accents
         # (recovering unaccented text such as verse-initial capitals).
         self.ignore_accents = ignore_accents
+        # Opt-in: re-rank ambiguous forms by context-conditional gold counts
+        # (data/homograph_contexts.json). Off by default — behavior unchanged.
+        self.use_homograph_context = use_homograph_context
 
     @property
     def is_latin(self) -> bool:
@@ -100,9 +104,27 @@ class Morpheus:
             result.analyses = self.ranker.rank(result.analyses)
         if self.ranker.use_context:
             self.ranker.rerank_with_context([result.analyses for result in results])
+        if self.use_homograph_context and not self.is_latin:
+            self._apply_homographs(results)
         for result in results:
             self._annotate(result.analyses)
         return results
+
+    def _apply_homographs(self, results: List[TokenResult]) -> None:
+        """Re-rank ambiguous forms using the context table (opt-in; Greek only).
+
+        Context = the neighbours' current top-1 POS, so this runs after all other
+        ranking passes. Tokens whose form is not in the table are untouched.
+        """
+        from .homographs import rerank
+
+        for i, result in enumerate(results):
+            if len(result.analyses) < 2 or not result.beta:
+                continue
+            prev = results[i - 1].analyses[0].pos if i > 0 and results[i - 1].analyses else None
+            nxt = (results[i + 1].analyses[0].pos
+                   if i + 1 < len(results) and results[i + 1].analyses else None)
+            result.analyses = rerank(result.analyses, result.beta, prev, nxt)
 
     def _recover_unaccented(self, results: List[TokenResult]) -> None:
         """Retry, without accents, the words the accented match missed.
