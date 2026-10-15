@@ -59,15 +59,23 @@ def main(argv: List[str] | None = None) -> int:
         help="retry accented misses without accents/breathings (unaccented text)",
     )
     analyze.add_argument(
-        "--learned",
-        action="store_true",
-        help="re-rank candidates with the learned model (Greek)",
+        "--no-learned",
+        dest="learned",
+        action="store_false",
+        help="disable the learned re-ranker (on by default for Greek)",
     )
     analyze.add_argument(
-        "--adaptive-tables",
-        action="store_true",
-        help="automatically pick the best-fitting bundled frequency table (Greek)",
+        "--no-adaptive-tables",
+        dest="adaptive_tables",
+        action="store_false",
+        help="disable automatic frequency-table selection (on by default for Greek)",
     )
+    # Accepted no-ops kept for compatibility with older command lines.
+    analyze.add_argument("--learned", dest="learned", action="store_true",
+                         help=argparse.SUPPRESS)
+    analyze.add_argument("--adaptive-tables", dest="adaptive_tables", action="store_true",
+                         help=argparse.SUPPRESS)
+    analyze.set_defaults(learned=True, adaptive_tables=True)
     analyze.add_argument(
         "--profile",
         choices=["morphgnt", "lxx"],

@@ -1,5 +1,6 @@
 import math
 
+from morpheus_toolkit import calibration
 from morpheus_toolkit.calibration import (
     expected_calibration_error,
     softmax_confidences,
@@ -33,3 +34,15 @@ def test_ece_detects_overconfidence():
 
 def test_ece_empty():
     assert expected_calibration_error([], []) == 0.0
+
+
+def test_load_temperature_selects_path(monkeypatch):
+    monkeypatch.setattr(calibration, "load_calibration",
+                        lambda: {"temperature": 0.08, "temperature_learned": 0.31})
+    assert calibration.load_temperature() == 0.08
+    assert calibration.load_temperature(learned=True) == 0.31
+
+
+def test_load_temperature_falls_back_to_frequency(monkeypatch):
+    monkeypatch.setattr(calibration, "load_calibration", lambda: {"temperature": 0.08})
+    assert calibration.load_temperature(learned=True) == 0.08

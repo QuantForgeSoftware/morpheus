@@ -11,8 +11,9 @@ frequency ranking does not see — fine POS, stem type, the candidate's frequenc
 itself a feature, so the learned model starts from the frequency signal and can
 only add to it (subject to generalization).
 
-Trained on commit-safe gold only; see ``scripts/build_learned_model.py``. Off by
-default: with the flag off no model is loaded and behavior is unchanged.
+Trained on commit-safe gold only; see ``scripts/build_learned_model.py``. On by
+default for Greek; pass ``use_learned=False`` (CLI ``--no-learned``) and no model
+is loaded.
 """
 from __future__ import annotations
 

@@ -4,7 +4,8 @@ Offline Greek benchmark + regression gate.
 
 Runs every available local gold corpus through the current build and reports a
 consolidated table of coverage / top-1 lemma (raw Morpheus order, frequency
-ranking, and optionally the learned re-ranker) / coarse POS. Compares the results
+ranking with the default or the auto-selected table, and the learned re-ranker —
+both on by default, matching the toolkit) / coarse POS. Compares the results
 against the committed thresholds in ``benchmarks/expected_greek.json`` and exits
 non-zero if any metric falls outside its tolerance.
 
@@ -17,9 +18,10 @@ Corpora are read from environment variables / flags, never hardcoded paths:
   PROIEL_DIR     syntacticus greek-nt.conll       (CC BY-NC-SA; measurement only)
 
 Usage:
-  scripts/benchmark.py                       # check against thresholds
+  scripts/benchmark.py                       # check against thresholds (shipped default)
   scripts/benchmark.py --update              # rewrite thresholds from this run
-  scripts/benchmark.py --learned --bootstrap 200
+  scripts/benchmark.py --bootstrap 200       # add learned-vs-ranked 95% CIs
+  scripts/benchmark.py --no-learned --no-adaptive --no-gate   # frequency path only
   MORPHGNT_DIR=... AF_CORPUS_DIR=... scripts/benchmark.py
 """
 from __future__ import annotations
@@ -154,11 +156,13 @@ class Counters:
     raw: int = 0
     ranked: int = 0
     learned: int = 0
+    homograph: int = 0
     pos_n: int = 0
     pos: int = 0
     raw_flags: List[int] = None
     ranked_flags: List[int] = None
     learned_flags: List[int] = None
+    homograph_flags: List[int] = None
 
     def pct(self, value: int) -> float:
         return 100.0 * value / self.n if self.n else 0.0
@@ -172,13 +176,16 @@ class Counters:
             "top1_raw": round(self.pct(self.raw), 2),
             "top1_ranked": round(self.pct(self.ranked), 2),
             "top1_learned": round(self.pct(self.learned), 2) if self.learned_flags else None,
+            "top1_homograph": round(self.pct(self.homograph), 2) if self.homograph_flags else None,
             "pos": round(100.0 * self.pos / self.pos_n, 2) if self.pos_n else 0.0,
         }
 
 
 def evaluate(rows: List[Row], runner: MorpheusRunner, ranker: Ranker,
-             learned: Optional[LearnedRanker], ignore_accents: bool = False) -> Counters:
-    counters = Counters(raw_flags=[], ranked_flags=[], learned_flags=[])
+             learned: Optional[LearnedRanker], ignore_accents: bool = False,
+             homographs: bool = False) -> Counters:
+    counters = Counters(raw_flags=[], ranked_flags=[], learned_flags=[],
+                        homograph_flags=[])
     groups: Dict[str, List[Row]] = {}
     for row in rows:
         groups.setdefault(row.ref, []).append(row)
@@ -201,6 +208,17 @@ def evaluate(rows: List[Row], runner: MorpheusRunner, ranker: Ranker,
             learned_ranked = learned.rank_sequence(
                 [(betas[i], list(analyses[i])) for i in range(len(group))]
             )
+        final = learned_ranked if learned_ranked is not None else ranked
+        if homographs:
+            from morpheus_toolkit.homographs import rerank
+
+            final = [list(cands) for cands in final]
+            for i in range(len(final)):
+                if len(final[i]) < 2 or not betas[i]:
+                    continue
+                prev_pos = final[i - 1][0].pos if i > 0 and final[i - 1] else None
+                next_pos = final[i + 1][0].pos if i + 1 < len(final) and final[i + 1] else None
+                final[i] = rerank(final[i], betas[i], prev_pos, next_pos)
         for i, row in enumerate(group):
             counters.n += 1
             cand = analyses[i]
@@ -208,7 +226,10 @@ def evaluate(rows: List[Row], runner: MorpheusRunner, ranker: Ranker,
                 counters.misses += 1
                 counters.raw_flags.append(0)
                 counters.ranked_flags.append(0)
-                counters.learned_flags.append(0)
+                if learned is not None:
+                    counters.learned_flags.append(0)
+                if homographs:
+                    counters.homograph_flags.append(0)
                 continue
             if any(a.matches_lemma(row.lemma) for a in cand):
                 counters.covered += 1
@@ -223,6 +244,11 @@ def evaluate(rows: List[Row], runner: MorpheusRunner, ranker: Ranker,
                 hit = int(bool(top) and top[0].matches_lemma(row.lemma))
                 counters.learned += hit
                 counters.learned_flags.append(hit)
+            if homographs:
+                top = final[i]
+                hit = int(bool(top) and top[0].matches_lemma(row.lemma))
+                counters.homograph += hit
+                counters.homograph_flags.append(hit)
             # POS: exact class for Morpheus-scheme corpora, membership otherwise.
             if row.classes is not None:
                 if row.classes:
@@ -254,6 +280,33 @@ def bootstrap_ci(flags_a: List[int], flags_b: List[int], rounds: int, seed: int 
 
 
 # --------------------------------------------------------------------------- driver
+def select_adaptive_table(rows: List[Row], runner: MorpheusRunner,
+                          ignore_accents: bool = False, sample: int = 20000):
+    """Pick the best-fitting bundled table for a corpus (streamed sample).
+
+    Mirrors the toolkit's per-text selection (``TableSet.select``) at corpus
+    granularity: a sample of the corpus's own candidates scores every bundled
+    table and the best fit wins. Returns (table_set, chosen_name, fit_scores).
+    """
+    from morpheus_toolkit.tables import load_table_set
+
+    table_set = load_table_set()
+    groups: Dict[str, List[Row]] = {}
+    for row in rows:
+        groups.setdefault(row.ref, []).append(row)
+    betas: List[str] = []
+    for group in groups.values():
+        betas.extend(to_beta(row.token) for row in group)
+        if len(betas) >= sample:
+            break
+    cand_lists: List[list] = []
+    batch = 4000
+    for start in range(0, len(betas), batch):
+        cand_lists.extend(runner.analyze_beta(betas[start:start + batch],
+                                              ignore_accents=ignore_accents))
+    return table_set, table_set.select(cand_lists), table_set.fit_scores(cand_lists)
+
+
 def discover(args) -> List[Tuple[str, List[Row], bool]]:
     corpora: List[Tuple[str, List[Row], bool]] = []
     morphgnt = args.morphgnt_dir or os.environ.get("MORPHGNT_DIR", "")
@@ -280,12 +333,24 @@ def main() -> int:
     ap.add_argument("--agldt-dir", default="")
     ap.add_argument("--proiel-dir", default="")
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--learned", action="store_true")
+    ap.add_argument("--no-learned", dest="learned", action="store_false",
+                    help="frequency path only (no learned re-ranker)")
+    ap.add_argument("--no-adaptive", dest="adaptive", action="store_false",
+                    help="use the default table instead of the corpus-selected one")
+    ap.add_argument("--homographs", action="store_true",
+                    help="also measure the homograph-context re-ranker on the final order")
+    # Accepted no-ops kept for compatibility with older command lines.
+    ap.add_argument("--learned", dest="learned", action="store_true", help=argparse.SUPPRESS)
+    ap.add_argument("--adaptive", dest="adaptive", action="store_true", help=argparse.SUPPRESS)
+    ap.set_defaults(learned=True, adaptive=True)
     ap.add_argument("--joint", action="store_true", help="rank by joint (lemma, POS) frequency")
     ap.add_argument("--bootstrap", type=int, default=0,
                     help="bootstrap rounds for the learned-vs-ranked 95%% CI")
     ap.add_argument("--update", action="store_true", help="rewrite the expected thresholds")
+    ap.add_argument("--no-gate", dest="gate", action="store_false",
+                    help="skip the threshold comparison (diagnostic runs)")
     ap.add_argument("--tolerance", type=float, default=0.5, help="allowed pp drop")
+    ap.set_defaults(gate=True)
     args = ap.parse_args()
 
     corpora = discover(args)
@@ -298,13 +363,14 @@ def main() -> int:
         load_default_frequencies(),
         joint_frequencies=(load_default_joint_frequencies() or None) if args.joint else None,
     )
+    learned_model = None
     learned = None
     if args.learned:
-        model = load_default_model()
-        if not model.get("weights"):
+        learned_model = load_default_model()
+        if not learned_model.get("weights"):
             print("no learned model; run scripts/build_learned_model.py")
             return 2
-        learned = LearnedRanker(model, frequencies=ranker.frequencies, joint=ranker.joint)
+        learned = LearnedRanker(learned_model, frequencies=ranker.frequencies, joint=ranker.joint)
 
     results: Dict[str, dict] = {}
     failures: List[str] = []
@@ -313,27 +379,43 @@ def main() -> int:
         expected = json.load(open(EXPECTED, encoding="utf-8")).get("corpora", {})
 
     for name, rows, ignore_accents in corpora:
-        counters = evaluate(rows, runner, ranker, learned, ignore_accents)
+        if args.adaptive:
+            table_set, table, scores = select_adaptive_table(rows, runner, ignore_accents)
+            ranker.set_frequencies(table_set.frequencies(table))
+            detail = ", ".join(f"{key}={value:.2f}" for key, value in sorted(scores.items()))
+            print(f"{name:<20} adaptive table: {table}  [{detail}]")
+            if learned_model is not None:
+                learned = LearnedRanker(learned_model, frequencies=ranker.frequencies,
+                                        joint=ranker.joint)
+        counters = evaluate(rows, runner, ranker, learned, ignore_accents,
+                            homographs=args.homographs)
         metrics = counters.as_dict()
         results[name] = metrics
         learned_str = f" learned={metrics['top1_learned']:5.1f}%" if metrics["top1_learned"] is not None else ""
+        homograph_str = (f" homo={metrics['top1_homograph']:5.1f}%"
+                         if metrics["top1_homograph"] is not None else "")
         print(f"{name:<20} n={metrics['n']:<7} analyzed={metrics['analyzed']:5.1f}% "
               f"cov={metrics['coverage']:5.1f}% "
               f"raw={metrics['top1_raw']:5.1f}%->ranked={metrics['top1_ranked']:5.1f}%"
-              f"{learned_str} pos={metrics['pos']:5.1f}%")
+              f"{learned_str}{homograph_str} pos={metrics['pos']:5.1f}%")
         if args.bootstrap and counters.learned_flags and metrics["top1_learned"] is not None:
             lo, hi = bootstrap_ci(counters.ranked_flags, counters.learned_flags, args.bootstrap)
             print(f"{'':<20} learned - ranked 95% CI: [{lo:+.2f}, {hi:+.2f}] pp")
         exp = expected.get(name)
-        if exp and not args.update:
-            for key in ("coverage", "top1_ranked", "pos"):
+        if exp and not args.update and args.gate:
+            keys = ["coverage", "top1_ranked", "pos"]
+            if metrics["top1_learned"] is not None and exp.get("top1_learned") is not None:
+                keys.append("top1_learned")
+            for key in keys:
                 if metrics[key] < exp[key] - args.tolerance:
                     failures.append(f"{name}.{key}: {metrics[key]} < {exp[key]} (tol {args.tolerance})")
 
     if args.update:
         os.makedirs(os.path.dirname(EXPECTED), exist_ok=True)
         with open(EXPECTED, "w", encoding="utf-8") as handle:
-            json.dump({"note": "Offline regression thresholds (see scripts/benchmark.py).",
+            json.dump({"note": "Offline regression thresholds; written by the canonical run "
+                               "(defaults: learned re-ranker + adaptive tables; use "
+                               "--no-learned / --no-adaptive for the frequency path).",
                        "corpora": results}, handle, ensure_ascii=False, indent=2)
         print(f"\nWrote thresholds to {EXPECTED}")
         return 0

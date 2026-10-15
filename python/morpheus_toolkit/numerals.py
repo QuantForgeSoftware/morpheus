@@ -41,8 +41,17 @@ def load_numeral_table() -> dict:
 
 
 def propose(beta: str) -> Optional[Analysis]:
-    """Synthetic numeral analysis for a form in the table, else None."""
-    lemma = load_numeral_table().get(beta or "")
+    """Synthetic numeral analysis for a form in the table, else None.
+
+    Numeral case is meaningless (α = Α = 1), so a single letter that misses the
+    table falls back to its capital entry (beta ``*`` prefix) — this recovers
+    lowercase α and ε, whose capital forms are attested in the table.
+    """
+    table = load_numeral_table()
+    key = beta or ""
+    lemma = table.get(key)
+    if lemma is None and len(key) == 1 and key.isalpha():
+        lemma = table.get("*" + key.lower())
     if not lemma:
         return None
     return Analysis(

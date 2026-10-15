@@ -1,5 +1,5 @@
 {
-  "note": "Offline regression thresholds (see scripts/benchmark.py).",
+  "note": "Offline regression thresholds; written by the canonical run (defaults: learned re-ranker + adaptive tables; use --no-learned / --no-adaptive for the frequency path).",
   "corpora": {
     "SBLGNT": {
       "n": 137554,
@@ -8,6 +8,7 @@
       "top1_raw": 88.1,
       "top1_ranked": 94.56,
       "top1_learned": 94.67,
+      "top1_homograph": null,
       "pos": 77.87
     },
     "Apostolic Fathers": {
@@ -15,18 +16,20 @@
       "analyzed": 98.37,
       "coverage": 91.2,
       "top1_raw": 84.8,
-      "top1_ranked": 90.14,
-      "top1_learned": 90.29,
-      "pos": 75.79
+      "top1_ranked": 90.45,
+      "top1_learned": 90.21,
+      "top1_homograph": null,
+      "pos": 75.94
     },
     "AGLDT classical": {
       "n": 469254,
       "analyzed": 99.85,
       "coverage": 98.64,
       "top1_raw": 79.88,
-      "top1_ranked": 86.56,
-      "top1_learned": 91.49,
-      "pos": 82.43
+      "top1_ranked": 92.78,
+      "top1_learned": 93.74,
+      "top1_homograph": null,
+      "pos": 85.2
     },
     "PROIEL greek-nt": {
       "n": 132366,
@@ -35,6 +38,7 @@
       "top1_raw": 78.17,
       "top1_ranked": 91.66,
       "top1_learned": 92.19,
+      "top1_homograph": null,
       "pos": 81.59
     }
   }

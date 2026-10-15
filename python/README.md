@@ -137,16 +137,19 @@ prev POS, next POS) from the bundled table `data/homograph_contexts.json` (644
 forms; trained on SBLGNT + Apostolic Fathers + PapyGreek, all CC BY-SA — rebuild
 with `scripts/build_homograph_contexts.py`). Context is the neighbours' own ranked
 top-1 POS and resets at verse/sentence boundaries, so there is no train/test
-mismatch. Measured (flag off → on): SBLGNT 93.6→**94.4%**, Apostolic Fathers
-89.0→**89.7%**, PapyGreek 83.8→**85.4%** top-1, and +0.6pp on the independent PROIEL
-Greek NT gold — the gain transfers to unseen text. Off by default; with it off,
-behavior is byte-identical. Most of Morpheus's ambiguous forms are in fact
-unambiguous in the gold (only 42/644 table forms have a split), so the effect is
-small but real and positive on every corpus measured.
+mismatch. Measured on the shipped default (flag off → on): SBLGNT 94.7→**94.9%**,
+Apostolic Fathers 90.2→**90.7%**, PROIEL Greek NT 92.2→**93.1%** — the gain transfers
+to unseen text. On classical AGLDT it is 93.7→**93.3%** (the table is Koine/NT-trained;
+classical usage of these function words differs), which is why it stays opt-in. Off by
+default; with it off, behavior is byte-identical. Most of Morpheus's ambiguous forms
+are in fact unambiguous in the gold (only 42/644 table forms have a split), so the
+effect is small but real and positive on every corpus measured.
 
 ### Learned re-ranking
 
-`--learned` (API: `Morpheus(use_learned=True)`) re-orders a token's candidates with a
+Learned re-ranking is **on by default for Greek** (`--no-learned`; API
+`Morpheus(use_learned=False)`); with it off no model is loaded and behavior is unchanged.
+It re-orders a token's candidates with a
 small bundled model (`data/learned_reranker.json`) instead of plain frequency. It is a
 per-token averaged perceptron trained on pooled commit-safe gold — SBLGNT + Apostolic
 Fathers + **AGLDT v2.1 Greek** (CC BY-SA 3.0 US) — 385,758 analyzable tokens. Features:
@@ -155,8 +158,7 @@ lemma frequency and its *rank*, fine POS, stem type, **morphological feature val
 tokens' frequency-ranked POS. Most of what frequency ranking already gets right is
 preserved (frequency is a feature); the model adds the signals frequency alone cannot
 see. Rebuild with `scripts/build_learned_model.py` (add `--agldt-dir …`; `--agldt-limit N`
-subsamples AGLDT to balance the pool against the Koine corpora); off by default (no model
-loaded when off).
+subsamples AGLDT to balance the pool against the Koine corpora).
 
 Top-1 lemma, frequency ranking → learned (flag off → on):
 
@@ -165,41 +167,50 @@ Top-1 lemma, frequency ranking → learned (flag off → on):
 | SBLGNT (MorphGNT) | 137,554 | 94.6% | **94.7%** |
 | Apostolic Fathers (all) | 63,222 | 90.1% | **90.3%** |
 | PROIEL greek-nt (**independent**) | 132,366 | 91.7% | **92.2%** |
-| AGLDT v2.1 Greek (classical) | 469,254 | 91.4% | **93.2%** |
+| AGLDT v2.1 Greek (classical, adaptive table) | 469,254 | 92.8% | **93.7%** |
 
 Pooling the classical treebank into training is what makes the model strong on classical
-text (+3.0pp over the Koine-only model, +1.8pp over frequency ranking) at the cost of a
+text (+3.0pp over the Koine-only model, +1.0pp over frequency ranking with the classical
+table) at the cost of a
 ~0.3pp Koine drift (within build noise; the larger, unbalanced pool cost ~0.7pp, hence
-the `--agldt-limit` balance). It remains **opt-in**: it cannot resolve feature-level
-homographs inside one lemma (e.g. εἰμί imperfect 3sg vs 1sg, which need lemma-level
-context).
+the `--agldt-limit` balance). It cannot resolve feature-level homographs inside one lemma
+(e.g. εἰμί imperfect 3sg vs 1sg, which need lemma-level context).
 
 ### Adaptive domain tables
 
-`--adaptive-tables` (API: `Morpheus(adaptive_tables=True)`) removes the need to hand-pick
+Adaptive table selection is **on by default for Greek** (`--no-adaptive-tables`; API
+`Morpheus(adaptive_tables=False)`); caller-supplied `frequencies=` are never overridden.
+It removes the need to hand-pick
 the frequency table: it scores every bundled table against the input's candidate lemmas
 (by their normalized rank inside each table) and uses the best fit. Verified selections:
-SBLGNT→Koine, Apostolic Fathers→AF, AGLDT classical→classical, PROIEL Greek NT→Koine. The
+SBLGNT→Koine, Apostolic Fathers→AF, AGLDT classical→classical, PROIEL Greek NT→Koine,
+LXX→LXX, PapyGreek papyri→papyri. The
 payoff of getting the register right is large:
 
-| corpus | Koine table (default) | adaptive |
+| corpus | Koine table (fixed) | adaptive |
 | --- | ---: | ---: |
-| AGLDT v2.1 Greek (classical) | 85.3% | **91.4%** |
+| AGLDT v2.1 Greek (classical) | 86.6% | **92.8%** |
 | Apostolic Fathers | 90.1% | **90.5%** |
 | SBLGNT | 94.6% | 94.6% |
 
-On classical text, automatic selection recovers **+6.1pp** over the Koine default (and
+On classical text, automatic selection recovers **+6.2pp** over the Koine default (and
 matches passing the classical table by hand). Inputs under 40 tokens keep the default
-table. Off by default; with it off, behavior is unchanged.
+table.
 
 ### Confidence calibration
 
 Reported `confidence` is a softmax over the ranker's scores, which are *ordering*
-scores, not probabilities — so it was systematically over-confident. A single
-temperature (bundled `data/calibration.json`, fitted by NLL grid search on SBLGNT with
-`scripts/calibrate.py`) now scales it. Top-1 expected calibration error drops
-**0.207 → 0.141** on SBLGNT and **0.203 → 0.139** on the Apostolic Fathers. Pass
-`temperature=1.0` to opt out; the value stays in `[0, 1]`.
+scores, not probabilities — so the raw softmax is badly scaled. A temperature per
+score path (bundled `data/calibration.json`, fitted by NLL grid search on SBLGNT with
+`scripts/calibrate.py`; `--learned` fits the learned path) now scales it:
+
+- **frequency scores** (`--no-learned`): T=0.08, top-1 expected calibration error
+  **0.208 → 0.142** on SBLGNT and **0.203 → 0.139** on the Apostolic Fathers;
+- **learned scores** (the default path): the learned model's scores turn out natively
+  calibrated — T=1.0, ECE **0.005** (SBLGNT) / **0.002** (AF), ~30× tighter than the
+  calibrated frequency path.
+
+Pass `temperature=1.0` to opt out; the value stays in `[0, 1]`.
 
 ### Convention profiles
 
@@ -399,9 +410,9 @@ on `proposed` if that matters. Off by default; with it off behavior is unchanged
   `ranking.py` *hurt* accuracy and the POS-bigram Viterbi tagger in `tagger.py`
   merely matches frequency ranking; both are off by default. The exception is the
   homograph-context re-ranker (`--homographs`, see Ranking), which measured a small
-  positive gain on every corpus tested — also opt-in, Greek only. The learned
-  re-ranker (`--learned`, see Ranking) is uniformly positive too but is likewise
-  opt-in and cannot separate feature-level readings inside one lemma.
+  positive gain on every corpus tested — opt-in, Greek only. The learned
+  re-ranker (see Ranking) is on by default for Greek (together with adaptive tables)
+  and cannot separate feature-level readings inside one lemma.
 - **Papyrus letter-numerals are misses** (β = 2, κθ = 90 …): the stemlib has no
   entries for bare-letter numerals. Enable `--numerals` to give unanalyzed ones a
   synthetic analysis from the bundled PapyGreek-derived table (see Papyrus numerals).

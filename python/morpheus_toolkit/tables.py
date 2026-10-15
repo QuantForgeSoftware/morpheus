@@ -8,8 +8,8 @@ Koine one by ~4 points — so forcing the user to choose is a footgun.
 This module scores every bundled table against the token candidates of the text
 being analyzed and either picks the best-fitting single table or blends them. The
 fit uses the candidate lemmas' *rank* inside each table (normalized by table size),
-which is robust to the very different corpus sizes behind the tables. Nothing here
-is loaded unless the caller opts in (`Morpheus(adaptive_tables=True)`).
+which is robust to the very different corpus sizes behind the tables. Selection is
+on by default for Greek (`Morpheus(adaptive_tables=False)` opts out).
 """
 from __future__ import annotations
 

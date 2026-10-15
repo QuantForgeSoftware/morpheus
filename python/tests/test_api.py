@@ -98,3 +98,21 @@ def test_latin_skips_beta_and_strongs():
     assert result.beta == "femina"  # not beta-converted
     assert result.best.lemma == "femina"
     assert result.best.strongs is None
+
+
+def test_learned_and_adaptive_are_on_by_default():
+    analyzer = Morpheus(runner=FakeRunner())
+    assert analyzer.use_learned is True
+    assert analyzer.adaptive_tables is True
+
+
+def test_learned_and_adaptive_can_be_disabled():
+    analyzer = Morpheus(runner=FakeRunner(), use_learned=False, adaptive_tables=False)
+    assert analyzer.use_learned is False
+    assert analyzer.adaptive_tables is False
+
+
+def test_explicit_frequencies_are_never_overridden():
+    analyzer = Morpheus(runner=FakeRunner(), frequencies={"λόγος": 10})
+    analyzer.analyze_tokens(["λόγος"])
+    assert analyzer.ranker.frequencies.get("λόγος") == 10

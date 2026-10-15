@@ -52,18 +52,32 @@ def read_columnar(paths: List[str]) -> List[Tuple[str, str]]:
     return rows
 
 
-def collect(rows, runner, ranker):
-    """Return (scores-per-token, gold-index, top1-correct) for covered tokens."""
+def collect(rows, runner, ranker, learned=None):
+    """Return (scores-per-token, gold-index, top1-correct) for covered tokens.
+
+    With ``learned`` the candidates are re-ranked by the bundled learned model
+    (per 2000-token chunk, mirroring the shipped per-input sequence) and its
+    scores are collected; otherwise the frequency ranker's scores are used.
+    """
     betas = [to_beta(token) for token, _ in rows]
     examples = []
     for i in range(0, len(betas), 2000):
         chunk = betas[i:i + 2000]
         valid = [(j, b) for j, b in enumerate(chunk) if b]
         analyses = runner.analyze_beta([b for _, b in valid])
+        cands = [[] for _ in chunk]
         for (j, _), cand in zip(valid, analyses):
-            if not cand:
+            cands[j] = list(cand)
+        if learned is not None:
+            ranked_chunk = learned.rank_sequence(
+                [(chunk[j] or "", cands[j]) for j in range(len(chunk))]
+            )
+        else:
+            ranked_chunk = [ranker.rank(list(c)) if c else [] for c in cands]
+        for j in range(len(chunk)):
+            ranked = ranked_chunk[j]
+            if not ranked:
                 continue
-            ranked = ranker.rank(list(cand))
             gold_row = rows[i + j]
             match = next((k for k, a in enumerate(ranked) if a.matches_lemma(gold_row[1])), None)
             if match is None:
@@ -91,7 +105,7 @@ def top1_calibration(examples, temperature: float):
 
 def fit(examples):
     best_t, best = 1.0, None
-    for step in range(20, 200, 5):  # 0.20 .. 2.00
+    for step in range(20, 300, 5):  # 0.20 .. 2.95
         temperature = step / 100.0
         value = nll(examples, temperature)
         if best is None or value < best:
@@ -111,18 +125,25 @@ def main() -> int:
     ap.add_argument("--morphgnt-dir", default=os.environ.get("MORPHGNT_DIR", ""))
     ap.add_argument("--af-corpus-dir", default=os.environ.get("AF_CORPUS_DIR", ""))
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--learned", action="store_true",
+                    help="fit the temperature for the learned path (stores temperature_learned)")
     ap.add_argument("--out", default=os.path.join(REPO, "python", "morpheus_toolkit", "data", "calibration.json"))
     args = ap.parse_args()
 
     runner = MorpheusRunner()
     ranker = Ranker(load_default_frequencies())
+    learned = None
+    if args.learned:
+        from morpheus_toolkit.learned import LearnedRanker, load_default_model
+
+        learned = LearnedRanker(load_default_model(), frequencies=ranker.frequencies)
 
     fit_examples = []
     if args.morphgnt_dir:
         rows = read_morphgnt(args.morphgnt_dir)
         if args.limit:
             rows = rows[: args.limit]
-        fit_examples = collect(rows, runner, ranker)
+        fit_examples = collect(rows, runner, ranker, learned)
         print(f"fit corpus: {len(fit_examples)} covered tokens (SBLGNT)")
     if not fit_examples:
         ap.error("--morphgnt-dir required (no fit examples)")
@@ -132,29 +153,37 @@ def main() -> int:
     eceT, accT = top1_calibration(fit_examples, temperature)
     print(f"fit:   T=1.0 ECE={ece1:.3f}  acc={acc1:.3f} | T={temperature:.2f} ECE={eceT:.3f} acc={accT:.3f}")
 
+    suffix = "_learned" if args.learned else ""
     payload = {
-        "temperature": round(temperature, 3),
+        f"temperature{suffix}": round(temperature, 3),
         "method": "temperature scaling, NLL grid search",
         "source": "MorphGNT SBLGNT (CC-BY-SA 4.0); see scripts/calibrate.py",
-        "fit_ece_t1": round(ece1, 4),
-        "fit_ece_calibrated": round(eceT, 4),
+        f"fit_ece_t1{suffix}": round(ece1, 4),
+        f"fit_ece_calibrated{suffix}": round(eceT, 4),
     }
     if args.af_corpus_dir:
         rows = read_columnar(sorted(glob.glob(os.path.join(args.af_corpus_dir, "*.txt"))))
         if args.limit:
             rows = rows[: args.limit]
-        eval_examples = collect(rows, runner, ranker)
+        eval_examples = collect(rows, runner, ranker, learned)
         e1, a1 = top1_calibration(eval_examples, 1.0)
         eT, aT = top1_calibration(eval_examples, temperature)
         print(f"eval:  Apostolic Fathers {len(eval_examples)} tokens | "
               f"T=1.0 ECE={e1:.3f} | T={temperature:.2f} ECE={eT:.3f}")
-        payload["af_ece_t1"] = round(e1, 4)
-        payload["af_ece_calibrated"] = round(eT, 4)
+        payload[f"af_ece_t1{suffix}"] = round(e1, 4)
+        payload[f"af_ece_calibrated{suffix}"] = round(eT, 4)
+
+    # Merge into any existing calibration file so the freq and learned fits coexist.
+    if os.path.exists(args.out):
+        with open(args.out, encoding="utf-8") as handle:
+            existing = json.load(handle)
+        existing.update(payload)
+        payload = existing
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, ensure_ascii=False, indent=2)
-    print(f"wrote {args.out}: temperature={payload['temperature']}")
+    print(f"wrote {args.out}: temperature{suffix}={payload[f'temperature{suffix}']}")
     return 0
 
 

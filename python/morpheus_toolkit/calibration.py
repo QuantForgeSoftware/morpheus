@@ -2,9 +2,9 @@
 
 Morpheus candidates are scored by the ranker and the scores are turned into a
 softmax ``confidence``. Those scores are *ordering* scores, not probabilities:
-before calibration the top confidence is systematically over/under-confident.
-This module loads a single temperature fitted on held-out gold
-(``scripts/calibrate.py``) and applies it. With no calibration file the
+before calibration the top confidence is systematically mis-scaled. This module
+loads the fitted temperature for the score path in use (frequency vs learned;
+``scripts/calibrate.py``) and applies it. With no calibration file the
 temperature is 1.0 (unchanged behavior).
 """
 from __future__ import annotations
@@ -25,8 +25,17 @@ def load_calibration() -> Dict[str, float]:
         return json.load(handle)
 
 
-def load_temperature() -> float:
-    value = load_calibration().get("temperature", 1.0)
+def load_temperature(learned: bool = False) -> float:
+    """Return the fitted temperature for the frequency or learned score path.
+
+    Falls back to the frequency temperature (then to 1.0) when the learned
+    temperature has not been fitted.
+    """
+    data = load_calibration()
+    key = "temperature_learned" if learned else "temperature"
+    value = data.get(key)
+    if value is None:
+        value = data.get("temperature", 1.0)
     try:
         value = float(value)
     except (TypeError, ValueError):

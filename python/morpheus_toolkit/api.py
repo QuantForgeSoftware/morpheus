@@ -50,8 +50,8 @@ class Morpheus:
         use_homograph_context: bool = False,
         numerals: bool = False,
         language: str = "greek",
-        use_learned: bool = False,
-        adaptive_tables: bool = False,
+        use_learned: bool = True,
+        adaptive_tables: bool = True,
         temperature: Optional[float] = None,
         profile: Optional[str] = None,
         jobs: int = 1,
@@ -76,17 +76,22 @@ class Morpheus:
         # Opt-in: unanalyzed Greek letter-numeral tokens get a synthetic analysis
         # from data/papyrus_numerals.json. Off by default — behavior unchanged.
         self.numerals = numerals
-        # Opt-in: re-rank candidates with the learned model
-        # (data/learned_reranker.json). Off by default — behavior unchanged.
+        # On by default (Greek): re-rank candidates with the learned model
+        # (data/learned_reranker.json). Pass False to keep frequency order.
         self.use_learned = use_learned
         self._learned_ranker = None
-        # Opt-in: pick the best-fitting bundled frequency table per input instead
-        # of using one fixed table. Off by default — behavior unchanged.
+        # On by default (Greek): pick the best-fitting bundled frequency table per
+        # input instead of one fixed table. Caller-supplied ``frequencies`` win;
+        # pass False to keep the configured table.
         self.adaptive_tables = adaptive_tables
         self._table_set = None
+        self._explicit_frequencies = frequencies is not None
         # Softmax temperature for the reported confidence. None => the bundled
-        # calibrated value (data/calibration.json); 1.0 opts out.
+        # calibrated value (data/calibration.json); 1.0 opts out. The temperature
+        # is picked for the score scale that actually produced the final order
+        # (frequency vs learned; see _finish).
         self._temperature = temperature
+        self._learned_scores = False
         # Optional output-convention profile (e.g. "morphgnt"): rewrites lemma/POS
         # presentation only. None => natural Morpheus output.
         self.profile = profile
@@ -134,10 +139,13 @@ class Morpheus:
             result.analyses = self.ranker.rank(result.analyses)
         if self.use_learned and not self.is_latin:
             self._apply_learned(results)
+            self._learned_scores = True
         if self.ranker.use_context:
             self.ranker.rerank_with_context([result.analyses for result in results])
+            self._learned_scores = False
         if self.use_homograph_context and not self.is_latin:
             self._apply_homographs(results)
+            self._learned_scores = False
         if self.profile:
             from .profiles import apply_profile
 
@@ -164,20 +172,23 @@ class Morpheus:
             result.analyses = rerank(result.analyses, result.beta, prev, nxt)
 
     def _apply_adaptive_tables(self, results: List[TokenResult]) -> None:
-        """Pick the best-fitting bundled frequency table for this input (opt-in).
+        """Pick the best-fitting bundled frequency table for this input (default on).
 
         Runs before ranking so the whole input is ranked with one table chosen
-        from its own candidate lemmas (see ``tables.TableSet``).
+        from its own candidate lemmas (see ``tables.TableSet``). Caller-supplied
+        frequencies are never overridden.
         """
         from .tables import load_table_set
 
+        if self._explicit_frequencies:
+            return
         if self._table_set is None:
             self._table_set = load_table_set()
         name = self._table_set.select([result.analyses for result in results])
         self.ranker.set_frequencies(self._table_set.frequencies(name))
 
     def _apply_learned(self, results: List[TokenResult]) -> None:
-        """Re-rank all candidates with the learned model (opt-in; Greek only).
+        """Re-rank all candidates with the learned model (default on; Greek only).
 
         Uses the frequency tables configured on the ranker for its feature
         extraction, so it stays consistent with how the model was trained.
@@ -234,7 +245,7 @@ class Morpheus:
         if not analyses:
             return
         if self._temperature is None:
-            self._temperature = load_temperature()
+            self._temperature = load_temperature(learned=self._learned_scores)
         scores = [analysis.score for analysis in analyses]
         confidences = softmax_confidences(scores, self._temperature)
         for analysis, confidence in zip(analyses, confidences):

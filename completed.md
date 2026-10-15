@@ -1339,3 +1339,181 @@ stay in `tmp/grammateus/model_gold{,2}/`.
 - Nothing TLG/PHI-derived and nothing DDbDP/OIKONOMIA-derived is committed (personal-study
   use only); PROIEL-derived content stays measurement-only.
 - No GitHub CI runs; pushes use `[skip ci]`.
+
+---
+
+# Round 12: license-safe private-corpus coverage harvest (PHI7 documentary) ✅
+
+**Closed 2026-10-15 as a documented feasibility study (Option A).** Executed as a
+local-only probe; closed without toolkit changes because the license-clean actionable
+upside is small and the big miss buckets are either inherent or not committable. Tooling
+stays in git-ignored `tmp/phi/` (`probe.py`, `scan.py`, `lsj_filter.py`); this record is
+method/counts only — **no PHI/TLG-derived data in any committed file**. `improvements.md`
+re-evaluated: no change (no shipped-code effect).
+
+## What was done
+
+- **Format decoded; extraction solved without porting the Delphi parser.** PHI7 `.TXT`
+  keeps all reference/metadata (region, author, work, citation, nibble codes) in
+  high-ASCII bytes (≥0x80) and the TLG beta text in 7-bit ASCII. Dropping ≥0x80 and
+  stripping TLG/Leiden markup (numeric codes, bracket/brace wrappers, lacunae, underdots,
+  line-break hyphens) yields clean beta. Validated against the user's own
+  `BetaCode/Attica.TXT` export: **99.6% distinct / 99.9% token overlap**.
+- **Regions**: inscriptions ~49 MB, documentary papyri ~45 MB, Christian ~12 MB (Coptic
+  excluded).
+- **Coverage probe**: documentary Greek analyzes at **73.5%** — the weakest register
+  (cf. PapyGreek 92.9% after Round 8).
+- **Miss taxonomy (26.5% missed token mass)**: ~50% ≤4-letter fragments (inherent to
+  broken texts); ~21.5% (466,789 tokens) proper names, mostly not in LSJ (so not
+  committable); a documentary word family (~15K tokens); a few common verb forms; ~17K
+  numeral tokens (tally-style); a small line-split tokenizer leak in the probe extractor.
+- **License-clean filter**: matching the 383,888 missed distinct forms against
+  public-domain LSJ (accent-skeleton + stem + plausible-ending rule; prefix entries
+  excluded) leaves **14,097 forms / 61,318 tokens = 2.8% of misses (≈0.75% of the
+  corpus)** mapping to 6,127 candidate lemmas — still fragment-contaminated; the
+  genuinely real subset (e.g. LSJ-attested ὑοθεσία, Ἡρακλῆς, Σάραπις, Θερμοῦθις, δῆμος,
+  στῆλη, εὐλογία, ἀρτάβη) is smaller still.
+
+## Decision and rationale (Option A)
+
+- The two big buckets are **inherent** (fragments) or **not committable** (names).
+- The committable remainder is **below 0.75% of tokens** after curation, against the
+  cost of curation + a new generated source + stemlib rebuild + benchmark re-baseline.
+- The documentary register is already served by committable PapyGreek-derived work
+  (Rounds 8/9: `nom.papyri`, numeral table).
+- **Closed as a feasibility study; 12.3–12.6 not executed.** The probe vindicates the
+  earlier "coverage probe only / probably not a windfall" stance with data.
+
+## Carried forward
+
+- The I.PHI/Pythia idea (candidate B9) is moot for Round 12; lacuna restoration as a
+  pre-pass for fragmentary texts remains an open candidate note.
+- A numeral-table extension for tally-style numerals is not worth pursuing for PHI under
+  the license rule; Round 9's table already covers letter-numerals.
+
+## Verification
+
+- Extraction validated against the user's own export (99.6% distinct / 99.9% token).
+- No shipped-code changes; `pytest` green; benchmark gate untouched.
+
+---
+
+# Round 15: B-item sprint — learned + adaptive defaults (2026-10-15) ✅
+
+## Goal
+
+Ship as much of the B-item backlog as can move the `## Accuracy` numbers before the
+CSNTM/Wallace contact: the B1 default flip first, then whatever else measures today.
+
+## B1 — `--learned` + `--adaptive-tables` are now the Greek defaults (shipped)
+
+- **API**: `Morpheus(use_learned=True, adaptive_tables=True)` by default; opt out with
+  `use_learned=False` / `adaptive_tables=False`. Caller-supplied `frequencies=` are
+  never overridden (new `_explicit_frequencies` guard). CLI: `--no-learned` /
+  `--no-adaptive-tables`; the old positive flags remain as hidden no-op aliases.
+- **Benchmark**: defaults flipped to match (`--no-learned`/`--no-adaptive` opt-outs);
+  the canonical gate command is now plain `scripts/benchmark.py`; `--no-gate` added for
+  opt-out diagnostics.
+- **Validation** (identical candidate sets; corpus-level top-1 lemma):
+
+  | corpus | old default | new default | gain |
+  | --- | ---: | ---: | ---: |
+  | SBLGNT (137,554) | 94.56 | 94.67 | +0.1 |
+  | Apostolic Fathers (63,227) | 90.14 | 90.21 | +0.1 |
+  | AGLDT classical (469,254) | 86.56 | **93.74** | **+7.2** |
+  | PROIEL Greek NT (132,366) | 91.66 | 92.19 | +0.5 |
+  | LXX (623,685, exact) | 88.4 | 90.7 | +2.3 |
+  | PapyGreek (36,455, exact) | 81.2 | 85.7 | +4.5 |
+
+- Adaptive selection picked the right register on every corpus (fit margins):
+  SBLGNT→Koine (0.91), AF→AF (0.89), AGLDT→classical (0.95), PROIEL→Koine (0.91),
+  LXX→LXX (0.93 vs 0.88), PapyGreek→papyri (0.72 vs 0.68).
+- Re-baselined `benchmarks/expected_greek.json` from the shipped-default run.
+- Interaction recorded: on AF, learned + AF table (90.21) vs frequency + AF table
+  (90.45) — the learned model's features were trained against the default table, so a
+  selected table helps its *fallback* order more than its scores. Net vs old default
+  still positive (+0.07).
+- Tooling fixes found along the way: `select_adaptive_table` analyzed group-by-group
+  (a cruncher spawn per verse/sentence — minutes wasted); now flattens the sample and
+  batches it. Non-learned runs no longer report a phantom `learned=0.0%`
+  (miss-branch flag leak in `Counters`).
+- Tests: 3 new API tests (defaults on, opt-outs, explicit-frequencies guard) — 56 pass.
+
+## B4 (partial) — confidence calibration follows the score path
+
+- The bundled temperature (T=0.08) was fitted on frequency scores; after the flip the
+  default path reports learned scores on a different scale.
+- `calibrate.py --learned` fits the learned path and merges `temperature_learned` +
+  ECE fields into `calibration.json` (merge keeps both fits in one file);
+  `load_temperature(learned=...)` and `api._annotate` select by the score path that
+  actually produced the order (`_learned_scores` tracks it; the context/homograph
+  passes keep the historical frequency temperature).
+- Measured: the learned path is natively calibrated → T=1.0, ECE **0.0054** (SBLGNT) /
+  **0.0024** (AF), vs frequency T=0.08 ECE 0.1416 / 0.1393 (raw 0.208 / 0.2034). A
+  probe confirmed the learned path is insensitive to T ∈ [0.08, 1.0] (ECE ~0.005), so
+  the pre-flip mismatch was numerically harmless — but the selection is now correct
+  and the *default-path* confidence is ~30× tighter than the old default's.
+- Remaining: joint-path temperature + calibrated POS confidence (B4 stays open).
+
+## Numerals gap (Round 14 carry-over)
+
+- Lowercase α/ε were absent from the table while their capitals were present.
+  `propose()` now falls back to the capital entry (`*` prefix) for single letters —
+  numeral case is meaningless. PapyGreek `--numerals`: numeral misses **853 → 38** of
+  1,454; coverage 92.9% → **95.1%**; top-1 **87.8%** exact with papyri + learned.
+- New `test_numerals.py` (2 tests).
+
+## B8 — head-to-head: bundled learned vs LM-MLP vs combined (measurement only)
+
+- Harness `tmp/lm/head2head.py` (proto.py extended): identical example sets (≥2
+  candidates, gold among them), four scorers, corpus-level projection. The AF and
+  PROIEL projections reproduce the benchmark exactly (90.1/90.3, 91.7/92.2) — the
+  harness is comparable to `scripts/benchmark.py`.
+- Result: the LM head wins on accented text (SBLGNT test 99.4 vs learned 97.9; AF 98.0
+  vs 97.3 ambiguous-only; corpus-level +0.5 / +0.2) but **regresses on the shipped
+  accent-insensitive pipeline** (PROIEL 92.3 vs learned 96.4 ambiguous-only; 89.9 vs
+  92.2 corpus-level). Mechanism measured: `ignore_accents` inflates PROIEL's
+  multi-candidate rate 37.8% → 59.4% (38.8% vs 22.1% distinct-lemma) — accent-variant
+  homographs the LM head (trained on accented SBLGNT only) never saw.
+- Combined ≈ LM (the learned-rank feature adds nothing).
+- **Not shipped** (`torch` + ~440 MB GPL-3.0-derived weights). Actionable finding: an
+  LM layer must be trained on the shipped candidate distribution (incl.
+  `ignore_accents` examples), not just accented gold text. B8 stays open.
+
+## Homograph re-ranking — stays opt-in
+
+- Measured on the new default: SBLGNT 94.7→94.9, AF 90.2→90.7, PROIEL 92.2→93.1, but
+  AGLDT **93.7→93.3** — fails the "never worse" bar for a default; stays opt-in
+  (documented with these numbers).
+
+## B10 — "Logion" verified
+
+- Cowen-Breen et al., *Machine-Learning Based Detection and Correction of Textual
+  Errors in Greek Philology* (ALP 2023), arXiv:2305.01099; `charliecb/Logion`;
+  HF `cabrooks/LOGION-*`. It is a scribal-error BERT, not a corpus: the 70M-word
+  corpus is request-only, and its models derive from a GPL-3.0 base with no explicit
+  licence — not a clean corpus/LM source. Closed.
+
+## B2/B3/B5/B6/B7/B9 — assessed
+
+- B2: the POS-bigram negative result stands; the learned-emission direction is what B8
+  measured (the LM is the lever; the bundled perceptron captures most of the
+  transferable signal on accented text). Closed as subsumed by B8.
+- B3: robustness/parity work (own round); no accuracy effect — scoping doc stands.
+- B5/B6/B7: no `## Accuracy` effect today; carried.
+- B9: lacuna-restoration pre-pass remains a candidate; the I.PHI part was retired with
+  Round 12.
+
+## Verification
+
+- `pytest python/tests` — 56 passed.
+- `scripts/benchmark.py` (shipped defaults) — gate green on the re-baselined
+  thresholds; the four-config matrix is deterministic (independent runs agree).
+- All measurement material in git-ignored `tmp/`; no PROIEL/TLG/PHI-derived content
+  committed.
+
+## Carried forward
+
+- B4 remainder (joint-path temperature, POS confidence); B8 revisit with a
+  licence-clean LM trained on the shipped candidate distribution; B3/B5/B6/B7/B9.
+- Round 13 remains queued pending the CSNTM contact.
