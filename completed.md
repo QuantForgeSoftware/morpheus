@@ -1181,3 +1181,161 @@ robustness (B7).
 - `pytest` 49 green; `build_learned_model.py`/`build_pos_model.py`/`eval_grc.py` compile.
 - Benchmark: pooled model run + thresholds rewritten; gate passes.
 - Full A/B across SBLGNT / AF / AGLDT / PROIEL recorded above.
+
+---
+
+# Round 14: OIKONOMIA-Grammateus × Morpheus (entity-extraction integration) ✅
+
+**Executed 2026-10-15.** Working files in `tmp/grammateus/` — all corpus-derived data,
+gold, predictions and model artifacts stay there; **nothing DDbDP/OIKONOMIA-derived is
+committed** (this record holds measurements only, per the standing constraint). Migrated
+from `todo.md` per the process rule; `improvements.md` re-evaluated (Round 14 section).
+
+## Where things stand after Round 13
+
+The toolkit is a lemma/POS/numeral analyzer with a bundled learned re-ranker (top-1 lemma:
+SBLGNT 94.7, AF 90.3, PROIEL 92.2, AGLDT 93.2) and an opt-in papyrus-numeral table. It has
+no entity layer. Round 14 asked two questions: **what does the analyzer contribute under a
+real entity-extraction pipeline** on documentary papyri, and **can that pipeline be
+reproduced locally from public artifacts**.
+
+## Round 14 plan (checkable; all approved)
+
+14.1 joint pipeline prototype · 14.2 three extractor options with true P/R · 14.3
+Morpheus-driven recall boost · 14.4 canonicalized entity output · 14.5 route comparison ·
+14.6 fine-tune on the public gold. Guardrail: nothing OIKONOMIA/DDbDP-derived committed.
+
+## Review (item 1: joint pipeline) ✅
+
+`tmp/grammateus/pipeline.py` — NER extract → Morpheus canonicalize/soft-validate → optional
+LLM second pass. Demonstrated on a real documentary segment (PHI7 `DDP0006`): the NER found
+14 entities (64% Morpheus-recognized), qwen 15 (67%), agreement only 6/22; Morpheus
+canonicalized real entities (`χαλκοῦ`→χαλκός, `δραχμῶν`→δραχμή, `ἥμισυ`→ἥμισυς) and flagged
+suspect spans. Two refinements identified up front: separate "not a word" from "name
+Morpheus lacks", and validate multi-word spans.
+
+## Review (item 2: three extractor options, true P/R) ✅
+
+- **Options.** (1) **OIKONOMIA-DB** (CC-BY-3.0 parquet, 61,249 docs) is fetchable and a big
+  **reference/index**, but it is the same model's output (circular for NER) and
+  DDbDP-derived. (2) **Fine-tuned NER checkpoint** (Apache-2.0) runs locally, deterministic
+  and fast — **the extractor to pair with Morpheus**. (3) **Hand gold** was superseded: the
+  real 115-document gold is public (`data/gold/annotated.jsonl`: 115 docs / 2,995 entities /
+  15 labels, model-drafted + model-checked, *not* expert-validated).
+- **Harness.** `tmp/grammateus/eval_gold.py` mirrors the project's own inference
+  (`src/oikonomia/ner/{inference,encode}.py`: tokenize → argmax → `decode_spans`, strided
+  token windows). Text is NFC (NFD input destroys the model: F1 0.002); lowercase hurts.
+- **True P/R on the gold (zero-shot).** Shipped NER checkpoint: strict P 0.593 / R 0.567 /
+  **F1 0.580**; relaxed 0.683; lemma-space 0.594. qwen base prompt: strict F1 0.229
+  (P 0.394 / R 0.162); relaxed 0.418; lemma-space 0.274. Exhaustive prompt (19 docs):
+  strict 0.319 / relaxed 0.566 vs NER 0.616 / 0.729 on the same subset.
+- **Checkpoint diagnosis.** The card's stage-2 model was trained on all 115 docs (AGE F1
+  0.974). The shipped artifact scores **the same** on the 85 pre-expansion docs (0.587) and
+  the 30 new docs (0.580), has no memorization, and predicts **0 AGE** — behaviour matches
+  the card's **silver-stage** model (card 0.654; measured 0.580 zero-shot), not stage 2.
+  Weak labels: OCCUPATION (20% covered), COMMODITY 45%, TAX_TERM 41%, TRANSACTION 56%;
+  confusions PLACE→PERSON (69), numeral family (~130). Item 6 confirms and fixes this.
+- **DB ≠ gold on the same 115 docs** (PERSON 958 vs 840, MONEY_AMOUNT 185 vs 223,
+  `has_price` 0 vs 10, `has_tax` 1 vs 29): the DB is a linkable reference, not a gold
+  substitute.
+
+## Review (item 3: Morpheus-driven recall boost) ✅
+
+- **Candidates (deterministic).** After NER, Morpheus flags unlabelled content tokens
+  (POS N/A or `stemtype=numeral`, not `proposed`): 2,476 candidates over the 115 docs;
+  **425 of the 931 missed gold spans (46%) contain one** — OCCUPATION 75%, COMMODITY 81%,
+  TAX_TERM 78%, PERSON_ROLE 94%, QUANTITY 65%, MONEY_AMOUNT 36%; AGE only 1% (its spans sit
+  inside wrong-label DATE_REF predictions — a relabelling problem). With
+  `Morpheus(numerals=True)` the set grows 2,476→2,526 and reachability 425→430 (+5 spans;
+  AGE 1%→2%) — letter-numerals are not the AGE bottleneck.
+- **Full 115-doc LLM pass** (one call per doc over just the candidates, `boost_llm.json`):
+  naive merge is F1-negative (strict 0.580→0.519, relaxed 0.683→0.620 — strict R rises
+  0.567→0.632 but the LLM over-labels). **Label-filtered merge is net-positive:** whitelist
+  {COMMODITY, OCCUPATION, TRANSACTION, MONEY_AMOUNT} → strict P 0.559 / R 0.613 / **F1
+  0.585**, relaxed **0.689** (+4.6pp strict recall).
+- **Proposal quality (1,435 proposals; 14% strict-precise, 22% relaxed-precise;**
+  **relaxed precision):** OCCUPATION 0.72 (70 of 154 missed recovered), COMMODITY 0.43
+  (73/113), MONEY_AMOUNT 0.36 (12/106), TRANSACTION 0.10 (10/29); whitelist = 422
+  proposals, 41% relaxed-precise, 165 missed spans recovered. Outside the whitelist
+  relaxed precision is ≤0.22 (PERSON 0.47 but only 0.03 strict — boundary noise; QUANTITY
+  0.20; PLACE 0.22; UNIT/CURRENCY/PRICE_TERM/AGE ≈0).
+- **Verdict:** the second pass works only as a **whitelist-filtered, recall-oriented**
+  layer; Morpheus candidate generation is what makes it cheap (one call per document).
+- **It does not survive a stronger extractor.** The same recipe re-run on the
+  fine-tuned model's held-out output (`boost_llm_ft.json`): proposals drop to 5%
+  strict / 8% relaxed precise (whitelist 16% — 33 missed spans recovered) and the
+  merge turns **F1-negative**: strict 0.717→**0.700** (P 0.648 / R 0.760), relaxed
+  0.814→**0.795**. A good extractor's remaining misses are the hard ones; the boost
+  is a crutch for a weak extractor, not a permanent layer.
+
+## Review (item 4: canonicalized entity output) ✅
+
+`tmp/grammateus/canonical.py` re-keys every entity by Morpheus: per-word lemma/POS/
+features/confidence plus a canonical key (lemma sequence + label); artifacts
+`canonical_entities_ner.jsonl`, `canonical_entities_ner_boost.jsonl`. Label-aware policy:
+`Morpheus(numerals=True, unknown_as_proper=True)`; PERSON/PLACE prefer a proposed (name)
+analysis, and a capitalized token whose best stemlib analysis is a verb (genitive-name
+false friends) keeps its surface as the safe canonical form. Measured: shipped NER 2,867
+entities, 53% fully known, 5% of surface keys collapse in canonical space, lemma-space F1
+0.580→0.594; fine-tuned model 3,272 entities, 53% known, 4% collapse, lemma-space F1
+0.717→0.725 — **the morphology layer's gain shrinks as the extractor improves**. Two
+toolkit gaps recorded in `improvements.md`: letter-numerals are opt-in and the lowercase
+letter for 1 is missing from the table; verb false friends outrank name proposals for
+analysed tokens.
+
+## Review (item 5: route comparison) ✅
+
+Micro F1 on the 115-doc gold (strict / relaxed / lemma-space):
+
+| route | strict F1 | relaxed F1 | lemma F1 |
+| --- | ---: | ---: | ---: |
+| qwen base prompt | 0.229 | 0.418 | 0.274 |
+| shipped NER checkpoint (zero-shot) | 0.580 | 0.683 | 0.594 |
+| shipped NER + whitelist boost | 0.585 | 0.689 | — |
+| fine-tuned from GreBerta (gold only, held-out) | 0.295 | 0.516 | 0.295 |
+| **fine-tuned from shipped ckpt (held-out)** | **0.717** | **0.814** | **0.725** |
+| fine-tuned + whitelist boost (held-out) | 0.700 | 0.795 | — |
+| fine-tuned final (train-on-test) | 0.981 | 0.990 | 0.979 |
+
+(The boost row is net-negative on the fine-tuned base — see item 3.)
+
+**Morpheus-layer measurements** (held-out fine-tuned preds): 54% of predictions fully
+Morpheus-validated / 11% partial / 35% none; strict-match rate 0.705 (validated) vs 0.664
+(not) — a *soft* signal (hard-filtering drops strict F1 0.717→0.522); 61% of remaining
+misses contain Morpheus-known words.
+
+## Review (item 6: fine-tune on the public gold) ✅
+
+`tmp/grammateus/finetune.py`, the project's stage-2 recipe (lr 3e-5, linear + warmup,
+15 epochs, batch 8, max_len 512, seed 17; 5-fold CV + final). Two runs:
+
+- **From base GreBerta (gold only): weak.** CV strict F1 0.296 / relaxed 0.518 (AGE 0.462,
+  CURRENCY 0.507, UNIT 0.481; COMMODITY 0.041, OCCUPATION 0.076) — gold-only fine-tuning on
+  a non-domain backbone doesn't transfer; consistent with the card's no-DAPT control (0.495
+  on the 65-doc gold).
+- **From the shipped checkpoint: CV strict F1 0.717 / relaxed 0.816** — the card's
+  0.737/0.837 reproduced within fold noise, at laptop scale (~25 min on MPS). Per-label
+  held-out (card value): AGE 0.932 (0.974), PERSON 0.767 (0.775), CURRENCY 0.835 (0.822),
+  UNIT 0.845 (0.841), PLACE 0.648 (0.650), MONEY_AMOUNT 0.744 (0.758), QUANTITY 0.690
+  (0.744), DATE_REF 0.644 (0.690), OCCUPATION 0.696 (0.746), TRANSACTION 0.597 (0.602),
+  PRICE_TERM 0.929 (0.929), FRACTION 0.785 (0.863). Final model (all 115, train-on-test)
+  0.981 strict / 0.990 relaxed — training pipeline verified.
+
+**Outcome:** the shipped artifact is the silver-stage model; the card's stage-2 quality is
+reproducible locally by fine-tuning that checkpoint on the public gold. Model artifacts
+stay in `tmp/grammateus/model_gold{,2}/`.
+
+## Verification
+
+- `pytest python/tests` — 49 passed (no toolkit code changed; the bare-`pytest` rootdir
+  collision with the scratch `tmp/r10/test_tables.py` is pre-existing and ignored).
+- All Round 14 numbers re-derivable offline from `tmp/grammateus/` (`eval_gold.py`,
+  `eval_folds.py`, `compare_all.py`, `morpheus_layer.py`, `canonical.py`,
+  `recall_boost*.py`, `merge_boost.py`, `finetune.py`); LLM calls only via local LM Studio.
+- Benchmark gate untouched (no shipped-code changes).
+
+## Not doing (standing constraints)
+
+- Nothing TLG/PHI-derived and nothing DDbDP/OIKONOMIA-derived is committed (personal-study
+  use only); PROIEL-derived content stays measurement-only.
+- No GitHub CI runs; pushes use `[skip ci]`.

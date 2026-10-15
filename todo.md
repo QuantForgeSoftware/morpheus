@@ -1,9 +1,9 @@
 # Active plan
 
 The active plan is **Round 12 (private-corpus coverage harvest)**; **Round 13** (CSNTM /
-NT-manuscript outreach) and **Round X** are queued proposals. Round 11 is complete (record
-in [completed.md](completed.md)); [improvements.md](improvements.md) carries the measured
-gains to date.
+NT-manuscript outreach) and **Round X** are queued proposals. Rounds 11 and 14 are complete
+(records in [completed.md](completed.md)); [improvements.md](improvements.md) carries the
+measured gains to date.
 
 ## Standing constraints (carry into any future round)
 
@@ -174,6 +174,24 @@ critical-text Greek, where the pipeline is clean (100% analyzed).
       `make clean`.
 - [ ] B7. Tokenizer robustness: crasis / multiword tokens and editorial-mark
       normalization as first-class behavior.
+- [ ] B8. **Evaluate Ancient Greek transformer LMs as the disambiguation layer** (the
+      "learned emission model" `python/README.md` names as missing). Hybrid: Morpheus
+      generates candidates, the LM scores them. **Prototype done (`tmp/lm/proto.py`,
+      2026-10-15):** Morpheus candidates + frozen `pranaydeeps/Ancient-Greek-BERT`
+      context + tiny MLP, trained on SBLGNT only — top-1 on **ambiguous** tokens vs
+      frequency ranking: SBLGNT test 97.5→**99.2** (+1.7), Apostolic Fathers (unseen text)
+      96.2→**97.5** (+1.3), PROIEL 92.7→**94.4** (+1.7, but PROIEL is in the LM's
+      pretraining → not independent). Real, transferable signal. Caveats: ambiguous-only
+      (corpus-level diluted), no head-to-head vs the perceptron yet, licence (model
+      GPL-3.0/no HF card; `torch` + ~440 MB weights). Next: head-to-head vs perceptron on
+      the same set; corpus-level projection; prefer a licence-clean model (GreBerta) or a
+      fine-tune on commit-safe gold.
+- [ ] B9. **Use the public I.PHI / PHI-ML processed PHI** (`sommerschield/iphi`, Pythia)
+      for Round 12 instead of raw PHI7 parsing, and consider **Ithaca/Pythia lacuna
+      restoration as a pre-pass** for fragmentary inscriptions (our largest miss class).
+      Note: I.PHI's *text* is still PHI's → same `tmp/`-only, commit-nothing-derived rule.
+- [ ] B10. Verify **"Logion"** (unconfirmed; search surfaced Logeion, not Logion) via its
+      publications/repo before assuming its corpus is available.
 
 ## Explicitly out of scope (standing constraints)
 

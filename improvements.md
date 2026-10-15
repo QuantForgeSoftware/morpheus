@@ -3,7 +3,8 @@
 **Author of the improvements: John Baima (QuantForgeSoftware) — john.baima@quantforge.software**
 Report compiled 2026-10-14 from the round records in [`completed.md`](completed.md),
 [`python/README.md`](python/README.md), and fresh runs on the current build;
-**Round 10 additions appended 2026-10-15; Round 11 (AGLDT pooling) appended 2026-10-15.**
+**Round 10 additions appended 2026-10-15; Round 11 (AGLDT pooling) appended 2026-10-15;
+Round 14 (entity extraction) appended 2026-10-15.**
 
 This file summarizes how much the analyzer improved, after the fork, when parsing
 different Greek texts. It is an **estimate built from measurements**, not a claim of
@@ -119,6 +120,46 @@ POS bigram model (`data/pos_bigram_grc.json`); it is the better bigram for class
 *if* the Viterbi tagger is used (Homer POS 87.3% vs 84.8%), but the tagger still trails
 plain frequency-ranked POS (85.2% on AGLDT) — the long-standing negative result stands.
 The offline benchmark thresholds were re-baselined to this model.
+
+## Round 14 additions (2026-10-15): entity extraction on documentary papyri
+
+Round 14 evaluated Morpheus as the morphology layer under an external
+entity-extraction task (economic entities in documentary papyri, measured on a
+public 115-document gold set; measurement only — no corpus text is committed).
+The analyzer is not the extractor; it is the **canonicalize / soft-validate**
+layer on top of a fine-tuned NER model. Measured on that gold:
+
+- **Canonicalization gain**: matching entities in Morpheus lemma space (instead
+  of surface strings) lifts micro F1 on the NER route 0.580 → **0.594** and on a
+  raw-LLM route 0.229 → **0.274** — the analyzer recovers agreement between
+  inflected variants. After gold fine-tuning (strict 0.717) the gain is +0.8pp
+  (0.717 → 0.725): real, but it shrinks as the extractor improves.
+- **Soft validation is informative but must not filter**: predicted entities
+  whose morphology is fully known strict-match gold **62.7%** of the time vs
+  **55.3%** for the rest (53% of predictions are fully known, 31% not at all).
+  Hard-filtering to known words drops strict F1 0.580 → **0.422**, so validation
+  stays a *confidence signal*, never a filter. On the fine-tuned model the same
+  pattern holds more weakly (70.5% vs 66.4%; filter 0.717 → 0.522).
+- **Candidate generation for recall**: 46% of the extractor's missed entities
+  (425/931) contain a content word Morpheus flags (unanalysed or numeral); a
+  whitelist-filtered LLM pass over just those candidates raises strict recall
+  +4.6pp (strict F1 0.580 → **0.585**, relaxed 0.683 → **0.689**) at one extra
+  LLM call per document — versus a naive unfiltered pass, which is F1-negative.
+  On a stronger (gold-fine-tuned) extractor the same pass is net-negative
+  (0.717 → 0.700): the boost is a crutch for a weak extractor, not a permanent
+  layer.
+
+Two toolkit gaps surfaced (carried as follow-ups, not fixed here):
+
+- **Letter-numerals are opt-in and incomplete**: the PapyGreek numeral table
+  (`Morpheus(numerals=True)`, 50 forms) resolves common letter-numerals, but the
+  lowercase letter for 1 is absent (its capital form is present) and the table
+  is off by default.
+- **False-friend analyses outrank name proposals**: an *unanalysed* token gets a
+  proper-name proposal, but a capitalized genitive name that collides with a
+  rare stemlib verb entry keeps the verb lemma — name-like entity keys therefore
+  need a surface fallback (implemented in the Round 14 canonicalizer, not in the
+  toolkit).
 
 ## Bottom line
 
