@@ -144,6 +144,84 @@ behavior is byte-identical. Most of Morpheus's ambiguous forms are in fact
 unambiguous in the gold (only 42/644 table forms have a split), so the effect is
 small but real and positive on every corpus measured.
 
+### Learned re-ranking
+
+`--learned` (API: `Morpheus(use_learned=True)`) re-orders a token's candidates with a
+small bundled model (`data/learned_reranker.json`) instead of plain frequency. It is a
+per-token averaged perceptron trained on pooled commit-safe gold — SBLGNT + Apostolic
+Fathers + **AGLDT v2.1 Greek** (CC BY-SA 3.0 US) — 385,758 analyzable tokens. Features:
+lemma frequency and its *rank*, fine POS, stem type, **morphological feature values**
+(person/number/tense/voice/case/gender/…), and POS interactions with the neighbouring
+tokens' frequency-ranked POS. Most of what frequency ranking already gets right is
+preserved (frequency is a feature); the model adds the signals frequency alone cannot
+see. Rebuild with `scripts/build_learned_model.py` (add `--agldt-dir …`; `--agldt-limit N`
+subsamples AGLDT to balance the pool against the Koine corpora); off by default (no model
+loaded when off).
+
+Top-1 lemma, frequency ranking → learned (flag off → on):
+
+| corpus | tokens | freq | learned |
+| --- | ---: | ---: | ---: |
+| SBLGNT (MorphGNT) | 137,554 | 94.6% | **94.7%** |
+| Apostolic Fathers (all) | 63,222 | 90.1% | **90.3%** |
+| PROIEL greek-nt (**independent**) | 132,366 | 91.7% | **92.2%** |
+| AGLDT v2.1 Greek (classical) | 469,254 | 91.4% | **93.2%** |
+
+Pooling the classical treebank into training is what makes the model strong on classical
+text (+3.0pp over the Koine-only model, +1.8pp over frequency ranking) at the cost of a
+~0.3pp Koine drift (within build noise; the larger, unbalanced pool cost ~0.7pp, hence
+the `--agldt-limit` balance). It remains **opt-in**: it cannot resolve feature-level
+homographs inside one lemma (e.g. εἰμί imperfect 3sg vs 1sg, which need lemma-level
+context).
+
+### Adaptive domain tables
+
+`--adaptive-tables` (API: `Morpheus(adaptive_tables=True)`) removes the need to hand-pick
+the frequency table: it scores every bundled table against the input's candidate lemmas
+(by their normalized rank inside each table) and uses the best fit. Verified selections:
+SBLGNT→Koine, Apostolic Fathers→AF, AGLDT classical→classical, PROIEL Greek NT→Koine. The
+payoff of getting the register right is large:
+
+| corpus | Koine table (default) | adaptive |
+| --- | ---: | ---: |
+| AGLDT v2.1 Greek (classical) | 85.3% | **91.4%** |
+| Apostolic Fathers | 90.1% | **90.5%** |
+| SBLGNT | 94.6% | 94.6% |
+
+On classical text, automatic selection recovers **+6.1pp** over the Koine default (and
+matches passing the classical table by hand). Inputs under 40 tokens keep the default
+table. Off by default; with it off, behavior is unchanged.
+
+### Confidence calibration
+
+Reported `confidence` is a softmax over the ranker's scores, which are *ordering*
+scores, not probabilities — so it was systematically over-confident. A single
+temperature (bundled `data/calibration.json`, fitted by NLL grid search on SBLGNT with
+`scripts/calibrate.py`) now scales it. Top-1 expected calibration error drops
+**0.207 → 0.141** on SBLGNT and **0.203 → 0.139** on the Apostolic Fathers. Pass
+`temperature=1.0` to opt out; the value stays in `[0, 1]`.
+
+### Convention profiles
+
+`--profile morphgnt` (API `Morpheus(profile="morphgnt")`) selects a named output
+convention from a registry (`morpheus_toolkit/profiles.py`). In practice Morpheus's
+Unicode output already matches the MorphGNT/LXX dictionary-form convention — articles
+are lemmatized under nominative `ὁ`/`RA`, personal pronouns under `ἐγώ`/`σύ`,
+demonstratives under `οὗτος`/`ἐκεῖνος` — so the bundled article transform is
+**idempotent**: it is a guard, and the registry is the extension point for
+corpus-specific conventions. (The LXX `--base-lemmas` preverb-stripping is not a static
+profile — it needs an analyzer-backed verb-resolution guard — and stays in
+`build_morph_lxx.py`.)
+
+### Performance and packaging
+
+`Morpheus(jobs=N)` / CLI `--jobs N` splits analysis across N concurrent `cruncher`
+subprocesses (alignment preserved because chunks are contiguous). On the Apostolic
+Fathers this measures **3.06×** at `jobs=4` with byte-identical analyses.
+`scripts/package.sh` builds a wheel into `dist/` locally, using only the build backend
+(no external hosting). A design for a Unicode-native C input path — to remove the beta
+round-trip entirely — is in [`../docs/unicode-native-input.md`](../docs/unicode-native-input.md).
+
 ## The Septuagint (LXX)
 
 Morpheus's Greek stemlibs carry a generated `nom.lxx` with ~4,500 proper names and
@@ -284,6 +362,15 @@ Cross-checked against PROIEL Herodotus (CC BY-NC-SA, measurement only): coverage
 99.8%, ranked top-1 90.2% exact — the classical table beats the Koine one by +4pp
 on that independent text.
 
+**Training use.** The same AGLDT gold is pooled into the learned re-ranker (see Learned
+re-ranking) and used to build a classical POS bigram model
+(`scripts/build_pos_model.py --format agldt` → `data/pos_bigram_grc.json`). The classical
+bigrams are the better choice for classical text *if* the Viterbi tagger is used (Homer
+POS 87.3% vs 84.8% with the Koine bigrams), but the tagger still trails plain
+frequency-ranked POS (85.2% on AGLDT) — the long-standing finding that the bigram
+tagger doesn't pay off stands. (The `AGDT2`, `v2.0`/`v1.6`/`v1`, and `IGDS` trees in the
+same repository are redundant or negligible; only `v2.1` is used.)
+
 ## Papyrus numerals
 
 Papyri write numbers as bare Greek letters (β = 2, κθ = 90, λϛ = 36 …), and the
@@ -312,7 +399,9 @@ on `proposed` if that matters. Off by default; with it off behavior is unchanged
   `ranking.py` *hurt* accuracy and the POS-bigram Viterbi tagger in `tagger.py`
   merely matches frequency ranking; both are off by default. The exception is the
   homograph-context re-ranker (`--homographs`, see Ranking), which measured a small
-  positive gain on every corpus tested — also opt-in, Greek only.
+  positive gain on every corpus tested — also opt-in, Greek only. The learned
+  re-ranker (`--learned`, see Ranking) is uniformly positive too but is likewise
+  opt-in and cannot separate feature-level readings inside one lemma.
 - **Papyrus letter-numerals are misses** (β = 2, κθ = 90 …): the stemlib has no
   entries for bare-letter numerals. Enable `--numerals` to give unanalyzed ones a
   synthetic analysis from the bundled PapyGreek-derived table (see Papyrus numerals).

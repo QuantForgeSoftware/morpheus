@@ -5,8 +5,9 @@ LSJDIR=/local/text/lsj
 STEMPROG= stemsrc/stripref stemsrc/zapfirstf stemsrc/headnolen \
 	stemsrc/goodstem stemsrc/flatlems
 
-# Get all noms files, but without emacs backups
-nomsrc= $(filter-out %~,$(wildcard stemsrc/nom.* stemsrc/nom[0-9]*))
+# Get all noms files, but without emacs backups. $(sort) removes the dependency
+# on readdir order so the built index is identical across filesystems/builds.
+nomsrc= $(sort $(filter-out %~,$(wildcard stemsrc/nom.* stemsrc/nom[0-9]*)))
 
 all: setup $(STEMPROG) ends noms vbs deriv 
 
@@ -59,9 +60,9 @@ vbs:	stemsrc/lsj.vbs stemsrc/vbs.irreg stemind/vbind
 enclitics:  
 	cat stemsrc/vbs.irreg stemsrc/nom* | fgrep enclitic > enclitics
 
-stemind/vbind:	stemsrc/vbs.irreg stemsrc/vbs.simp.ml stemsrc/vbs.simp.02.new stemsrc/lsj.vbs stemsrc/vbs.papyri
+stemind/vbind:	stemsrc/vbs.irreg stemsrc/vbs.simp.ml stemsrc/vbs.simp.02.new stemsrc/lsj.vbs stemsrc/vbs.papyri stemsrc/vbs.r10
 	cat stemsrc/vbs.irreg stemsrc/vbs.simp.ml stemsrc/vbs.simp.02.new stemsrc/lsj.vbs \
-	    stemsrc/vbs.papyri > conjfile
+	    stemsrc/vbs.papyri stemsrc/vbs.r10 > conjfile
 	do_conj 
 	mv conjfile.short /tmp/vbmorph
 	indexvbs

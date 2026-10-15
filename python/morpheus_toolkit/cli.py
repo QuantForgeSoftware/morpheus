@@ -58,6 +58,23 @@ def main(argv: List[str] | None = None) -> int:
         action="store_true",
         help="retry accented misses without accents/breathings (unaccented text)",
     )
+    analyze.add_argument(
+        "--learned",
+        action="store_true",
+        help="re-rank candidates with the learned model (Greek)",
+    )
+    analyze.add_argument(
+        "--adaptive-tables",
+        action="store_true",
+        help="automatically pick the best-fitting bundled frequency table (Greek)",
+    )
+    analyze.add_argument(
+        "--profile",
+        choices=["morphgnt", "lxx"],
+        help="rewrite output to a named lemma/POS convention (e.g. MorphGNT dictionary forms)",
+    )
+    analyze.add_argument("--jobs", type=int, default=1,
+                         help="parallel cruncher processes for large inputs (default 1)")
     args = parser.parse_args(argv)
 
     morpheus = Morpheus(
@@ -67,6 +84,10 @@ def main(argv: List[str] | None = None) -> int:
         use_homograph_context=args.homographs,
         numerals=args.numerals,
         language=args.language,
+        use_learned=args.learned,
+        adaptive_tables=args.adaptive_tables,
+        profile=args.profile,
+        jobs=args.jobs,
     )
     tokens = _read_tokens(args)
     results = morpheus.analyze_tokens(tokens)

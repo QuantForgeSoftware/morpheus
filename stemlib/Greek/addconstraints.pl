@@ -27,15 +27,20 @@ while(<>) {
 	}
 	print;
 
+# Round 10: the plural/dual "group" entries are emitted under the BASE lemma,
+# not "<lemma>-pl". The engine generates every number from one stem+ending
+# class, so a "-pl" group entry made singular forms (borra=, *)aqhna=) also match
+# the bogus "-pl" alias. Emitting them under the base lemma keeps whatever
+# coverage they add while letting indexnoms merge the duplicates.
 	if(/:no.+pers_name/ ) {
 		$groupv = $_;
 		$savev = $groupv;
 		$groupv =~ s#pers_name#is_group#;
 		$groupv =~ s#\bsg\b#pl#;
-		print ":le:$curlemma-pl\n$groupv\n$curlemma\n";
-	
+		print ":le:$curlemma\n$groupv\n$curlemma\n";
+
 		$groupv = $savev;
 		$groupv =~ s#\bsg\b#dual#;
-		print ":le:$curlemma-pl\n$groupv\n$curlemma\n";
+		print ":le:$curlemma\n$groupv\n$curlemma\n";
 	}
 }

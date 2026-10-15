@@ -687,6 +687,12 @@
 1h)a h)=a:ei)mi/:irreg_mi:imperf:ind:act:1st:sg:epic:ionic
 1h)en h)=en:ei)mi/:irreg_mi:imperf:ind:act:3rd:sg:epic
 1h)esan h)/esan:ei)=mi:irreg_mi:imperf:ind:act:3rd:pl
+1h)ggelh h)gge/lh:a)gge/llw:aor_pass:aor:ind:pass:3rd:sg
+1h)ggelhmen h)gge/lhmen:a)gge/llw:aor_pass:aor:ind:pass:1st:pl
+1h)ggelhn h)gge/lhn:a)gge/llw:aor_pass:aor:ind:pass:1st:sg
+1h)ggelhs h)gge/lhs:a)gge/llw:aor_pass:aor:ind:pass:2nd:sg
+1h)ggelhsan h)gge/lhsan:a)gge/llw:aor_pass:aor:ind:pass:3rd:pl
+1h)ggelhte h)gge/lhte:a)gge/llw:aor_pass:aor:ind:pass:2nd:pl
 1h)hn h)/hn:ei)mi/:irreg_mi:imperf:ind:act:1st:sg:epic h)/hn:ei)mi/:irreg_mi:imperf:ind:act:3rd:sg:epic
 1h)| h)=|:ei)mi/:irreg_mi:pres:subj:act:3rd:sg:contr
 1h)ia h)/i+a:ei)=mi:irreg_mi:imperf:ind:act:1st:sg:epic:ionic h)=|a:ei)=mi:irreg_mi:imperf:ind:act:1st:sg:epic:ionic
@@ -26180,7 +26186,7 @@ e)ufrhn e)u+frhn:eu)frai/nw:aor1:ainw
 e)w :w)qe/w:perfp_d:reg_conj:syll_augment
 e)w| :oi)/gw:perfp_g:reg_conj:syll_augment
 e)w|c :oi)/gw:fut_perf
-e)w|g :oi)/gw:perf_act
+e)wig :oi)/gw:perf_act
 e)w|x :oi)/gw:perf_act:reg_conj:syll_augment
 e)wk :w)qe/w:perf_act:reg_conj:syll_augment
 e)wlp :e)/lpw:perf_act:plup:attic_redupl

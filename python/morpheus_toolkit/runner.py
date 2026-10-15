@@ -33,6 +33,7 @@ class MorpheusRunner:
         timeout: int = 600,
         echo: bool = True,
         language: str = "greek",
+        jobs: int = 1,
     ):
         base = os.path.abspath(morpheus_dir or _DEFAULT_BASE)
         self.cruncher = cruncher or os.path.join(base, "bin", "cruncher")
@@ -40,6 +41,7 @@ class MorpheusRunner:
         self.timeout = timeout
         self.echo = echo
         self.language = (language or "greek").lower()
+        self.jobs = max(1, int(jobs or 1))
         if not os.path.exists(self.cruncher):
             raise FileNotFoundError(
                 f"cruncher not found at {self.cruncher!r}; build it with scripts/build.sh"
@@ -51,9 +53,30 @@ class MorpheusRunner:
         With ``ignore_accents`` the cruncher matches without accents/breathings
         (``-n``), which recovers unaccented words (verse-initial capitals in
         transcriptions, papyri, inscriptions).
+
+        ``jobs`` (set on the runner) splits the input across that many concurrent
+        ``cruncher`` subprocesses; alignment is preserved because the chunks are
+        contiguous and their results are concatenated in order.
         """
         if not forms:
             return []
+        if self.jobs > 1 and len(forms) > 500:
+            return self._analyze_parallel(forms, ignore_accents)
+        return self._analyze_chunk(forms, ignore_accents)
+
+    def _analyze_parallel(self, forms: List[str], ignore_accents: bool) -> List[List[Analysis]]:
+        from concurrent.futures import ThreadPoolExecutor
+
+        size = (len(forms) + self.jobs - 1) // self.jobs
+        chunks = [forms[i:i + size] for i in range(0, len(forms), size)]
+        with ThreadPoolExecutor(max_workers=self.jobs) as executor:
+            results = list(executor.map(lambda chunk: self._analyze_chunk(chunk, ignore_accents), chunks))
+        aligned: List[List[Analysis]] = []
+        for result in results:
+            aligned.extend(result)
+        return aligned
+
+    def _analyze_chunk(self, forms: List[str], ignore_accents: bool) -> List[List[Analysis]]:
         env = dict(os.environ, MORPHLIB=self.stemlib)
         argv = [self.cruncher, "-S"]
         if self.language in {"latin", "la", "lat"}:

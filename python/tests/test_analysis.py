@@ -42,6 +42,7 @@ def test_fine_pos_from_stemtype():
     assert fine_pos("N", "adverb") == "D"
     assert fine_pos("N", "conj") == "C"
     assert fine_pos("N", "particle") == "X"
+    assert fine_pos("N", "exclam") == "I"  # οἴμοι, φεῦ, ὦ, ἰού
     assert fine_pos("N", "relative") == "RR"
     assert fine_pos("N", "art_adj") == "A"
     assert fine_pos("N", "os_ou") == "N"

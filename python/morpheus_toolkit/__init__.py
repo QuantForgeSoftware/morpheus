@@ -15,6 +15,7 @@ adds what is needed to apply it to arbitrary Greek texts:
 from .analysis import Analysis, parse_perseus_analyses
 from .api import Morpheus, TokenResult
 from .beta import from_beta, to_beta
+from .learned import LearnedRanker, load_default_model
 from .morphgnt import parsing_code, pos_code
 from .ranking import Ranker
 from .runner import MorpheusRunner
@@ -24,12 +25,14 @@ from .tokenize import tokenize
 
 __all__ = [
     "Analysis",
+    "LearnedRanker",
     "Morpheus",
     "MorpheusRunner",
     "PosTagger",
     "Ranker",
     "TokenResult",
     "from_beta",
+    "load_default_model",
     "parse_perseus_analyses",
     "parsing_code",
     "pos_code",

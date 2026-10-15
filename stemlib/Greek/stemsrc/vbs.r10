@@ -1,0 +1,13 @@
+# Round 10: aorist passive of ἀγγέλλω and its compounds (CC BY-SA 4.0 workspace).
+# The generative paradigms omit the aorist passive of -έλλω verbs, so simplex
+# ἠγγέλη and compound ἀπηγγέλη fell back to the unrelated ἐγγελάω. Explicit
+# :vb: lines; compounds resolve through the analyzer's preverb split.
+# Picked up by the vbind build (Makefile cat list).
+
+:le:a)gge/llw
+:vb:h)gge/lhn aor_pass 1st sg aor ind pass
+:vb:h)gge/lhs aor_pass 2nd sg aor ind pass
+:vb:h)gge/lh aor_pass 3rd sg aor ind pass
+:vb:h)gge/lhmen aor_pass 1st pl aor ind pass
+:vb:h)gge/lhte aor_pass 2nd pl aor ind pass
+:vb:h)gge/lhsan aor_pass 3rd pl aor ind pass

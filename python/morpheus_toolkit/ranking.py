@@ -94,6 +94,12 @@ class Ranker:
         self.max_joint = max((max(row.values()) for row in self.joint.values() if row), default=1)
         self.log_max_joint = math.log1p(self.max_joint)
 
+    def set_frequencies(self, frequencies: Dict[str, int]) -> None:
+        """Replace the frequency table (used by adaptive domain-table selection)."""
+        self.frequencies = {normalize_lemma(key): value for key, value in (frequencies or {}).items()}
+        self.max_frequency = max(self.frequencies.values(), default=1)
+        self.log_max = math.log1p(self.max_frequency)
+
     def frequency_score(self, analysis: Analysis) -> float:
         # Prefer the joint (lemma, POS) count when we have it: it separates
         # homographs such as o( as an article (RA) vs a relative pronoun (RR).

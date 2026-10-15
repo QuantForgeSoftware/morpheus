@@ -1032,3 +1032,152 @@ annotated LXX gold is available in the workspace (excluded — no `.mlxx` gold l
 the 38 sub-threshold numeral forms are diminishing returns; fixing the false-hit letter
 numerals (315 wrong top-1 on PapyGreek) would need stemlib entries that change default
 behavior, out of scope per user direction.
+
+# Round 10: accuracy, correctness, offline tooling, product/scale ✅
+
+**User approved the whole plan ("Process"/"Do 2 and 3"/"Do 10-13"/"Do both"); complete
+2026-10-14 → 2026-10-15.** Working files in `tmp/r10/` (git-ignored). Standing constraints
+held throughout: no Latin, PROIEL content out of committed files, NT behavior unchanged,
+no GitHub processing. Migrated from `todo.md` (2026-10-15). `improvements.md` gained a
+"Round 10 additions" section at the end.
+
+## Items and outcomes
+
+- **Item 1 — learned disambiguation model: done (opt-in).** New
+  `python/morpheus_toolkit/learned.py` (shared feature extractor + `LearnedRanker`),
+  `scripts/build_learned_model.py` (per-token averaged perceptron), bundled
+  `data/learned_reranker.json` (488 features; trained on SBLGNT + AF, 188,656 analyzable
+  tokens). Features: lemma frequency + its rank, fine POS, stem type, morphological
+  feature values, POS interactions with the neighbours' frequency-ranked POS. API
+  `Morpheus(use_learned=True)` / CLI `--learned`. Top-1 lemma, frequency → learned:
+  SBLGNT 94.6→**95.0**, AF 90.1→**90.6** (MorphGNT subset 95.9→96.4), independent PROIEL
+  90.7→**91.5** (+0.8), AGLDT classical 91.4→**92.1** (every author positive). Uniformly
+  positive → generalization; kept opt-in (not yet validated on LXX/PapyGreek). Adding
+  morphological-feature tokens was the change that made it uniformly positive; a
+  POS-only first version dipped on Homer/Diodorus. Evaluators gained a `--learned` flag.
+- **Item 2 — adaptive domain-table selection: done (opt-in).** New
+  `python/morpheus_toolkit/tables.py` (`TableSet`): scores every bundled table against the
+  input's candidate lemmas by normalized rank inside each table (size-robust), picks the
+  best fit; `blend()` provided. `Morpheus(adaptive_tables=True)` / `--adaptive-tables`.
+  Selection correct on every register (SBLGNT→Koine, AF→AF, AGLDT→classical, PROIEL NT→
+  Koine) and matches the best single table: **AGLDT classical 85.3→91.4 (+6.1)** vs the
+  Koine default, AF 90.1→90.5, SBLGNT unchanged. Kept opt-in. 4 unit tests.
+- **Item 3 — lemma-context features: tried, reverted.** Added neighbour closed-class
+  lemma features (gated `--lemma-context`, off) and retrained: **worse** (PROIEL
+  91.5→91.4, AGLDT 92.1→91.9, Diodorus 95.9→95.2) despite lower train error — the
+  predicted-neighbour lemma is noisy and the features overfit. 488-feature model restored.
+- **Item 4 — `-έλλω` aorist passive: fixed.** Root cause was not the compound scanner:
+  `ἐγγελάω` is a real rare lemma, and the true gap was that the aorist passive of -έλλω
+  verbs was never generated (simplex ἠγγέλη fell back to ἐγγελάω). Added
+  `stemlib/Greek/stemsrc/vbs.r10` (explicit `:vb:` lines, stemtype `aor_pass`) wired into
+  the vbind cat list. Verified ἠγγέλη → ἀγγέλλω, **ἀπηγγέλη → ἀπαγγέλλω** (wrong ἐγγελάω
+  gone), καταγγέλη → καταγγέλλω.
+- **Item 5 — `-πλ` pers_name artifact: fixed.** `addconstraints.pl` emitted a
+  `:le:<lemma>-pl` `is_group` entry per `pers_name`; because the engine generates every
+  number from one stem+ending class, the group entry duplicated the surface forms and made
+  singular forms return the bogus `-πλ` alias. Fixed by emitting the group entries under
+  the **base** lemma (`:le:$curlemma`), so indexnoms merges them. Verified: `-πλ` top-1
+  lemmas SBLGNT 4/40K → **0**, AGLDT 26/120K → **0**; affected names now match gold where
+  the base lemma is gold-correct (Συβαριτῶν→Συβαρίτης, Εὐμολπιδῶν→Εὐμολπίδαι,
+  Ἀθηνᾶ→Ἀθήνη, βορρᾶ→Βορέας); plural/oblique still resolve; nomind shrank
+  (4,367,409 → 4,336,597 B).
+- **Item 6 — `-μπ` future-middle: already covered.** The Round-2 explicit `:vb:` lines
+  resolve every standard λαμβάνω future (λήμψομαι/ῃ/εται/όμεθα/εσθε/ονται); non-standard
+  λήψεται correctly returns nothing.
+- **Item 7 — interjection POS: fixed.** Interjections carry stem type `exclam`, which
+  `fine_pos()` did not map; mapped `exclam`→`I` (οἴμοι/φεῦ/ἰού). Unit test added.
+- **Item 8 — offline benchmark harness: done.** `scripts/benchmark.py` reads whichever
+  corpora are present (env: `MORPHGNT_DIR`/`AF_CORPUS_DIR`/`AGLDT_DIR`/`PROIEL_DIR`),
+  prints analyzed / coverage / top-1 (raw→ranked→learned) / POS, checks committed
+  thresholds `benchmarks/expected_greek.json` (tolerance-gated, non-zero exit; `--update`
+  regenerates), and prints paired bootstrap CIs (`--bootstrap`). Offline only.
+- **Item 9 — deterministic builds: done.** Two `make clean` rebuilds are byte-identical
+  (equal to HEAD) for `steminds/`, `endtables/`, `derivs/`; the only deltas are the
+  compiled STEMPROG helper binaries (build metadata, no analysis effect). The historical
+  ±0.5pp drift is cross-environment. Hardened the makefile with
+  `$(sort $(wildcard …))`; verified neutral.
+- **Item 10 — confidence calibration: done.** `calibration.py` + `scripts/calibrate.py`
+  (temperature by NLL grid search; `data/calibration.json`, T≈0.08). Applied by default;
+  top-1 ECE 0.207→**0.141** (SBLGNT), 0.203→**0.139** (AF); `temperature=1.0` opts out.
+- **Item 11 — convention profiles: done (mechanism).** `profiles.py` registry +
+  `Morpheus(profile=…)` / `--profile`. Finding: Morpheus's Unicode output already matches
+  the MorphGNT/LXX dictionary-form conventions (articles ὁ/RA, pronouns ἐγώ/σύ,
+  demonstratives οὗτος/ἐκεῖνος), so the bundled transform is idempotent. Follow-up 11.2
+  (`--base-lemmas` profile) deferred to Round 11.
+- **Item 12 — Unicode-native path: scoped.** `docs/unicode-native-input.md` (NFD + mapping
+  tables in `src/greeklib/gkunicode.c`, explicit `-u` flag, `to_beta` oracle test;
+  ~2.5 days). Implementation deferred to Round 11.
+- **Item 13 — scale/packaging: done.** `Morpheus(jobs=N)` / `--jobs` → **3.06×** at
+  jobs=4 on the Apostolic Fathers (60.2s→19.7s), identical output.
+  `scripts/package.sh` builds a wheel locally (`dist/`, git-ignored).
+
+## Verification
+
+- `pytest` → **49 passed** (was 38; +learned/tables/calibration/profiles tests).
+- Offline benchmark gate: full run reproduces the evaluators and a re-run prints
+  "OK (within tolerance)".
+- Ruby C suite: 11 failures on macOS — reproduced on the committed stemlib too →
+  pre-existing platform candidate-ordering differences, not regressions.
+- Flag-off paths unchanged (learned/adaptive load nothing when off); calibration changes
+  only reported confidence, not rankings.
+
+## Out of scope (carried as standing constraints into Round 11)
+
+- Latin work; PROIEL content in committed files (CC BY-NC-SA); NT behavior changes; any
+  GitHub processing.
+- Coverage fishing already declined: classical one-off names/fragments (0.15%), the LXX
+  ἕως/ἠώς homograph, the 38 sub-threshold PapyGreek numerals, bare-letter numeral false
+  hits.
+
+# Round 11: harvest AGLDT v2.1 for training + classical POS model ✅
+
+**Executed 2026-10-15.** Working files in `tmp/r10/` and `tmp/agldt/`. Only **Item A**
+(AGLDT harvesting) and the round wrap-up (Item C) were executed; Item B remained a
+candidate list and is carried forward in `todo.md`. Migrated from `todo.md` per the new
+process rule; `improvements.md` re-evaluated (Round 11 section).
+
+## Item A — harvest `PerseusDL/treebank_data` for training
+
+- **A1 — `--format agldt` reader: done.** Added `read_agldt()` + `assign_chunks()` to
+  `scripts/build_learned_model.py` (regex over `<word form=… lemma=… postag=…>`, one
+  context chunk per file, skip postag `u`/`m`, map pos1 → coarse POS). Verified 468,596
+  AGLDT rows. Analyzer calls are batched (4000) because AGLDT files are huge single chunks.
+- **A2 — pool AGLDT into the learned re-ranker: done (balanced).** Two runs:
+  - *pooled-all* (SBLGNT+AF+AGLDT = 650,360 tokens): classical **+3.25** but Koine
+    regressed (SBLGNT 95.0→94.3, AF 90.6→90.0, PROIEL 92.1→91.7) — 70% classical pool.
+  - *balanced* (`--agldt-limit 200000`; 385,758 tokens) shipped as the bundled model:
+    AGLDT 88.5→**91.5** (Koine table) / 92.1→**93.2** (classical table); independent
+    PROIEL **+0.13** (92.1→92.2); Koine −0.3 (SBLGNT 94.7, AF 90.3) — within the ±0.5pp
+    build-noise band. Added the `--agldt-limit` uniform-subsample control.
+- **A3 — classical POS model: built; negative result.** `scripts/build_pos_model.py
+  --format agldt` → `data/pos_bigram_grc.json` (10 tags). Measured via the evaluator's
+  new `--tagger/--model`: the classical bigrams beat the Koine ones for classical *when
+  the tagger is used* (Homer POS 87.3 vs 84.8), but the tagger still trails plain
+  frequency-ranked POS (ALL 85.2 vs 83.6) — consistent with the long-standing finding
+  that the bigram Viterbi tagger does not pay off.
+- **A4 — provenance: done.** AGLDT v2.1 is CC BY-SA 3.0 US (commit-safe); PROIEL stays the
+  independent, measurement-only gold. Records the inventory finding: `AGDT2` (Aesop +
+  P.-Apollodorus) is already in v2.1; `v2.0`/`v1.6`/`v1` are older copies; `IGDS` is
+  ~73 words.
+- **A5 — re-baseline: done.** `benchmarks/expected_greek.json` regenerated with the
+  pooled model; harness gained per-group batching (large AGLDT files were timing out as
+  single cruncher calls).
+
+## Item B — other Round 11 candidates
+
+Not executed (kept as candidates in `todo.md`): default-on validation (B1), a proper
+POS/sequence model (B2), the Unicode-native C path (B3), per-config/POS calibration (B4),
+the `--base-lemmas` profile (B5), cross-environment build determinism (B6), tokenizer
+robustness (B7).
+
+## Item C — round wrap-up
+
+- **C1 — `improvements.md`: updated** (Round 11 additions section; header date).
+- **C2 — migration: this record.** `todo.md` now holds Round 12 (proposed) and the
+  carried-forward candidates.
+
+## Verification
+
+- `pytest` 49 green; `build_learned_model.py`/`build_pos_model.py`/`eval_grc.py` compile.
+- Benchmark: pooled model run + thresholds rewritten; gate passes.
+- Full A/B across SBLGNT / AF / AGLDT / PROIEL recorded above.

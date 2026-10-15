@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.join(REPO, "python"))
 
 from morpheus_toolkit.analysis import Analysis  # noqa: E402
 from morpheus_toolkit.beta import normalize_lemma, to_beta  # noqa: E402
+from morpheus_toolkit.learned import LearnedRanker, load_default_model  # noqa: E402
 from morpheus_toolkit.ranking import (  # noqa: E402
     Ranker,
     load_default_frequencies,
@@ -52,6 +53,7 @@ class Row:
     lemma: str
     pos: str
     source: str = ""
+    ref: str = ""
 
 
 @dataclass
@@ -63,6 +65,7 @@ class Counters:
     top1_freq: int = 0
     top1_context: int = 0
     top1_tagger: int = 0
+    top1_learned: int = 0
     top3_freq: int = 0
     pos_agree: int = 0
 
@@ -70,16 +73,18 @@ class Counters:
         for name in self.__dataclass_fields__:  # type: ignore[attr-defined]
             setattr(self, name, getattr(self, name) + getattr(other, name))
 
-    def line(self, label: str, show_context: bool = False, show_tagger: bool = False) -> str:
+    def line(self, label: str, show_context: bool = False, show_tagger: bool = False,
+             show_learned: bool = False) -> str:
         def pct(value: int) -> str:
             return f"{100 * value / self.total:5.1f}%" if self.total else "  n/a"
 
         context = f"(ctx {pct(self.top1_context)}) " if show_context else ""
         tagger = f"tagger={pct(self.top1_tagger)} " if show_tagger else ""
+        learned = f"learned={pct(self.top1_learned)} " if show_learned else ""
         return (
             f"{label:<22} n={self.total:<7} misses={self.misses:<6} "
             f"coverage={pct(self.coverage)} top1={pct(self.top1_before)}->{pct(self.top1_freq)} "
-            f"{context}{tagger}top3={pct(self.top3_freq)} pos={pct(self.pos_agree)}"
+            f"{context}{tagger}{learned}top3={pct(self.top3_freq)} pos={pct(self.pos_agree)}"
         )
 
 
@@ -102,6 +107,7 @@ def read_rows(paths: List[str], args) -> List[Row]:
                         lemma=fields[args.lemma_field - 1],
                         pos=fields[args.pos_field - 1].rstrip("-"),
                         source=fields[args.source_field - 1] if args.source_field and len(fields) >= args.source_field else "",
+                        ref=fields[0],
                     )
                 )
     return rows
@@ -141,6 +147,12 @@ def main() -> int:
         default="",
         help="path to a POS-bigram model JSON (default: the bundled NT model)",
     )
+    parser.add_argument("--learned", action="store_true",
+                        help="also evaluate the learned candidate re-ranker")
+    parser.add_argument("--learned-model", default="",
+                        help="path to a learned re-ranker JSON (default: bundled)")
+    parser.add_argument("--adaptive", action="store_true",
+                        help="choose the best-fitting bundled frequency table automatically")
     args = parser.parse_args()
 
     paths = list(args.paths)
@@ -173,6 +185,16 @@ def main() -> int:
     sent = [row for row in rows if row.beta]
     analyses_by_token = runner.analyze_beta([row.beta for row in sent])
 
+    if args.adaptive:
+        from morpheus_toolkit.tables import load_table_set
+
+        table_set = load_table_set()
+        selected = table_set.select(analyses_by_token)
+        frequencies = table_set.frequencies(selected)
+        ranker = Ranker(frequencies, use_context=False)
+        joint = None
+        print(f"# adaptive table selected: {selected}")
+
     overall = Counters()
     by_source: Dict[str, Counters] = {}
 
@@ -193,6 +215,28 @@ def main() -> int:
             if args.model else load_default_pos_model()
         )
         tagger_chosen = PosTagger(model, emission_weight=args.emission_weight).tag(scored)
+
+    learned_ranked: List[Optional[List[Analysis]]] = [None] * len(sent)
+    if args.learned:
+        learned_model = (
+            json.load(open(args.learned_model, encoding="utf-8"))
+            if args.learned_model else load_default_model()
+        )
+        if not learned_model.get("weights"):
+            parser.error("no learned model found (train it with scripts/build_learned_model.py)")
+        learned_ranker = LearnedRanker(learned_model, frequencies=frequencies, joint=joint or {})
+        # Preserve verse/sentence boundaries for context (ref is column 1).
+        start = 0
+        for index in range(len(sent) + 1):
+            boundary = index == len(sent) or (index > 0 and sent[index].ref != sent[start].ref)
+            if boundary:
+                window = list(range(start, index))
+                ranked_window = learned_ranker.rank_sequence(
+                    [(sent[i].beta, analyses_by_token[i]) for i in window]
+                )
+                for i, analyses in zip(window, ranked_window):
+                    learned_ranked[i] = analyses
+                start = index
 
     for index, row in enumerate(sent):
         analyses = analyses_by_token[index]
@@ -215,6 +259,10 @@ def main() -> int:
                 chosen = tagger_chosen[index]
                 if chosen is not None and chosen.matches_lemma(gold):
                     counters.top1_tagger = 1
+            if learned_ranked[index] is not None:
+                learned_index = first_match(learned_ranked[index], gold)
+                if learned_index == 0:
+                    counters.top1_learned = 1
             if args.context:
                 ctx_index = first_match(context_ranked[index], gold)
                 if ctx_index == 0:
@@ -225,10 +273,12 @@ def main() -> int:
         if args.by_source:
             by_source.setdefault(row.source or "(none)", Counters()).add(counters)
 
-    print(overall.line("ALL", show_context=args.context, show_tagger=args.tagger))
+    print(overall.line("ALL", show_context=args.context, show_tagger=args.tagger,
+                       show_learned=args.learned))
     if args.by_source:
         for source, counters in sorted(by_source.items(), key=lambda item: -item[1].total):
-            print(counters.line(f"  source={source}", show_context=args.context, show_tagger=args.tagger))
+            print(counters.line(f"  source={source}", show_context=args.context,
+                                show_tagger=args.tagger, show_learned=args.learned))
     print(
         "\nLegend: top1 = gold lemma is the first candidate; "
         "before = Morpheus order, freq/ctx = after ranking."

@@ -2,6 +2,20 @@
 
 Rules for future sessions in this repo, captured after corrections and mistakes.
 
+## Process / workflow (user direction, 2026-10-15)
+
+- **Always migrate completed items from `todo.md` to `completed.md`** when a round
+  closes. `todo.md` holds only the *active* plan; finished rounds live in
+  `completed.md` (append a `# Round N: …` record with the items, outcomes, verification,
+  and a Review section). Do it as part of closing the round, not "later".
+- **Every round's plan ends with an item to re-evaluate `improvements.md`.** A round is
+  not complete until `improvements.md` carries the round's measured gains (new section +
+  date) and that checklist item is ticked.
+- **Push policy (revised 2026-10-15):** commits/pushes to GitHub are allowed when the user
+  asks, but **never trigger GitHub Actions/CI** (they cost money). Put **`[skip ci]`** in
+  every pushed commit message. Only `.github/workflows/test.yml` runs on push
+  (`docker-release.yml` runs on releases only); `[skip ci]` suppresses it.
+
 ## Working files
 
 - **All temp/working files go inside the morpheus folder** (`tmp/`, git-ignored) —
@@ -247,6 +261,16 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   Unicode lemmas with initial capitals (normalized lower-case). One reader
   (`--format agldt`) serves both languages; filter non-letter keys (-que,
   heu!, bracketed restorations) and skip postag `u`.
+- **Private corpora (TLG / PHI) are measurement-only — commit nothing derived.**
+  TLG and the PHI CD-ROMs (Latin, and the Greek inscriptions + documentary
+  papyri) are all-rights-reserved / scholarly-use-only — stricter than PROIEL
+  (CC BY-NC-SA). They are also **untagged**, so they can serve neither as gold
+  nor as a shippable frequency table; their only use is coverage probing from
+  `tmp/` (reuse the PapyGreek marker-stripping). Never commit their text, miss
+  lists, or any normalization/frequency table; add only generic entries
+  justified by public lexica (LSJ/Bechtel). Open equivalents (First1KGreek /
+  Open Greek and Latin, CC BY-SA) are commit-safe for the same job. Recorded in
+  `todo.md` "Round X".
 
 ## Python
 
@@ -263,3 +287,98 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   hand-edit the managed region of the generated file. When normalizing emitted
   values (e.g. grave→acute), apply the normalization at *both* entry points (new
   data and `load_existing()` merge) or re-runs won't converge.
+
+## Round 10 (2026-10-15)
+
+- **The stemlib build IS byte-deterministic within one environment** — two `make clean`
+  rebuilds produced identical `steminds/`, `endtables/`, `derivs/` (equal hash, equal to
+  HEAD). The ±0.5pp snapshot drift the earlier rounds saw is **cross-environment**, not
+  run-to-run: the only `make clean` deltas are the compiled STEMPROG helper binaries
+  (`stemsrc/{stripref,zapfirstf,headnolen,goodstem,flatlems}`), whose bytes embed build
+  metadata and do not affect analysis. Before blaming "build noise" for a snapshot move,
+  verify determinism locally (rebuild twice, hash) rather than assuming it.
+- **`$(wildcard …)` order is filesystem-dependent** — the Greek makefile fed
+  `stemsrc/nom.*` to `indexnoms` in readdir order, a cross-environment hazard. Wrap in
+  `$(sort …)` for a stable build input; verify neutrality with a forced rebuild
+  (`touch stemsrc/lsj.nom && scripts/build-stemlib.sh`) and `git status`.
+- **The aorist passive of -έλλω verbs was never generated**, so simplex ἠγγέλη and
+  compound ἀπηγγέλη silently fell back to the unrelated real lemma `ἐγγελάω`
+  (ἀπό+ἐγγελάω). Explicit `:vb:` lines with stemtype `aor_pass`
+  (`stemlib/Greek/stemsrc/vbs.r10`) fix the simplex **and** the compounds — the preverb
+  split (`unasp_preverb`) then yields the correct lemma `ἀπαγγέλλω`. A "compound-decomp
+  bug" was really a missing-paradigm gap; check *simplex* forms first before blaming the
+  compound scanner.
+- **Interjections analyze with stemtype `exclam`, not `interj`** — `fine_pos()` must map
+  `exclam`→`I` (οἴμοι/φεῦ/ἰού), or they surface as `N`.
+- **Learned re-ranker: morphological-feature tokens are what generalize; neighbour
+  *lemma* context overfits** (predicted-context noise): the POS+stem+morphology model
+  (488 features) beat the version that added closed-class neighbour lemmas on every
+  independent corpus despite lower train error.
+
+## Round 10, Items 10–13 (2026-10-15)
+
+- **Reported `confidence` was miscalibrated, not just "a softmax".** Ranker scores are
+  ordering scores; the raw softmax was under-confident (ECE 0.21). Fit a single
+  temperature by NLL on covered gold (`scripts/calibrate.py`) — the ratio matters, and
+  the fit transfers (AF ECE 0.20→0.14). Compute ECE / top-1 accuracy **conditional on
+  coverage** when calibrating, or the accuracy looks impossibly high (raw top-1 sits
+  below coverage).
+- **"Dictionary forms" are mostly already produced by Unicode conversion.** Morpheus's
+  beta article lemma `o(` becomes `ὁ` via `from_beta`, and pronouns/demonstratives already
+  come back as ἐγώ/σύ/οὗτος/ἐκεῖνος. The LXX driver's `--dictionary-forms` gain is a
+  reference-format/POS-column matter, not a lemma rewrite — a static "profile" transform
+  for the toolkit is therefore (correctly) idempotent.
+- **Parallelism is trivial and effective here because each job is a `cruncher`
+  subprocess** (I/O-bound): `ThreadPoolExecutor` over contiguous chunks gives 3.06× at
+  jobs=4 with identical output — no pickling/multiprocessing needed.
+- **Local wheel build needs `setuptools` in the venv**; `pip wheel --no-build-isolation`
+  then works offline (the cached wheel suffices). Reference data travels in the wheel
+  (`include-package-data`).
+
+## Round 10, Item 5 (`-πλ` artifact) (2026-10-15)
+
+- **`from_beta` decodes `-pl` as `-πλ`** (p=π, l=λ), so the artifact shows up as a
+  Greek suffix (`Σατάν-πλ`), not ASCII `-pl`. Grepping the Unicode output for `-pl`
+  finds nothing; search for `πλ`.
+- **`addconstraints.pl`'s `:le:<lemma>-pl` group entries were pure aliases**: the engine
+  generates every number from one stem+ending class, so a `pl`-tagged group entry still
+  produced the singular surface forms and made them match the bogus lemma. Emitting the
+  group entries under the *base* lemma (`:le:$curlemma`) removes the alias, keeps
+  coverage (the base entry already covers the plural), and lets indexnoms merge the
+  duplicates.
+- **Effect size:** a correctness fix, not an accuracy win at corpus scale — 4/40K SBLGNT
+  and 26/120K AGLDT top-1 lemmas carried `-πλ`; both drop to 0, and the affected names
+  then match gold when the base lemma is gold-correct. Corpus aggregates stay within the
+  ±0.5pp build-noise band, so it will not show in the benchmark — measure the artifact
+  directly (scan for the suffix), not via aggregate accuracy.
+
+## Round 11 (2026-10-15)
+
+- **Pooling a large training corpus without balancing overfits the larger domain.**
+  Adding all of AGLDT (468K tokens) to SBLGNT+AF (200K) made the learned re-ranker much
+  better on classical (+3.2pp over the Koine-only model) but *worse* on Koine
+  (SBLGNT −0.7, AF −0.6, PROIEL −0.4). `--agldt-limit 200000` (uniform subsample, ~50/50)
+  kept almost all the classical gain (+3.0) with Koine within the ±0.5pp build-noise band
+  (−0.3). **Always measure a pooled model on every domain, not just the target** — the
+  benchmark gate only guards coverage/ranked/POS, so a learned regression slips through
+  unless checked explicitly.
+- **AGLDT `*.tb.xml` files are huge single context chunks.** Analyze in batches (4000);
+  feeding a whole Homer file (~200K tokens) to one `cruncher` call times out. This bit the
+  trainer and the benchmark harness both.
+- **The POS-bigram Viterbi tagger still loses to frequency-ranked POS**, even with an
+  in-domain classical bigram model (AGLDT 85.2% → 83.6% tagger). The classical bigrams do
+  beat the Koine ones *for the tagger* on classical text (Homer 87.3 vs 84.8), but the
+  conclusion stands: a *learned-emission* model is the real requirement, not more bigram
+  data.
+- **`treebank_data` beyond v2.1 is redundant or negligible**: `AGDT2` = Aesop +
+  P.-Apollodorus (already in v2.1), `v2.0`/`v1.6`/`v1` = older copies, `IGDS` = ~73 words.
+  Harvest v2.1 only.
+
+## Round 13 (2026-10-15)
+
+- **`--ignore-accents` strips accents but NOT breathings.** Uncial manuscript text is
+  unaccented *and unbreathed*, so a bare form can mis-resolve: `en` under `-n` yields
+  **V εἰμί**, not **P ἐν** (whereas `e)n` yields ἐν first). Any manuscript-transcription
+  pipeline (e.g. CSNTM) needs breathings/accents restored, or context/confidence, before
+  function words are reliable. The toolkit's Unicode path on *accented* critical-text
+  Greek is clean (100% analyzed on John 1:1–2).

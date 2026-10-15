@@ -7,6 +7,7 @@ from typing import Dict, Iterable, List, Optional
 
 from .analysis import Analysis
 from .beta import from_beta, to_beta
+from .calibration import load_temperature, softmax_confidences
 from .ranking import Ranker, load_default_frequencies
 from .runner import MorpheusRunner
 from .strongs import strongs_for
@@ -49,9 +50,16 @@ class Morpheus:
         use_homograph_context: bool = False,
         numerals: bool = False,
         language: str = "greek",
+        use_learned: bool = False,
+        adaptive_tables: bool = False,
+        temperature: Optional[float] = None,
+        profile: Optional[str] = None,
+        jobs: int = 1,
     ):
         self.language = (language or "greek").lower()
-        self.runner = runner or MorpheusRunner(morpheus_dir=morpheus_dir, language=self.language)
+        self.runner = runner or MorpheusRunner(
+            morpheus_dir=morpheus_dir, language=self.language, jobs=jobs
+        )
         self.ranker = Ranker(
             frequencies if frequencies is not None else load_default_frequencies(),
             use_context=use_context,
@@ -68,6 +76,20 @@ class Morpheus:
         # Opt-in: unanalyzed Greek letter-numeral tokens get a synthetic analysis
         # from data/papyrus_numerals.json. Off by default — behavior unchanged.
         self.numerals = numerals
+        # Opt-in: re-rank candidates with the learned model
+        # (data/learned_reranker.json). Off by default — behavior unchanged.
+        self.use_learned = use_learned
+        self._learned_ranker = None
+        # Opt-in: pick the best-fitting bundled frequency table per input instead
+        # of using one fixed table. Off by default — behavior unchanged.
+        self.adaptive_tables = adaptive_tables
+        self._table_set = None
+        # Softmax temperature for the reported confidence. None => the bundled
+        # calibrated value (data/calibration.json); 1.0 opts out.
+        self._temperature = temperature
+        # Optional output-convention profile (e.g. "morphgnt"): rewrites lemma/POS
+        # presentation only. None => natural Morpheus output.
+        self.profile = profile
 
     @property
     def is_latin(self) -> bool:
@@ -106,12 +128,21 @@ class Morpheus:
             for result in results:
                 if not result.analyses and result.beta:
                     result.analyses = [self._propose(result)]
+        if self.adaptive_tables and not self.is_latin:
+            self._apply_adaptive_tables(results)
         for result in results:
             result.analyses = self.ranker.rank(result.analyses)
+        if self.use_learned and not self.is_latin:
+            self._apply_learned(results)
         if self.ranker.use_context:
             self.ranker.rerank_with_context([result.analyses for result in results])
         if self.use_homograph_context and not self.is_latin:
             self._apply_homographs(results)
+        if self.profile:
+            from .profiles import apply_profile
+
+            for result in results:
+                apply_profile(self.profile, result.analyses)
         for result in results:
             self._annotate(result.analyses)
         return results
@@ -131,6 +162,40 @@ class Morpheus:
             nxt = (results[i + 1].analyses[0].pos
                    if i + 1 < len(results) and results[i + 1].analyses else None)
             result.analyses = rerank(result.analyses, result.beta, prev, nxt)
+
+    def _apply_adaptive_tables(self, results: List[TokenResult]) -> None:
+        """Pick the best-fitting bundled frequency table for this input (opt-in).
+
+        Runs before ranking so the whole input is ranked with one table chosen
+        from its own candidate lemmas (see ``tables.TableSet``).
+        """
+        from .tables import load_table_set
+
+        if self._table_set is None:
+            self._table_set = load_table_set()
+        name = self._table_set.select([result.analyses for result in results])
+        self.ranker.set_frequencies(self._table_set.frequencies(name))
+
+    def _apply_learned(self, results: List[TokenResult]) -> None:
+        """Re-rank all candidates with the learned model (opt-in; Greek only).
+
+        Uses the frequency tables configured on the ranker for its feature
+        extraction, so it stays consistent with how the model was trained.
+        """
+        from .learned import LearnedRanker, load_default_model
+
+        if self._learned_ranker is None:
+            self._learned_ranker = LearnedRanker(
+                load_default_model(),
+                frequencies=self.ranker.frequencies,
+                joint=self.ranker.joint,
+            )
+        ranked = self._learned_ranker.rank_sequence(
+            [(result.beta, result.analyses) for result in results]
+        )
+        for result, analyses in zip(results, ranked):
+            if analyses:
+                result.analyses = analyses
 
     def _apply_numerals(self, results: List[TokenResult]) -> None:
         """Give unanalyzed letter-numeral tokens a synthetic analysis (opt-in).
@@ -165,15 +230,15 @@ class Morpheus:
             results[index].analyses = analyses
 
     def _annotate(self, analyses: List[Analysis]) -> None:
-        """Attach a softmax confidence and (for Greek) a Strong's number."""
+        """Attach a calibrated softmax confidence and (for Greek) a Strong's number."""
         if not analyses:
             return
+        if self._temperature is None:
+            self._temperature = load_temperature()
         scores = [analysis.score for analysis in analyses]
-        top = max(scores)
-        weights = [math.exp(score - top) for score in scores]
-        total = sum(weights) or 1.0
-        for analysis, weight in zip(analyses, weights):
-            analysis.confidence = weight / total
+        confidences = softmax_confidences(scores, self._temperature)
+        for analysis, confidence in zip(analyses, confidences):
+            analysis.confidence = confidence
             if not self.is_latin:
                 analysis.strongs = strongs_for(analysis.lemma)
                 if analysis.strongs is None:

@@ -132,7 +132,9 @@ def fine_pos(raw_pos: str, stemtype: str) -> str:
         return "C"
     if stem == "particle":
         return "X"
-    if stem == "interj":
+    if stem == "interj" or "exclam" in stem:
+        # Interjections are emitted by the analyzer with the stem type `exclam`
+        # (e.g. οἴμοι, φεῦ, ὦ, ἰού); map them to the interjection POS.
         return "I"
     if stem == "relative":
         return "RR"

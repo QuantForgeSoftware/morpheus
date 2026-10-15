@@ -1,0 +1,9 @@
+{
+  "temperature": 0.08,
+  "method": "temperature scaling, NLL grid search",
+  "source": "MorphGNT SBLGNT (CC-BY-SA 4.0); see scripts/calibrate.py",
+  "fit_ece_t1": 0.2066,
+  "fit_ece_calibrated": 0.1405,
+  "af_ece_t1": 0.2029,
+  "af_ece_calibrated": 0.139
+}
