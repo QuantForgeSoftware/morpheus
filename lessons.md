@@ -382,3 +382,34 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   pipeline (e.g. CSNTM) needs breathings/accents restored, or context/confidence, before
   function words are reliable. The toolkit's Unicode path on *accented* critical-text
   Greek is clean (100% analyzed on John 1:1–2).
+
+## Round 15 (2026-10-15)
+
+- **A measurement harness must use the shipped rankers for its baselines.** The B8
+  proto's ad-hoc frequency order (hand-rolled `freqs.get(normalize_lemma(...))` sort)
+  gave PROIEL freq 92.7 where the shipped `Ranker` gives 95.4 on the same candidate
+  sets; the head-to-head's corpus-level projections reproduce `benchmark.py` exactly
+  (AF 90.1/90.3, PROIEL 91.7/92.2), which is the check that makes the comparison
+  trustworthy. Reuse the toolkit's own code paths in evals.
+- **Measure before fixing a suspected miscalibration.** The learned flip made the
+  bundled T=0.08 (fitted on frequency scores) look wrong for learned scores; the probe
+  showed the learned softmax is natively calibrated and *insensitive* to T in
+  [0.08, 1.0] (ECE ~0.005 throughout). The per-path fit (T=1.0) is still the correct
+  engineering, but the expected numerical effect was near zero — the real win is the
+  documented 0.142 → 0.005 default-path ECE.
+- **Default flips need a "never worse" measurement on every corpus — including the
+  candidate configuration, not just the flag.** Homograph re-ranking measured +0.2 to
+  +0.9 on SBLGNT/AF/PROIEL but −0.4 on AGLDT classical, so it stays opt-in. The
+  learned path also gives back ~0.2pp of the AF table-selection gain because its
+  features are trained against the default table — a table-selected ranker is not
+  automatically better for a learned re-ranker on top of it.
+- **Corpus-level adaptive selection must batch.** `select_adaptive_table` analyzed
+  group-by-group (SBLGNT verses, PROIEL sentences) — one cruncher spawn per group,
+  turning a 20K-token sample into thousands of process spawns. Flatten the sample and
+  analyze in 4000-token batches.
+- **The LM disambiguation layer is distribution-sensitive.** Ancient-Greek-BERT + MLP
+  head wins on accented text (SBLGNT test 99.4 vs 97.9 learned, ambiguous-only) but
+  collapses on the shipped accent-insensitive pipeline (PROIEL 92.3 vs 96.4):
+  `ignore_accents` inflates multi-candidate tokens 37.8% → 59.4%, and the head was
+  trained on accented gold only. Candidate generation defines the task; train the
+  scorer on the candidates the toolkit actually produces.
