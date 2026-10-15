@@ -1,10 +1,12 @@
 # Active plan
 
-The active plan is the remaining **candidate follow-ups (B items)**; **Round 13**
-(CSNTM / NT-manuscript outreach) is queued pending the CSNTM contact, and **Round X**
-is a standing reminder. Rounds 11, 12, 14 and 15 are complete (records in
-[completed.md](completed.md)); [improvements.md](improvements.md) carries the measured
-gains to date.
+**Round 16 (recovery pre-pass + hygiene) is complete** — records in
+[completed.md](completed.md). **Round 17** (canonical-lemma scoring fix + learned-feature
+cleanup + PG retrain) is agreed and deferred; **Round 13** (CSNTM / NT-manuscript
+outreach) is queued pending the CSNTM contact; the remaining **candidate follow-ups
+(B items)** and **Round X** are standing. Rounds 11, 12, 14, 15 and 16 are complete
+(records in [completed.md](completed.md)); [improvements.md](improvements.md) carries
+the measured gains to date.
 
 ## Standing constraints (carry into any future round)
 
@@ -30,6 +32,15 @@ gains to date.
   `todo.md` to [`completed.md`](completed.md)** when a round closes — `todo.md` holds only
   the active plan. And **every round's plan ends with an item to re-evaluate and update
   [`improvements.md`](improvements.md)**.
+
+---
+
+# Round 17 (agreed, deferred) — canonical-lemma scoring fix + learned retrain
+
+Canonical-lemma scoring fix (Morpheus's `form,lemma` field pollutes frequency scoring —
+measured **+1.2pp on PG plain path**, SBLGNT wash) + learned-feature cleanup + PG-data
+retrain with a document-level held-out split. The plain-path fix is held back so the
+learned model and its features are retrained together (feature semantics change).
 
 ---
 

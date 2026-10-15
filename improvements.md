@@ -4,7 +4,8 @@
 Report compiled 2026-10-14 from the round records in [`completed.md`](completed.md),
 [`python/README.md`](python/README.md), and fresh runs on the current build;
 **Round 10 additions appended 2026-10-15; Round 11 (AGLDT pooling) appended 2026-10-15;
-Round 14 (entity extraction) appended 2026-10-15.**
+Round 14 (entity extraction) appended 2026-10-15; Round 15 (learned + adaptive
+defaults) and Round 16 (recovery pre-pass) appended 2026-10-15.**
 
 This file summarizes how much the analyzer improved, after the fork, when parsing
 different Greek texts. It is an **estimate built from measurements**, not a claim of
@@ -28,22 +29,29 @@ coverage) and **accuracy** (picking the right reading among candidates).
 
 | Greek text (tokens) | Fork baseline | Now (default) | Now (opt-in flags) |
 |---|---:|---:|---:|
-| Septuagint / LXX (623,685) | 94.85% | **99.81%** | 99.81% |
-| Classical Greek, AGLDT (469,254) | 92.8%¹ | **99.8%** | 99.8% |
-| SBLGNT / NT (137,554) | 93.7% | **95.2%** | 100% (`unknown_as_proper`) |
-| Apostolic Fathers (63,222) | 90.7% | 91.2% | **99.35%** (`-n` + elided stems) |
-| PapyGreek papyri (36,455) | 89.9% | 92.9% | **95.1%** (`--numerals`) |
-| PROIEL Greek NT — independent (132,366) | — | **99.6%** | — |
+| Septuagint / LXX (623,685) | 94.85% | **100.0%** | 100.0% |
+| Classical Greek, AGLDT (469,254) | 92.8%¹ | **99.9%** | 99.9% |
+| SBLGNT / NT (137,554) | 93.7% | **95.3%** | 100% (`unknown_as_proper`) |
+| Apostolic Fathers (63,222) | 90.7% | **91.3%** | **99.35%** (`-n` + elided stems) |
+| PapyGreek papyri (36,455) | 89.9% | **97.4%** | **99.2%** (`--numerals`) |
+| PROIEL Greek NT — independent (132,366) | — | **99.9%** | — |
 | PROIEL Herodotus — independent (83,819) | — | **99.8%** | — |
+
+**Round 16:** the recovery pre-pass is now on by default; the default cells above are
+the recovery-on measurements — PapyGreek gains the most (+4.5: 92.9% → 97.4%), the
+literary corpora rise 0.04–0.24pp, the LXX reaches 100%, and the SBLGNT/AF analysis
+rates reach 99.95%/99.4%. See the Round 16 section below.
 
 ¹ Generous "before": that figure is *with* the new converter but before the elision
 fix. A pure forked analyzer scores **0%** on Unicode AGLDT, since word-final `U+0313`
 (δ̓, ~34K tokens) and Unicode itself both fail. After the fix, Homer goes 90.3% → 100.0%.
 
 Missed tokens overall fell from ~6% of tokens to ~1% by default, or ~0.2–0.7% with the
-opt-in fallbacks — a **~4–25× reduction in misses**, driven by new stemlib material
+opt-in fallbacks — a **~4–25× reduction in misses** — driven by new stemlib material
 (`nom.lxx` ~14.8K lines, `nom.biblical`, `nom.papyri`, `nom.elided`) that did not exist
-at the fork.
+at the fork. Since Round 16 the recovery pre-pass (default) cuts the residual further:
+the LXX and SBLGNT analyze at ~100%, AF at 99.4%, and PapyGreek's default misses fall
+from 4.9% to 2.6% (0.8% with `--numerals`).
 
 ## Accuracy — top-1 lemma (is the gold reading first?)
 
@@ -66,6 +74,11 @@ re-run after the proper-name additions.
 re-ranking + adaptive table selection, worth another **+7.2** on AGLDT (86.56 →
 **93.74**), +0.5 on PROIEL (91.66 → **92.19**), +2.3 on the LXX (→ **90.7**) and
 +4.5 on PapyGreek (→ **85.7**) — see the Round 15 section below.
+
+**Round 16 update:** the recovery pre-pass (default) resolves previously unanalyzed
+tokens; on PapyGreek it adds **+1.8** learned top-1 (87.9 → **89.7** exact) and lifts
+coverage 95.1% → **99.2%**; on the literary corpora it is neutral-to-slightly-positive
+(+0.02–0.05) — see the Round 16 section below.
 
 Notes on the before/after:
 
@@ -246,15 +259,75 @@ Also in this round:
   training corpus is request-only, and its models derive from a GPL-3.0 base with no
   licence card — not a clean corpus/LM candidate.
 
+## Round 16 additions (2026-10-15): the recovery pre-pass (spelling variants + names)
+
+Papyri spell words the way people spoke; the stemlib holds the literary forms.
+Round 16 adds a **recovery pre-pass** that fires **only on tokens the stemlib
+could not analyze at all** — analyzed tokens are byte-identical with it off or on
+— and proposes stemlib-analyzed **spelling variants** (itacism, gemination,
+sandhi, dropped iota subscripts) and rule-generated **name nominatives**
+(Δωρίωνος → Δωρίων). Every proposal is flagged (`proposed=True`,
+`recovered_from`) and goes through the regular ranking. Measured on PapyGreek
+(all 36,455 word tokens; learned + adaptive defaults with the papyri table and
+`--numerals`; recovery off → on):
+
+| metric | off | on | gain |
+| --- | ---: | ---: | ---: |
+| coverage | 95.1% | **99.2%** | +4.1 |
+| top-1 ranked (exact / acc-insens) | 85.9 / 87.3% | **87.9 / 89.3%** | +2.0 |
+| top-1 learned (exact / acc-insens) | 87.9 / 89.4% | **89.7 / 91.2%** | +1.8 |
+| unanalyzed tokens | 1,781 | **296** | −83% |
+
+(The off column is re-measured under the same harness as the on column; it is
+0.1pp above the Round 15 record because gold lemmas now have `|num:N|`/`|gap:N|`
+annotation spans stripped — the annotation-lemma hygiene, not the pre-pass.)
+
+- **What the pre-pass recovers**: 1,265 distinct forms — 390 from spelling variants
+  alone, 376 from name candidates alone, 499 from both. Exact top-1 hits among
+  recovered tokens (ranked) split 588 spelling / 134 name (token-weighted). The miss
+  profile before → after: editorially marked/truncated forms 1,291 → 189, numerals
+  outside the table 38 → 31, and the whole itacism/gemination/sandhi family that no
+  stemlib entry covers (ὑγειαίνῃς → ὑγιαίνω via a restored iota subscript, μὲγ → μέν,
+  ῥαύδους → ῥάβδος, Δωρίωνος → Δωρίων).
+- **Coarse POS moves down slightly (80.1% → 79.7%) by construction**: POS is
+  measured over covered tokens, and the ~1,485 tokens that recovery brings into
+  the denominator agree at ~70%. That is a completeness artifact, not a
+  regression — coverage and top-1 can only rise (a miss has no candidates to
+  lose; a proposal can only win if ranking puts it first).
+- **The cruncher's accent-insensitive mode does not ignore the iota subscript**
+  (`u(giai/nhs` → 0 analyses, `u(giai/nh|s` → ὑγιαίνω), so the variant generator
+  restores the subscript on single η positions; without it, tier-1 variants of
+  documentary subjunctives are all dead.
+- **Convention floor (documented, not fixable by rules)**: 45 tokens carry editorial
+  annotation spans in the gold lemma (`ια|num:11|`, `βαυβ|gap:2|` — the hygiene strips
+  them before matching), 35 carry hyphenated compound lemmas (`σύν-προσγίγνομαι`), and
+  5,598 (15.4%) have a gold lemma equal to the surface itself (indeclinable/name
+  convention). Degree suppletion (πλεῖστα → πολύς) and particle conventions (κε → ἄν)
+  can never match a stemlib lemma. These bound the achievable agreement on this corpus.
+- **Gate (SBLGNT / AF / AGLDT / PROIEL)**: coverage, top-1 ranked and top-1 learned
+  up-or-equal on all four corpora (SBLGNT learned 94.67 → 94.70, AF 90.21 → 90.26,
+  AGLDT 93.74 → 93.76, PROIEL 92.19 → 92.24; coverage +0.02–0.06 each). The *analysis
+  rate* jumps where the misses were name-heavy: AF 98.37% → 99.4%, SBLGNT 99.79% →
+  99.95%. The one metric that moves down is coarse POS on AF (75.94 → 75.31) — and it
+  is the completeness artifact above: `pos_n` is measured over analyzed tokens, the
+  ~650 newly analyzed AF tokens agree at ~15%, and every previously analyzed token's
+  order is byte-identical (the arithmetic reproduces 75.31 exactly). Thresholds
+  re-baselined with `--update` from the shipped-default run.
+- PapyGreek remains the top-priority corpus; the pre-pass is most valuable
+  exactly where the stemlib is weakest.
+
 ## Bottom line
 
-- **Coverage**: ~94% of tokens analyzable at the fork's best → **~99% now** (and
-  ~99.5%+ with the opt-in fallbacks); on true Unicode input the fork was 0%.
+- **Coverage**: ~94% of tokens analyzable at the fork's best → **~99% now**, and
+  ~100% on the literary corpora since Round 16's recovery pre-pass (PapyGreek 97.4%
+  default / 99.2% with `--numerals`); on true Unicode input the fork was 0%.
 - **Top-1 lemma accuracy**: token-weighted across ~1.55M tokens, roughly
   **84.8% → 92.5%** — the top-1 lemma **error rate is about halved** (15.2% → 7.5%),
   with per-corpus gains of +4 to +13 points. Since Round 15 the shipped default
   (learned + adaptive) adds a further **+7.2** on classical, **+4.5** on papyri,
-  **+2.3** on the LXX, and +0.1–0.5 on the NT-family corpora.
+  **+2.3** on the LXX, and +0.1–0.5 on the NT-family corpora; Round 16's recovery
+  pre-pass adds **+1.8** on papyri (its top-priority corpus) and is neutral-to-slightly-
+  positive on the literary corpora.
 
 ## Caveats
 
@@ -265,7 +338,10 @@ Also in this round:
   independent gold and show the same magnitude of gain, which is the strongest
   evidence the ranking is real and not convention-fitted.
 - **POS is the weak dimension** (~74–85%), because Morpheus collapses
-  noun/adjective/pronoun/article into `N`; lemma accuracy is the headline.
+  noun/adjective/pronoun/article into `N`; lemma accuracy is the headline. Since
+  Round 16 it is also measured over the *analyzed* set, so additive coverage gains
+  (the recovery pre-pass) move it down slightly by denominator growth — a
+  completeness artifact, not a regression (see the Round 16 section).
 - **PapyGreek numerals**: the opt-in `--numerals` table resolves 1,416/1,454 numeral
   tokens (the Round 14 lowercase α/ε gap is fixed); bare-letter numeral *false hits*
   remain deliberately out of scope.
@@ -295,5 +371,5 @@ AGLDT_DIR=/path/to/agldt/v2.1/Greek/texts PROIEL_DIR=/path/to/greek-nt.conll \
     .venv/bin/python scripts/benchmark.py --bootstrap 300
 ```
 
-(`--no-learned --no-adaptive` reproduces the old frequency-only default; `--no-gate`
+(`--no-learned --no-adaptive --no-recovery` reproduces the old frequency-only default; `--no-gate`
 skips the threshold comparison for such diagnostic runs.)

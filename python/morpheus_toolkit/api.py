@@ -49,6 +49,7 @@ class Morpheus:
         ignore_accents: bool = False,
         use_homograph_context: bool = False,
         numerals: bool = False,
+        recovery: bool = True,
         language: str = "greek",
         use_learned: bool = True,
         adaptive_tables: bool = True,
@@ -76,6 +77,11 @@ class Morpheus:
         # Opt-in: unanalyzed Greek letter-numeral tokens get a synthetic analysis
         # from data/papyrus_numerals.json. Off by default — behavior unchanged.
         self.numerals = numerals
+        # On by default (Greek, Round 16): unanalyzed Greek tokens are retried
+        # with generic normalization candidates (spelling variants, name
+        # lemmatization); analyzed tokens are never touched. Pass False to keep
+        # the previous behavior (misses stay misses).
+        self.recovery = recovery
         # On by default (Greek): re-rank candidates with the learned model
         # (data/learned_reranker.json). Pass False to keep frequency order.
         self.use_learned = use_learned
@@ -129,12 +135,17 @@ class Morpheus:
             self._recover_unaccented(results)
         if self.numerals and not self.is_latin:
             self._apply_numerals(results)
+        # Adaptive table selection runs before recovery so name proposals can be
+        # re-accented from the chosen table; the proper-noun fallback runs after
+        # recovery so the more specific proposals win.
+        if self.adaptive_tables and not self.is_latin:
+            self._apply_adaptive_tables(results)
+        if self.recovery and not self.is_latin:
+            self._apply_recovery(results)
         if self.unknown_as_proper:
             for result in results:
                 if not result.analyses and result.beta:
                     result.analyses = [self._propose(result)]
-        if self.adaptive_tables and not self.is_latin:
-            self._apply_adaptive_tables(results)
         for result in results:
             result.analyses = self.ranker.rank(result.analyses)
         if self.use_learned and not self.is_latin:
@@ -222,6 +233,23 @@ class Morpheus:
                 analysis = propose(result.beta)
                 if analysis is not None:
                     result.analyses = [analysis]
+
+    def _apply_recovery(self, results: List[TokenResult]) -> None:
+        """Retry unanalyzed tokens with generic normalization candidates.
+
+        Fires only on tokens with NO analyses (like ``_apply_numerals``), so
+        analyzed tokens are never touched; see ``recovery.recover`` for the two
+        strategies and the ``proposed``/``recovered_from`` flags. Proposals go
+        through the regular ranking passes below.
+        """
+        from .recovery import recover
+
+        recover(
+            [result.token or from_beta(result.beta) or "" for result in results],
+            [result.analyses for result in results],
+            self.runner,
+            self.ranker.frequencies,
+        )
 
     def _recover_unaccented(self, results: List[TokenResult]) -> None:
         """Retry, without accents, the words the accented match missed.

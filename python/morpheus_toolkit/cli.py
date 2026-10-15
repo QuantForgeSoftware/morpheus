@@ -70,12 +70,20 @@ def main(argv: List[str] | None = None) -> int:
         action="store_false",
         help="disable automatic frequency-table selection (on by default for Greek)",
     )
+    analyze.add_argument(
+        "--no-recovery",
+        dest="recovery",
+        action="store_false",
+        help="disable the recovery pre-pass for unanalyzed tokens (on by default for Greek)",
+    )
     # Accepted no-ops kept for compatibility with older command lines.
     analyze.add_argument("--learned", dest="learned", action="store_true",
                          help=argparse.SUPPRESS)
     analyze.add_argument("--adaptive-tables", dest="adaptive_tables", action="store_true",
                          help=argparse.SUPPRESS)
-    analyze.set_defaults(learned=True, adaptive_tables=True)
+    analyze.add_argument("--recovery", dest="recovery", action="store_true",
+                         help=argparse.SUPPRESS)
+    analyze.set_defaults(learned=True, adaptive_tables=True, recovery=True)
     analyze.add_argument(
         "--profile",
         choices=["morphgnt", "lxx"],
@@ -91,6 +99,7 @@ def main(argv: List[str] | None = None) -> int:
         ignore_accents=args.ignore_accents,
         use_homograph_context=args.homographs,
         numerals=args.numerals,
+        recovery=args.recovery,
         language=args.language,
         use_learned=args.learned,
         adaptive_tables=args.adaptive_tables,

@@ -52,6 +52,10 @@ class Analysis:
     # True for synthetic analyses invented for tokens Morpheus could not analyze
     # (e.g. proper names); consumers can filter them out.
     proposed: bool = False
+    # Recovery proposals (Round 16): the normalization candidate this analysis
+    # was recovered from (e.g. the itacism-normalized spelling variant or the
+    # rule-generated nominative). None for direct stemlib analyses.
+    recovered_from: Optional[str] = None
 
     @property
     def mood(self):
@@ -90,6 +94,7 @@ class Analysis:
             "confidence": round(self.confidence, 4),
             "strongs": self.strongs,
             "proposed": self.proposed,
+            "recovered_from": self.recovered_from,
         }
 
 

@@ -183,7 +183,7 @@ class Counters:
 
 def evaluate(rows: List[Row], runner: MorpheusRunner, ranker: Ranker,
              learned: Optional[LearnedRanker], ignore_accents: bool = False,
-             homographs: bool = False) -> Counters:
+             homographs: bool = False, recovery: bool = False) -> Counters:
     counters = Counters(raw_flags=[], ranked_flags=[], learned_flags=[],
                         homograph_flags=[])
     groups: Dict[str, List[Row]] = {}
@@ -202,6 +202,11 @@ def evaluate(rows: List[Row], runner: MorpheusRunner, ranker: Ranker,
                         [betas[i] for i in sub], ignore_accents=ignore_accents)):
                     analyses[i] = cand
         raw = [list(a) for a in analyses]
+        if recovery:
+            from morpheus_toolkit.recovery import recover
+
+            recover([row.token for row in group], analyses, runner,
+                    ranker.frequencies)
         ranked = [ranker.rank(list(a)) for a in analyses]
         learned_ranked = None
         if learned is not None:
@@ -339,10 +344,13 @@ def main() -> int:
                     help="use the default table instead of the corpus-selected one")
     ap.add_argument("--homographs", action="store_true",
                     help="also measure the homograph-context re-ranker on the final order")
+    ap.add_argument("--no-recovery", dest="recovery", action="store_false",
+                    help="disable the recovery pre-pass for unanalyzed tokens (on by default)")
     # Accepted no-ops kept for compatibility with older command lines.
     ap.add_argument("--learned", dest="learned", action="store_true", help=argparse.SUPPRESS)
     ap.add_argument("--adaptive", dest="adaptive", action="store_true", help=argparse.SUPPRESS)
-    ap.set_defaults(learned=True, adaptive=True)
+    ap.add_argument("--recovery", dest="recovery", action="store_true", help=argparse.SUPPRESS)
+    ap.set_defaults(learned=True, adaptive=True, recovery=True)
     ap.add_argument("--joint", action="store_true", help="rank by joint (lemma, POS) frequency")
     ap.add_argument("--bootstrap", type=int, default=0,
                     help="bootstrap rounds for the learned-vs-ranked 95%% CI")
@@ -388,7 +396,7 @@ def main() -> int:
                 learned = LearnedRanker(learned_model, frequencies=ranker.frequencies,
                                         joint=ranker.joint)
         counters = evaluate(rows, runner, ranker, learned, ignore_accents,
-                            homographs=args.homographs)
+                            homographs=args.homographs, recovery=args.recovery)
         metrics = counters.as_dict()
         results[name] = metrics
         learned_str = f" learned={metrics['top1_learned']:5.1f}%" if metrics["top1_learned"] is not None else ""
@@ -414,8 +422,9 @@ def main() -> int:
         os.makedirs(os.path.dirname(EXPECTED), exist_ok=True)
         with open(EXPECTED, "w", encoding="utf-8") as handle:
             json.dump({"note": "Offline regression thresholds; written by the canonical run "
-                               "(defaults: learned re-ranker + adaptive tables; use "
-                               "--no-learned / --no-adaptive for the frequency path).",
+                               "(defaults: learned re-ranker + adaptive tables + recovery "
+                               "pre-pass; use --no-learned / --no-adaptive / --no-recovery "
+                               "for the reduced paths).",
                        "corpora": results}, handle, ensure_ascii=False, indent=2)
         print(f"\nWrote thresholds to {EXPECTED}")
         return 0

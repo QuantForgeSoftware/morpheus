@@ -413,3 +413,30 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   `ignore_accents` inflates multi-candidate tokens 37.8% → 59.4%, and the head was
   trained on accented gold only. Candidate generation defines the task; train the
   scorer on the candidates the toolkit actually produces.
+
+## Round 16 (2026-10-15)
+
+- **The cruncher's accent-insensitive mode does not ignore the iota subscript.**
+  `normalize()` strips the combining ypogegrammeni (U+0345 is a combining mark), so
+  every generated variant of a ῃ form loses the subscript and can never match the
+  paradigm entry the stemlib keeps as `h|` — verified directly: `u(giai/nhs` → 0
+  analyses, `u(giai/nh|s` → ὑγιαίνω. Documentary texts drop the subscript constantly,
+  so recovery restores it on single η positions (ὑγειαίνῃς → υγιαινῃς → ὑγιαίνω);
+  without that, tier-1 variants of such forms are all dead and the tier-2
+  combination that would revive them is beyond the cap.
+- **Reproduce a suspected pipeline bug through the exact code path before "fixing"
+  it.** A miss-list reading suggested `ὑγιαίνιν` was skipped by the recovery pass;
+  calling the shared `recover()` helper directly (same runner, same table) recovered
+  it — the list had been misread. One direct call is the cheap falsification step.
+- **When the measurement harness changes, re-measure the baseline under the same
+  change.** Stripping `|num:N|`/`|gap:N|` spans from gold lemmas moved the PapyGreek
+  baseline learned top-1 from 87.8/89.3 to 87.9/89.4. Comparing the new run against
+  the old baseline would have misattributed +0.1pp to the feature under test.
+- **Additive coverage gains move coarse POS the "wrong" way, by construction.**
+  Recovery fires only on unanalyzed tokens, so coverage and top-1 can only rise — but
+  POS is measured over *analyzed* tokens, so its denominator grows with tokens that
+  agree less often: PapyGreek POS 80.1% → 79.7% (the ~1,485 newly scored tokens agree
+  at ~70%) and, on the gate, AF 75.94% → 75.31% (analysis rate 98.37% → 99.4%; the
+  ~650 new tokens agree at ~15%). No analyzed token's analysis or order changes, and
+  the arithmetic reproduces both drops exactly. Document this as a completeness
+  artifact; do not "fix" the metric by excluding recovered tokens.

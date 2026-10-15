@@ -1,45 +1,45 @@
 {
-  "note": "Offline regression thresholds; written by the canonical run (defaults: learned re-ranker + adaptive tables; use --no-learned / --no-adaptive for the frequency path).",
+  "note": "Offline regression thresholds; written by the canonical run (defaults: learned re-ranker + adaptive tables + recovery pre-pass; use --no-learned / --no-adaptive / --no-recovery for the reduced paths).",
   "corpora": {
     "SBLGNT": {
       "n": 137554,
-      "analyzed": 99.79,
-      "coverage": 95.24,
+      "analyzed": 99.95,
+      "coverage": 95.28,
       "top1_raw": 88.1,
-      "top1_ranked": 94.56,
-      "top1_learned": 94.67,
+      "top1_ranked": 94.6,
+      "top1_learned": 94.7,
       "top1_homograph": null,
-      "pos": 77.87
+      "pos": 77.82
     },
     "Apostolic Fathers": {
       "n": 63227,
-      "analyzed": 98.37,
-      "coverage": 91.2,
+      "analyzed": 99.4,
+      "coverage": 91.26,
       "top1_raw": 84.8,
-      "top1_ranked": 90.45,
-      "top1_learned": 90.21,
+      "top1_ranked": 90.52,
+      "top1_learned": 90.26,
       "top1_homograph": null,
-      "pos": 75.94
+      "pos": 75.31
     },
     "AGLDT classical": {
       "n": 469254,
-      "analyzed": 99.85,
-      "coverage": 98.64,
+      "analyzed": 99.94,
+      "coverage": 98.66,
       "top1_raw": 79.88,
-      "top1_ranked": 92.78,
-      "top1_learned": 93.74,
+      "top1_ranked": 92.8,
+      "top1_learned": 93.76,
       "top1_homograph": null,
-      "pos": 85.2
+      "pos": 85.19
     },
     "PROIEL greek-nt": {
       "n": 132366,
-      "analyzed": 99.63,
-      "coverage": 94.15,
+      "analyzed": 99.87,
+      "coverage": 94.21,
       "top1_raw": 78.17,
-      "top1_ranked": 91.66,
-      "top1_learned": 92.19,
+      "top1_ranked": 91.7,
+      "top1_learned": 92.24,
       "top1_homograph": null,
-      "pos": 81.59
+      "pos": 81.52
     }
   }
 }

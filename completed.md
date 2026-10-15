@@ -1517,3 +1517,109 @@ CSNTM/Wallace contact: the B1 default flip first, then whatever else measures to
 - B4 remainder (joint-path temperature, POS confidence); B8 revisit with a
   licence-clean LM trained on the shipped candidate distribution; B3/B5/B6/B7/B9.
 - Round 13 remains queued pending the CSNTM contact.
+
+# Round 16: PapyGreek recovery pre-pass + annotation hygiene (2026-10-15) ✅
+
+## Goal
+
+User-selected scope: the PapyGreek recovery pre-pass (spelling variants + name
+lemmatization) and the annotation-lemma hygiene — the two items that move the
+top-priority corpus without touching the learned features (that is Round 17).
+
+## 16.1/16.2 — `recovery.py`: spelling variants + name candidates (shipped)
+
+- **`spelling_variants`** — bounded (cap 48), closest-first (singles → pairs)
+  orthographic generator: vowel classes ι/ει/η/υ/οι/υι/ου, ε/αι, ο/ω; consonant
+  classes τ/δ/θ, κ/γ/χ, π/β/φ; geminate simplification/doubling; documentary
+  globals ο/οι, ει/ε, ζ/σ, μψ/ψ; final -ν/-ς incl. sandhi (μὲγ→μέν, ἐὰμ→ἐάν);
+  dropped iota subscripts restored on single η positions.
+- **`name_candidates`** — case-ending → nominative rules (Δωρίωνος→Δωρίων,
+  Ἀχιλλᾶτος→Ἀχιλλᾶς, Χοινώθμεως→Χοινωθμις, Δωρίωνα→Δωρίων); when the stemlib
+  confirms a reading whose lemma matches the candidate (accents ignored) that
+  reading is used, else a synthetic `stemtype="proper"` proposal re-accented from
+  the active frequency table and capitalized to match the surface.
+- **Shared `recover()` helper** — fires only on tokens with zero analyses, batches
+  the re-analysis (2,000/chunk), flags `proposed=True` + `recovered_from`; API,
+  CLI and both measurement harnesses use the same code path.
+- `_finish` order: unaccented → numerals → adaptive → recovery →
+  unknown_as_proper → rank → learned (adaptive before recovery so name proposals
+  re-accent from the chosen table; unknown-as-proper after so specific proposals
+  win).
+- **Default flip (B1-style, after measurement)**: `Morpheus(recovery=True)`, CLI
+  `--no-recovery` (positive flag kept as a hidden alias), benchmark
+  `--no-recovery`. Additive by construction: analyzed tokens are byte-identical
+  with the pre-pass off or on.
+- 16 tests in `test_recovery.py`; 72 total pass.
+
+## 16.3 — Measurement
+
+PapyGreek (36,455 word tokens; learned + adaptive defaults, papyri table,
+`--numerals`), recovery off → on:
+
+| metric | off | on | gain |
+| --- | ---: | ---: | ---: |
+| coverage | 95.1% | **99.2%** | +4.1 |
+| top-1 ranked (exact / acc-insens) | 85.9 / 87.3 | **87.9 / 89.3** | +2.0 |
+| top-1 learned (exact / acc-insens) | 87.9 / 89.4 | **89.7 / 91.2** | +1.8 |
+| unanalyzed tokens | 1,781 | **296** | −83% |
+
+- 1,265 distinct forms recovered: 390 spelling-only, 376 name-only, 499 both;
+  exact top-1 hits among recovered tokens split 588 spelling / 134 name.
+- Default (no `--numerals`): coverage 92.9% → **97.4%**; learned 87.5/89.0.
+- LXX (623,685 tokens): coverage 99.81% → **100.0%** (572 forms recovered);
+  learned top-1 unchanged (90.7/91.2) — additive, as designed.
+- Coarse POS 80.1% → 79.7% is a completeness artifact: the ~1,485 newly covered
+  tokens enter that metric's denominator and agree at ~70%.
+- Remaining PG misses (296) are dominated by marked/truncated forms (189),
+  numerals outside the table (31), stemlib gaps (παστοφόρων, ἐρίδια, πόκια) and
+  the long spelling tail (συνπροσγενόμενος, ἀνήνκασε, γεγράφεκα).
+- Gate (SBLGNT / AF / AGLDT / PROIEL): coverage, ranked and learned top-1 up-or-equal
+  on all four (learned SBLGNT 94.67→94.70, AF 90.21→90.26, AGLDT 93.74→93.76,
+  PROIEL 92.19→92.24; coverage +0.02–0.06 each). The analysis rate jumps where misses
+  were name-heavy (AF 98.37%→99.4%, SBLGNT 99.79%→99.95%). The only metric that moves
+  down is AF coarse POS (75.94→75.31) — the documented completeness artifact: ~650
+  newly analyzed tokens agree at ~15%, and every previously analyzed token's order is
+  byte-identical (the arithmetic reproduces 75.31 exactly).
+
+## 16.4 — Annotation-lemma hygiene
+
+- Harness `clean_gold_lemma` strips `|num:N|`/`|gap:N|` spans from gold lemmas
+  (45 tokens); U+0305 combining overline added to the marker inventory
+  (`β̅|num:2|` → β → numeral table). Baseline re-measured under the same harness:
+  learned 87.8/89.3 → 87.9/89.4 (the +0.1 is hygiene, not recovery).
+- Convention floor documented (data-only): 45 annotated lemmas, 35 hyphenated
+  compound lemmas, 5,598 (15.4%) surface lemmas; degree suppletion
+  (πλεῖστα→πολύς) and particle conventions (κε→ἄν) bound achievable agreement.
+
+## 16.5/16.6 — Docs + wrap-up
+
+- README: new "Recovery pre-pass" section (rules + measurement table + caveats);
+  the coverage limitation bullet updated.
+- improvements.md: Round 16 section; PG coverage row 92.9% → 97.4% (default) /
+  99.2% (`--numerals`).
+- lessons.md: iota-subscript finding; reproduce-through-the-exact-path lesson;
+  re-measure-the-baseline-after-harness-change lesson; POS completeness artifact.
+
+## Verification
+
+- `pytest python/tests` — 72 passed.
+- CLI smoke: ἥμυσυ → ἥμισυς (default); `--no-recovery` → miss; hidden
+  `--recovery` alias accepted.
+- Gate: the verification run (recovery on vs the old thresholds) showed
+  coverage/ranked/learned up-or-equal on all four corpora; its one red line — AF
+  coarse POS, −0.63pp — is the completeness artifact above (no token's analysis or
+  order regressed). Thresholds re-baselined with `--update` from the shipped-default
+  run; the confirmation re-run was cut off by a session boundary, and Round 17's
+  full gate run re-validates the thresholds end-to-end.
+- All measurement material in git-ignored `tmp/`; no PROIEL/TLG/PHI-derived
+  content committed.
+
+## Carried forward
+
+- Round 18 (agreed, deferred): canonical-lemma scoring fix (form-element
+  pollution), learned-feature cleanup, PG retrain with a document-level held-out
+  split.
+- B items: B3 (Unicode-native C path), B4 remainder (joint-path temperature + POS
+  confidence), B5 (profile registry `--base-lemmas`), B6 (build determinism), B7
+  (tokenizer robustness), B8 (licence-clean LM), B9 (lacuna restoration).
+- Round 13 remains queued pending the CSNTM contact.

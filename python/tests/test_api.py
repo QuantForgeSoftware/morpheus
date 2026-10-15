@@ -5,7 +5,7 @@ from morpheus_toolkit.api import Morpheus
 class FakeRunner:
     """Returns an analysis only for λόγος, so the second token is a miss."""
 
-    def analyze_beta(self, forms):
+    def analyze_beta(self, forms, ignore_accents=False):
         return [
             [Analysis(lemma="λόγος", lemma_beta="lo/gos", pos="N", raw_pos="N", stemtype="os_ou")]
             if form == "lo/gos"

@@ -233,13 +233,65 @@ Fathers this measures **3.06×** at `jobs=4` with byte-identical analyses.
 (no external hosting). A design for a Unicode-native C input path — to remove the beta
 round-trip entirely — is in [`../docs/unicode-native-input.md`](../docs/unicode-native-input.md).
 
+## Recovery pre-pass (spelling variants and names)
+
+Documentary and post-classical texts spell words in ways the stemlib does not know:
+itacism (ὑγειαίνῃς for ὑγιαίνω), gemination, sandhi (μὲγ for μέν), dropped iota
+subscripts, or an oblique form of a name the stemlib simply lacks (Δωρίωνος). The
+recovery pre-pass (`--no-recovery`; API `Morpheus(recovery=False)`) fires **only on
+tokens the stemlib could not analyze at all** and proposes candidates from two
+rule-generated sources:
+
+- **spelling variants** (`recovery.spelling_variants`) — bounded, closest-first
+  orthographic normalization: vowel classes ι/ει/η/υ/οι/υι/ου, ε/αι, ο/ω;
+  consonant classes τ/δ/θ, κ/γ/χ, π/β/φ; geminate simplification and doubling;
+  documentary ο/οι, ει/ε, ζ/σ and μψ/ψ; the final -ν/-ς toggle including sandhi
+  spellings (μὲγ → μέν); and dropped iota subscripts restored on single η
+  positions — the accent-insensitive cruncher mode does not ignore the subscript,
+  so ῃ forms match only when it is present. Every variant the stemlib analyzes is
+  attached as a candidate with `proposed=True` and `recovered_from` naming the
+  variant.
+- **name candidates** (`recovery.name_candidates`) — case-ending → nominative rules
+  for name-like surfaces (Δωρίωνος → Δωρίων, Ἀχιλλᾶτος → Ἀχιλλᾶς, Χοινώθμεως →
+  Χοινωθμις). When the stemlib confirms a reading whose lemma matches the candidate
+  (accents ignored), that reading is used; otherwise the rule-generated nominative
+  is proposed directly as a synthetic `stemtype="proper"` analysis, re-accented
+  from the active frequency table and capitalized to match the surface.
+
+The pre-pass never touches tokens that already have candidates — their analyses are
+byte-identical with it off or on — and proposals go through the regular ranking, so a
+proposal can only win when ranking justifies it. Measured on PapyGreek (all 36,455
+word tokens; learned + adaptive defaults with the papyri table, `--numerals`; recovery
+off → on):
+
+| metric | off | on |
+| --- | ---: | ---: |
+| coverage | 95.1% | **99.2%** |
+| top-1 ranked (exact / accent-insensitive) | 85.9 / 87.3% | **87.9 / 89.3%** |
+| top-1 learned | 87.9 / 89.4% | **89.7 / 91.2%** |
+| unanalyzed tokens | 1,781 | **296** |
+
+The remaining misses are dominated by editorially marked or truncated forms (189),
+numerals outside the bundled table (31), and rare technical vocabulary with no stemlib
+entry. The 1,265 recovered forms split 390 spelling-only / 376 name-only / 499 from
+both (exact top-1 hits among recovered tokens: 588 spelling, 134 name). Coarse POS
+agreement reads 80.1% → 79.7% because the newly covered tokens enter
+that metric's denominator and agree at ~70% — a completeness effect, not a regression
+(coverage and top-1 can only rise: a miss has no candidates to lose). On clean literary
+corpora the pre-pass fires on the few remaining misses and measures neutral-or-positive:
+the LXX (623,685 tokens) reaches 100.0% coverage (99.81% before) with top-1 unchanged,
+and on the gate corpora (SBLGNT, AF, AGLDT, PROIEL) every coverage/top-1 metric is
+up-or-equal — AF's analysis rate rises 98.4% → 99.4%, which is also what moves its
+coarse POS down slightly (the same completeness effect).
+
 ## The Septuagint (LXX)
 
 Morpheus's Greek stemlibs carry a generated `nom.lxx` with ~4,500 proper names and
 curated common words taken from a reference morphological analysis of the LXX, plus
 explicit verb entries for inflections the generative paradigms miss. Against that
-corpus (623,685 tokens) Morpheus now analyzes **99.81%**; the residual 0.19% is
-interjections and a handful of rare forms. The stemlib entries are regenerated with
+corpus (623,685 tokens) Morpheus now analyzes **100%** — 99.81% from the stemlib, and
+the residual interjections and rare forms are resolved by the recovery pre-pass (on by
+default). The stemlib entries are regenerated with
 `scripts/build_lxx_stemlib.py` — see the root [README](../README.md#septuagint-lxx).
 
 Two disambiguation models trained on that corpus are bundled in `data/`:
@@ -419,7 +471,9 @@ on `proposed` if that matters. Off by default; with it off behavior is unchanged
 - **Coverage.** A small fraction of NT tokens gets no analysis, historically dominated
   by **biblical proper names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`;
   coverage improved slightly after the LXX additions (`nom.lxx`) since many biblical
-  names are shared. Enable
+  names are shared. The recovery pre-pass (on by default; see Recovery pre-pass)
+  resolves some of the remaining misses to stemlib-analyzed variants and
+  rule-generated name nominatives. Enable
   `unknown_as_proper=True` (CLI: `--unknown-as-proper`) to give unanalyzed tokens a
   synthetic proper-noun analysis (lemma = surface, POS `N`/`NP`, flagged
   `proposed=True`). This brings the analysis rate to **100%** on both the SBLGNT and
