@@ -509,6 +509,14 @@ corrupt them. Synthetic analyses carry POS N and `proposed=True`. On PapyGreek
 handful of single-letter abbreviations (τ for ἀντί) get labeled as numerals — filter
 on `proposed` if that matters. Off by default; with it off behavior is unchanged.
 
+`--numerals-auto` (API: `Morpheus(numerals="auto")`) is the register-aware form:
+it applies the same proposals only when adaptive table selection picked the
+**papyri** table for the input (so numeral-shaped misses in other registers stay
+misses). It runs after table selection — numeral proposals never skew the
+selection — and needs selection to run, so caller-supplied `frequencies` or
+`adaptive_tables=False` leave it inert. On PapyGreek it is identical to
+`--numerals`; on SBLGNT/AF/AGLDT/PROIEL it is identical to the default.
+
 ## Known limitations
 
 - **POS granularity.** Morpheus tags nouns, adjectives, pronouns, articles and

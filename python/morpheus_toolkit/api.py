@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Union
 
 from .analysis import Analysis
 from .beta import from_beta, to_beta
@@ -55,7 +55,7 @@ class Morpheus:
         unknown_as_proper: bool = False,
         ignore_accents: bool = False,
         use_homograph_context: bool = False,
-        numerals: bool = False,
+        numerals: Union[bool, str] = False,
         recovery: bool = True,
         language: str = "greek",
         use_learned: bool = True,
@@ -83,6 +83,14 @@ class Morpheus:
         self.use_homograph_context = use_homograph_context
         # Opt-in: unanalyzed Greek letter-numeral tokens get a synthetic analysis
         # from data/papyrus_numerals.json. Off by default — behavior unchanged.
+        # ``"auto"`` applies it only when adaptive table selection picks the
+        # papyri table for this input (so numeral proposals never appear in other
+        # registers); it needs adaptive selection to run (explicit frequencies or
+        # adaptive_tables=False disable it).
+        if isinstance(numerals, str):
+            if numerals.lower() != "auto":
+                raise ValueError(f"numerals must be a bool or 'auto', got {numerals!r}")
+            numerals = "auto"
         self.numerals = numerals
         # On by default (Greek, Round 16): unanalyzed Greek tokens are retried
         # with generic normalization candidates (spelling variants, name
@@ -98,6 +106,7 @@ class Morpheus:
         # pass False to keep the configured table.
         self.adaptive_tables = adaptive_tables
         self._table_set = None
+        self._selected_table = None
         self._explicit_frequencies = frequencies is not None
         # Softmax temperature for the reported confidence. None => the bundled
         # calibrated value (data/calibration.json); 1.0 opts out. The temperature
@@ -142,13 +151,17 @@ class Morpheus:
     def _finish(self, results: List[TokenResult]) -> List[TokenResult]:
         if self.ignore_accents:
             self._recover_unaccented(results)
-        if self.numerals and not self.is_latin:
+        if self.numerals is True and not self.is_latin:
             self._apply_numerals(results)
         # Adaptive table selection runs before recovery so name proposals can be
         # re-accented from the chosen table; the proper-noun fallback runs after
         # recovery so the more specific proposals win.
         if self.adaptive_tables and not self.is_latin:
             self._apply_adaptive_tables(results)
+            # ``numerals="auto"`` fires only on papyri-selected inputs; it runs
+            # here (not above) so numeral proposals cannot skew the selection.
+            if self.numerals == "auto" and self._selected_table == "papyri":
+                self._apply_numerals(results)
         if self.recovery and not self.is_latin:
             self._apply_recovery(results)
         if self.unknown_as_proper:
@@ -205,6 +218,7 @@ class Morpheus:
         if self._table_set is None:
             self._table_set = load_table_set()
         name = self._table_set.select([result.analyses for result in results])
+        self._selected_table = name
         self.ranker.set_frequencies(self._table_set.frequencies(name))
 
     def _apply_learned(self, results: List[TokenResult]) -> None:

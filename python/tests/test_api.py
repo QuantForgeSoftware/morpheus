@@ -49,6 +49,67 @@ def test_fallback_is_off_by_default():
     assert analyzer.analyze_tokens(["Δαυίδ"])[0].is_miss
 
 
+class MissRunner:
+    """Analyzes nothing, so numeral-shaped tokens stay misses without a pass."""
+
+    def analyze_beta(self, forms, ignore_accents=False):
+        return [[] for _ in forms]
+
+
+class FakeTableSet:
+    """Duck-typed TableSet that always selects the named table."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def select(self, candidate_lists):
+        return self.name
+
+    def frequencies(self, name):
+        return {}
+
+
+def _auto_analyzer(table, **kwargs):
+    # No explicit frequencies: adaptive selection runs (and is faked here).
+    analyzer = Morpheus(runner=MissRunner(), numerals="auto", use_learned=False,
+                        recovery=False, **kwargs)
+    analyzer._table_set = FakeTableSet(table)
+    return analyzer
+
+
+def test_numerals_auto_fires_on_papyri_table():
+    result = _auto_analyzer("papyri").analyze_beta(["xmg"])[0]
+    assert result.best is not None
+    assert result.best.proposed is True
+    assert result.best.lemma == "χμγ"
+
+
+def test_numerals_auto_silent_on_other_tables():
+    assert _auto_analyzer("koine").analyze_beta(["xmg"])[0].is_miss
+    assert _auto_analyzer("classical").analyze_beta(["xmg"])[0].is_miss
+
+
+def test_numerals_explicit_still_applies_on_other_tables():
+    analyzer = Morpheus(runner=MissRunner(), numerals=True, use_learned=False,
+                        recovery=False)
+    analyzer._table_set = FakeTableSet("koine")
+    assert analyzer.analyze_beta(["xmg"])[0].best.lemma == "χμγ"
+
+
+def test_numerals_auto_requires_adaptive_selection():
+    # Explicit frequencies skip selection entirely, so auto never fires.
+    analyzer = Morpheus(runner=MissRunner(), frequencies={}, numerals="auto",
+                        use_learned=False, recovery=False)
+    assert analyzer.analyze_beta(["xmg"])[0].is_miss
+
+
+def test_numerals_value_is_validated():
+    import pytest
+
+    with pytest.raises(ValueError):
+        Morpheus(runner=MissRunner(), frequencies={}, numerals="sometimes")
+
+
 class AccentFallbackRunner:
     """Analyzes an unaccented form only when accents are ignored."""
 

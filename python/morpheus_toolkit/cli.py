@@ -43,10 +43,16 @@ def main(argv: List[str] | None = None) -> int:
         action="store_true",
         help="re-rank ambiguous forms by context-conditional gold counts (Greek)",
     )
-    analyze.add_argument(
+    numerals_group = analyze.add_mutually_exclusive_group()
+    numerals_group.add_argument(
         "--numerals",
         action="store_true",
         help="give unanalyzed Greek letter-numeral tokens a synthetic analysis (papyri)",
+    )
+    numerals_group.add_argument(
+        "--numerals-auto",
+        action="store_true",
+        help="as --numerals, but only when adaptive table selection picks the papyri table",
     )
     analyze.add_argument(
         "--unknown-as-proper",
@@ -110,7 +116,7 @@ def main(argv: List[str] | None = None) -> int:
         unknown_as_proper=args.unknown_as_proper,
         ignore_accents=args.ignore_accents,
         use_homograph_context=args.homographs,
-        numerals=args.numerals,
+        numerals="auto" if args.numerals_auto else args.numerals,
         recovery=args.recovery,
         language=args.language,
         use_learned=args.learned,
