@@ -2,7 +2,10 @@ import math
 
 from morpheus_toolkit import calibration
 from morpheus_toolkit.calibration import (
+    class_masses,
+    coarse_pos,
     expected_calibration_error,
+    load_temperature,
     softmax_confidences,
 )
 
@@ -46,3 +49,49 @@ def test_load_temperature_selects_path(monkeypatch):
 def test_load_temperature_falls_back_to_frequency(monkeypatch):
     monkeypatch.setattr(calibration, "load_calibration", lambda: {"temperature": 0.08})
     assert calibration.load_temperature(learned=True) == 0.08
+
+
+def test_coarse_pos_folds_article_pronoun_and_other_classes():
+    assert coarse_pos("N") == "N"
+    assert coarse_pos("RA") == "R"
+    assert coarse_pos("RP") == "R"
+    assert coarse_pos("I") == "X"
+    assert coarse_pos("") == "?"
+    assert coarse_pos("ZZ") == "?"
+
+
+def test_class_masses_sum_confidences_per_class():
+    masses = class_masses(["N", "V", "N"], [0.5, 0.3, 0.2])
+    assert abs(masses[0] - 0.7) < 1e-9
+    assert abs(masses[1] - 0.3) < 1e-9
+    assert abs(masses[2] - 0.7) < 1e-9
+
+
+def test_load_temperature_selects_by_score_path(monkeypatch):
+    monkeypatch.setattr(
+        calibration,
+        "load_calibration",
+        lambda: {"temperature": 0.5, "temperature_joint": 0.9, "temperature_learned": 1.2},
+    )
+    assert load_temperature() == 0.5
+    assert load_temperature(joint=True) == 0.9
+    assert load_temperature(learned=True) == 1.2
+    # Unfitted paths fall back to the frequency temperature.
+    monkeypatch.setattr(calibration, "load_calibration", lambda: {"temperature": 0.5})
+    assert load_temperature(joint=True) == 0.5
+    assert load_temperature(learned=True) == 0.5
+
+
+def test_load_pos_reliability_selects_by_score_path(monkeypatch):
+    monkeypatch.setattr(
+        calibration,
+        "load_calibration",
+        lambda: {
+            "pos_reliability": {"N": 0.9, "other": 0.8},
+            "pos_reliability_learned": {"N": 0.95, "other": 0.85},
+        },
+    )
+    assert calibration.load_pos_reliability()["N"] == 0.9
+    assert calibration.load_pos_reliability(learned=True)["N"] == 0.95
+    # The joint path falls back to the plain table when it has not been fitted.
+    assert calibration.load_pos_reliability(joint=True)["N"] == 0.9

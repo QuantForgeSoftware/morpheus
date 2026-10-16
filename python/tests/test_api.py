@@ -116,3 +116,79 @@ def test_explicit_frequencies_are_never_overridden():
     analyzer = Morpheus(runner=FakeRunner(), frequencies={"λόγος": 10})
     analyzer.analyze_tokens(["λόγος"])
     assert analyzer.ranker.frequencies.get("λόγος") == 10
+
+
+class TwoPosRunner:
+    """Two candidates with different coarse POS classes (N vs V)."""
+
+    def analyze_beta(self, forms, ignore_accents=False):
+        return [
+            [
+                Analysis(lemma="λόγος", lemma_beta="lo/gos", pos="N", raw_pos="N", stemtype="os_ou"),
+                Analysis(lemma="λέγω", lemma_beta="le/gw", pos="V", raw_pos="V", stemtype="w_pr"),
+            ]
+            for _ in forms
+        ]
+
+
+def test_pos_confidence_is_the_class_mass(monkeypatch):
+    from morpheus_toolkit import api as api_module
+
+    monkeypatch.setattr(api_module, "load_pos_reliability", lambda **kwargs: {})
+    analyzer = Morpheus(
+        runner=TwoPosRunner(), frequencies={"λόγος": 10, "λέγω": 1},
+        use_learned=False, adaptive_tables=False,
+    )
+    analyses = analyzer.analyze_tokens(["λόγος"])[0].analyses
+    top = analyses[0]
+    assert top.pos == "N"
+    # Each class has one member here, so the class mass equals the confidence.
+    assert abs(top.pos_confidence - top.confidence) < 1e-9
+    other = analyses[1]
+    assert abs(other.pos_confidence - other.confidence) < 1e-9
+    assert abs(top.pos_confidence + other.pos_confidence - 1.0) < 1e-9
+
+
+def test_pos_confidence_is_scaled_by_fitted_reliability(monkeypatch):
+    from morpheus_toolkit import api as api_module
+
+    monkeypatch.setattr(
+        api_module, "load_pos_reliability", lambda **kwargs: {"N": 0.5, "other": 0.9}
+    )
+    analyzer = Morpheus(
+        runner=TwoPosRunner(), frequencies={"λόγος": 10, "λέγω": 1},
+        use_learned=False, adaptive_tables=False,
+    )
+    analyses = analyzer.analyze_tokens(["λόγος"])[0].analyses
+    top, other = analyses[0], analyses[1]
+    assert top.pos == "N"
+    assert abs(top.pos_confidence - top.confidence * 0.5) < 1e-9
+    # V has no fitted row -> falls back to the overall rate.
+    assert abs(other.pos_confidence - other.confidence * 0.9) < 1e-9
+
+
+def test_lone_proposal_confidence_uses_fitted_prior(monkeypatch):
+    from morpheus_toolkit import api as api_module
+
+    monkeypatch.setattr(api_module, "load_proposal_priors", lambda: {"other": 0.4})
+    analyzer = Morpheus(
+        runner=FakeRunner(), frequencies={}, unknown_as_proper=True, use_learned=False,
+        adaptive_tables=False,
+    )
+    result = analyzer.analyze_tokens(["Δαυίδ"])[0]
+    assert result.best.proposed is True
+    # A lone candidate's softmax is 1.0; the fitted prior must replace it.
+    assert abs(result.best.confidence - 0.4) < 1e-9
+
+
+def test_native_confidence_ignores_proposal_priors(monkeypatch):
+    from morpheus_toolkit import api as api_module
+
+    monkeypatch.setattr(api_module, "load_proposal_priors", lambda: {"other": 0.4})
+    analyzer = Morpheus(
+        runner=FakeRunner(), frequencies={"λόγος": 10}, use_learned=False,
+        adaptive_tables=False,
+    )
+    result = analyzer.analyze_tokens(["λόγος"])[0]
+    assert result.best.proposed is False
+    assert result.best.confidence > 0.9  # not scaled by the prior

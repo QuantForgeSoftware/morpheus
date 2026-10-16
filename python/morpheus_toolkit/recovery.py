@@ -292,6 +292,22 @@ def name_candidates(form: str, cap: int = NAME_CAP) -> List[str]:
     return candidates
 
 
+def proposal_strategy(analysis: Analysis, surface: str) -> str:
+    """Strategy class of a proposed analysis, for the fitted proposal priors.
+
+    ``spelling`` / ``name`` for recovery proposals (which carry the candidate
+    they were generated from in ``recovered_from``), ``numeral`` for the numeral
+    table's proposals, ``proper`` for the unknown-as-proper fallback. Returns
+    ``""`` for native (non-proposed) analyses.
+    """
+    if not analysis.proposed:
+        return ""
+    if analysis.recovered_from is None:
+        return "numeral" if analysis.stemtype == "numeral" else "proper"
+    names = set(name_candidates(surface))
+    return "name" if analysis.recovered_from in names else "spelling"
+
+
 def recover(
     surfaces: Sequence[str],
     analyses: List[List[Analysis]],

@@ -47,8 +47,12 @@ class Analysis:
     lemma_variants: Tuple[str, ...] = ()
     score: float = 0.0
     # Strong's number (Greek only) and a softmax confidence in [0, 1].
+    # ``pos_confidence`` estimates P(this analysis's coarse POS class is right):
+    # the confidence mass of the class (calibration.class_masses), scaled by the
+    # fitted per-class reliability (calibration.load_pos_reliability).
     strongs: Optional[int] = None
     confidence: float = 0.0
+    pos_confidence: float = 0.0
     # True for synthetic analyses invented for tokens Morpheus could not analyze
     # (e.g. proper names); consumers can filter them out.
     proposed: bool = False
@@ -92,6 +96,7 @@ class Analysis:
             "stemtype": self.stemtype,
             "score": round(self.score, 4),
             "confidence": round(self.confidence, 4),
+            "pos_confidence": round(self.pos_confidence, 4),
             "strongs": self.strongs,
             "proposed": self.proposed,
             "recovered_from": self.recovered_from,

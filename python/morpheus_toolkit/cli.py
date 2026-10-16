@@ -86,12 +86,24 @@ def main(argv: List[str] | None = None) -> int:
     analyze.set_defaults(learned=True, adaptive_tables=True, recovery=True)
     analyze.add_argument(
         "--profile",
-        choices=["morphgnt", "lxx"],
-        help="rewrite output to a named lemma/POS convention (e.g. MorphGNT dictionary forms)",
+        help="rewrite output to a named lemma/POS convention, comma-combinable "
+             "(morphgnt | lxx | base-lemmas)",
     )
     analyze.add_argument("--jobs", type=int, default=1,
                          help="parallel cruncher processes for large inputs (default 1)")
     args = parser.parse_args(argv)
+    if args.profile:
+        from morpheus_toolkit.profiles import PROFILE_NAMES
+
+        unknown = [
+            part for part in (p.strip().lower() for p in args.profile.split(","))
+            if part and part not in PROFILE_NAMES
+        ]
+        if unknown:
+            parser.error(
+                f"unknown profile(s): {', '.join(unknown)} "
+                f"(choose from {', '.join(PROFILE_NAMES)})"
+            )
 
     morpheus = Morpheus(
         use_context=args.context,

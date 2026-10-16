@@ -7,7 +7,14 @@ from typing import Dict, Iterable, List, Optional
 
 from .analysis import Analysis
 from .beta import from_beta, to_beta
-from .calibration import load_temperature, softmax_confidences
+from .calibration import (
+    class_masses,
+    coarse_pos,
+    load_pos_reliability,
+    load_proposal_priors,
+    load_temperature,
+    softmax_confidences,
+)
 from .ranking import Ranker, load_default_frequencies
 from .runner import MorpheusRunner
 from .strongs import strongs_for
@@ -97,6 +104,8 @@ class Morpheus:
         # is picked for the score scale that actually produced the final order
         # (frequency vs learned; see _finish).
         self._temperature = temperature
+        self._proposal_priors = None
+        self._pos_reliability = None
         self._learned_scores = False
         # Optional output-convention profile (e.g. "morphgnt"): rewrites lemma/POS
         # presentation only. None => natural Morpheus output.
@@ -161,9 +170,9 @@ class Morpheus:
             from .profiles import apply_profile
 
             for result in results:
-                apply_profile(self.profile, result.analyses)
+                apply_profile(self.profile, result.analyses, analyzer=self)
         for result in results:
-            self._annotate(result.analyses)
+            self._annotate(result.analyses, result.token or from_beta(result.beta) or "")
         return results
 
     def _apply_homographs(self, results: List[TokenResult]) -> None:
@@ -268,16 +277,56 @@ class Morpheus:
         for (index, _), analyses in zip(misses, raw):
             results[index].analyses = analyses
 
-    def _annotate(self, analyses: List[Analysis]) -> None:
-        """Attach a calibrated softmax confidence and (for Greek) a Strong's number."""
+    def _annotate(self, analyses: List[Analysis], surface: str = "") -> None:
+        """Attach calibrated confidences and (for Greek) a Strong's number.
+
+        ``confidence`` is the temperature-scaled softmax of the score path that
+        produced the final order (frequency / joint / learned); ``pos_confidence``
+        is the confidence mass of the analysis's coarse POS class. Tokens whose
+        candidates are all proposals (recovery / numerals / unknown-as-proper)
+        are scaled by the fitted per-strategy proposal priors — their softmax is
+        conditional on the generated candidate set, and a lone proposal would
+        otherwise report 1.0 unconditionally.
+        """
         if not analyses:
             return
         if self._temperature is None:
-            self._temperature = load_temperature(learned=self._learned_scores)
+            self._temperature = load_temperature(
+                learned=self._learned_scores, joint=bool(self.ranker.joint)
+            )
         scores = [analysis.score for analysis in analyses]
         confidences = softmax_confidences(scores, self._temperature)
-        for analysis, confidence in zip(analyses, confidences):
+        if all(analysis.proposed for analysis in analyses):
+            if self._proposal_priors is None:
+                self._proposal_priors = load_proposal_priors()
+            priors = self._proposal_priors
+            if priors:
+                from .recovery import proposal_strategy
+
+                confidences = [
+                    confidence * priors.get(
+                        proposal_strategy(analysis, surface), priors.get("other", 0.0)
+                    )
+                    for analysis, confidence in zip(analyses, confidences)
+                ]
+        classes = [coarse_pos(analysis.pos) for analysis in analyses]
+        pos_confidences = class_masses(classes, confidences)
+        if self._pos_reliability is None:
+            self._pos_reliability = load_pos_reliability(
+                learned=self._learned_scores, joint=bool(self.ranker.joint)
+            )
+        reliability = self._pos_reliability
+        if reliability:
+            # The class mass is peaked for the lemma, not for the class; the
+            # fitted per-class reliability makes the product calibrated
+            # (scripts/calibrate.py reports both ECEs).
+            pos_confidences = [
+                mass * reliability.get(name, reliability.get("other", 1.0))
+                for mass, name in zip(pos_confidences, classes)
+            ]
+        for analysis, confidence, pos_confidence in zip(analyses, confidences, pos_confidences):
             analysis.confidence = confidence
+            analysis.pos_confidence = pos_confidence
             if not self.is_latin:
                 analysis.strongs = strongs_for(analysis.lemma)
                 if analysis.strongs is None:

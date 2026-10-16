@@ -1,14 +1,87 @@
 {
   "temperature": 0.08,
+  "temperature_joint": 0.12,
+  "temperature_learned": 1.03,
   "method": "temperature scaling, NLL grid search",
   "source": "MorphGNT SBLGNT (CC-BY-SA 4.0); see scripts/calibrate.py",
-  "fit_ece_t1": 0.208,
-  "fit_ece_calibrated": 0.1416,
-  "af_ece_t1": 0.2034,
-  "af_ece_calibrated": 0.1393,
-  "temperature_learned": 1.0,
-  "fit_ece_t1_learned": 0.0054,
-  "fit_ece_calibrated_learned": 0.0054,
+  "af_ece_calibrated": 0.1353,
+  "af_ece_calibrated_joint": 0.1326,
+  "af_ece_calibrated_learned": 0.0018,
+  "af_ece_t1": 0.2026,
+  "af_ece_t1_joint": 0.1915,
   "af_ece_t1_learned": 0.0024,
-  "af_ece_calibrated_learned": 0.0024
+  "af_pos_acc": 0.7778,
+  "af_pos_acc_joint": 0.7922,
+  "af_pos_acc_learned": 0.7906,
+  "af_pos_ece": 0.0198,
+  "af_pos_ece_joint": 0.0164,
+  "af_pos_ece_learned": 0.0027,
+  "fit_ece_calibrated": 0.137,
+  "fit_ece_calibrated_joint": 0.1365,
+  "fit_ece_calibrated_learned": 0.0051,
+  "fit_ece_t1": 0.2073,
+  "fit_ece_t1_joint": 0.1979,
+  "fit_ece_t1_learned": 0.0044,
+  "fit_pos_acc": 0.7943,
+  "fit_pos_acc_joint": 0.8123,
+  "fit_pos_acc_learned": 0.8085,
+  "fit_pos_ece": 0.0207,
+  "fit_pos_ece_joint": 0.0137,
+  "fit_pos_ece_learned": 0.0024,
+  "fit_pos_mass_ece": 0.1929,
+  "fit_pos_mass_ece_joint": 0.1749,
+  "fit_pos_mass_ece_learned": 0.1895,
+  "fit_pos_reliability_ece": 0.0,
+  "fit_pos_reliability_ece_joint": 0.0,
+  "fit_pos_reliability_ece_learned": 0.0,
+  "pos_reliability": {
+    "N": 0.7475,
+    "V": 0.988,
+    "R": 0.9883,
+    "X": 0.0394,
+    "C": 0.8188,
+    "A": 0.037,
+    "P": 0.9955,
+    "D": 0.4798,
+    "other": 0.7943
+  },
+  "pos_reliability_joint": {
+    "N": 0.7706,
+    "V": 0.9664,
+    "R": 0.9879,
+    "X": 0.0419,
+    "C": 0.8362,
+    "A": 0.0372,
+    "P": 0.9955,
+    "D": 0.6518,
+    "other": 0.8123
+  },
+  "pos_reliability_learned": {
+    "N": 0.7522,
+    "V": 0.9965,
+    "R": 0.9879,
+    "X": 0.0733,
+    "C": 0.8397,
+    "A": 0.037,
+    "P": 0.9955,
+    "D": 0.6252,
+    "other": 0.8085
+  },
+  "pos_reliability_source": "MorphGNT SBLGNT (CC-BY-SA 4.0); see scripts/calibrate.py",
+  "proposal_prior_counts": {
+    "name": [
+      123,
+      455
+    ],
+    "spelling": [
+      1019,
+      2078
+    ]
+  },
+  "proposal_prior_source": "PapyGreek Treebanks v1.01 (CC-BY-SA 4.0), shipped API path",
+  "proposal_priors": {
+    "spelling": 0.4904,
+    "name": 0.2703,
+    "other": 0.4508
+  }
 }

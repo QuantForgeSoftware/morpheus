@@ -170,3 +170,23 @@ def test_recovered_from_is_in_dict():
     payload = analyzer.analyze_tokens(["Δωρίωνος"])[0].to_dict()
     assert payload["analyses"][0]["recovered_from"] == "δωριων"
     assert payload["analyses"][0]["proposed"] is True
+
+
+def test_proposal_strategy_classes():
+    from morpheus_toolkit.analysis import Analysis
+    from morpheus_toolkit.recovery import proposal_strategy
+
+    native = Analysis(lemma="λόγος", lemma_beta="", pos="N", raw_pos="N", stemtype="os_ou")
+    assert proposal_strategy(native, "λόγος") == ""
+    numeral = Analysis(lemma="α", lemma_beta="", pos="N", raw_pos="N",
+                       stemtype="numeral", proposed=True)
+    assert proposal_strategy(numeral, "α") == "numeral"
+    proper = Analysis(lemma="Δαυίδ", lemma_beta="", pos="N", raw_pos="N",
+                      stemtype="proper", proposed=True)
+    assert proposal_strategy(proper, "Δαυίδ") == "proper"
+    spelling = Analysis(lemma="ἥμισυ", lemma_beta="", pos="N", raw_pos="N", stemtype="",
+                        proposed=True, recovered_from="ημισυ")
+    assert proposal_strategy(spelling, "ἥμυσυ") == "spelling"
+    name = Analysis(lemma="Δωρίων", lemma_beta="", pos="N", raw_pos="N",
+                    stemtype="proper", proposed=True, recovered_from="δωριων")
+    assert proposal_strategy(name, "Δωρίωνος") == "name"
