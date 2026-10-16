@@ -440,3 +440,47 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   ~650 new tokens agree at ~15%). No analyzed token's analysis or order changes, and
   the arithmetic reproduces both drops exactly. Document this as a completeness
   artifact; do not "fix" the metric by excluding recovered tokens.
+
+## Round 17 (2026-10-15)
+
+- **Generate variants from primitive operations on the normalized base, not from
+  position slots.** Round 16 paired *slot* objects for tier 2, which could not
+  combine a substitution with a geminate or a global rule, and made stale
+  positions easy. Round 17's `_edits` emits each operation as an edit list on the
+  base, so merging two operations is concatenation, positions never go stale, and
+  pair eligibility is a per-operation flag — the same shape also supports the
+  pair-tier ordering (vowel substitutions first) that keeps the dominant
+  documentary pattern closest to the front. `θρυδάκεια → θριδάκια` (υ→ι + ει→ι)
+  and `ὑγειαίνησς → ὑγιαίνῃς` (ει→ι + σσ→σ) became reachable.
+- **Measure a symmetric rule's cost before shipping it.** The ε/η and α/ο
+  interchanges are textbook Koine confusions, but the experiment over the actual
+  miss list fixed 3 and 6 tokens; both add tier-1 operations that shift every
+  existing target deeper into the capped list. At 9 tokens total they are
+  deferred with the evidence recorded — the interchange classes stay a candidate
+  for a round that also measures cap pressure.
+- **Read the corpus builder's filters before suspecting the data.** χμγ (×3) was
+  absent from the numeral table despite meeting the min-count: the builder keeps
+  only gold pos `m` tokens, and χμγ's gold pos is `x`. The compositional
+  vowel-less rule covers it (and five more forms) without touching the table.
+- **The gate's lemma comparison is not the harness's.** `benchmark.py` scores a
+  hit when ANY lemma variant matches (the standing decision), while the tmp PG
+  harness compares the top analysis's canonical lemma — on PapyGreek the same run
+  reads 87.7 ranked (gate) vs 85.9/87.3 exact/acc-insens (harness), and the
+  learned gap is similar. Quote harness numbers in round records; use the gate as
+  a threshold only. The POS classes must likewise invert the harness's
+  TB2CLASS/MORPH2CLASS maps exactly — the DC bridge (C↔D) and the X/I
+  equivalence included; the first implementation omitted both and read 79.8
+  where the harness reads 81.3.
+- **A confirmation run is a fresh run.** Round 16's gate confirmation was
+  launched in the background and did not survive the session boundary; the record
+  had been written as if it were pending confirmation and had to be softened
+  afterwards. Re-launch a confirmation in the session that will record its
+  result, or state explicitly that it was not run.
+- **Proposal confidences are conditional on the generated candidate set.**
+  `_annotate` softmaxes over the token's current candidates, so a lone proposal
+  reports 1.0 unconditionally and all-proposed tokens average ~0.84 on PapyGreek
+  while the measured top-1 accuracy of recovered forms is ~0.59 — overconfident
+  by construction, because the candidate set is generated rather than exhaustive.
+  A fitted prior per proposal strategy belongs in `calibrate.py`; until then the
+  actionable signal is the `proposed`/`recovered_from` flags (carried to B4,
+  with the audit recorded in `tmp/pg17/audit_17_5.md`).

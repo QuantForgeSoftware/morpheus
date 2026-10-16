@@ -777,3 +777,13 @@
 :le:su/
 :wd:u(mei=n	pron1 2nd pl masc fem dat
 
+# --- curated noun stems (managed by build_papyri_stemlib.py) ---
+:le:e)ri/dion
+:no:e)ri_di	os_ou neut
+
+:le:pastofo/ros
+:no:pasto-for	os_ou stem_acc masc
+
+:le:po/kion
+:no:po^ki	os_ou neut
+

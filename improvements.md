@@ -5,7 +5,8 @@ Report compiled 2026-10-14 from the round records in [`completed.md`](completed.
 [`python/README.md`](python/README.md), and fresh runs on the current build;
 **Round 10 additions appended 2026-10-15; Round 11 (AGLDT pooling) appended 2026-10-15;
 Round 14 (entity extraction) appended 2026-10-15; Round 15 (learned + adaptive
-defaults) and Round 16 (recovery pre-pass) appended 2026-10-15.**
+defaults), Round 16 (recovery pre-pass) and Round 17 (recovery tail pass + PapyGreek
+gate entry) appended 2026-10-15.**
 
 This file summarizes how much the analyzer improved, after the fork, when parsing
 different Greek texts. It is an **estimate built from measurements**, not a claim of
@@ -33,7 +34,7 @@ coverage) and **accuracy** (picking the right reading among candidates).
 | Classical Greek, AGLDT (469,254) | 92.8%¹ | **99.9%** | 99.9% |
 | SBLGNT / NT (137,554) | 93.7% | **95.3%** | 100% (`unknown_as_proper`) |
 | Apostolic Fathers (63,222) | 90.7% | **91.3%** | **99.35%** (`-n` + elided stems) |
-| PapyGreek papyri (36,455) | 89.9% | **97.4%** | **99.2%** (`--numerals`) |
+| PapyGreek papyri (36,455) | 89.9% | **97.4%** | **99.4%** (`--numerals`) |
 | PROIEL Greek NT — independent (132,366) | — | **99.9%** | — |
 | PROIEL Herodotus — independent (83,819) | — | **99.8%** | — |
 
@@ -51,7 +52,7 @@ opt-in fallbacks — a **~4–25× reduction in misses** — driven by new steml
 (`nom.lxx` ~14.8K lines, `nom.biblical`, `nom.papyri`, `nom.elided`) that did not exist
 at the fork. Since Round 16 the recovery pre-pass (default) cuts the residual further:
 the LXX and SBLGNT analyze at ~100%, AF at 99.4%, and PapyGreek's default misses fall
-from 4.9% to 2.6% (0.8% with `--numerals`).
+from 4.9% to 2.6% (0.6% with `--numerals`).
 
 ## Accuracy — top-1 lemma (is the gold reading first?)
 
@@ -79,6 +80,11 @@ re-ranking + adaptive table selection, worth another **+7.2** on AGLDT (86.56 �
 tokens; on PapyGreek it adds **+1.8** learned top-1 (87.9 → **89.7** exact) and lifts
 coverage 95.1% → **99.2%**; on the literary corpora it is neutral-to-slightly-positive
 (+0.02–0.05) — see the Round 16 section below.
+
+**Round 17 update:** the recovery tail pass (pairwise variants, nasal assimilation,
+vowel-less numeral rule, three curated nouns) lifts PapyGreek to **99.4%** coverage and
+**89.9** learned exact, with the default path unchanged at 97.4%; the four existing
+gate corpora are unchanged (additive-only changes) — see the Round 17 section below.
 
 Notes on the before/after:
 
@@ -316,18 +322,87 @@ annotation spans stripped — the annotation-lemma hygiene, not the pre-pass.)
 - PapyGreek remains the top-priority corpus; the pre-pass is most valuable
   exactly where the stemlib is weakest.
 
+## Round 17 additions (2026-10-15): recovery tail pass + PapyGreek gate entry
+
+Round 17 closes the measured tail of the recovery pre-pass and puts the
+top-priority corpus into the offline regression gate:
+
+- **Operation-based variant generation** (`recovery.py`): each normalization
+  rule is now a primitive edit list on the normalized form — all single
+  operations first, then every *eligible* operation pair merged (slot+slot,
+  slot+geminate, slot+global), capped at 96 and ordered vowel-first. This makes
+  multi-deviation forms reachable (θρυδάκεια → θριδάκια: υ→ι + ει→ι;
+  ὑγειαίνησς → ὑγιαίνῃς: ει→ι + σσ→σ), adds internal nasal assimilation
+  (νπ→μπ, νβ→μβ, νφ→μφ, νκ→γκ, νχ→γχ, νγ→γγ) and extends geminate reduction to
+  ββ γγ δδ θθ φφ χχ.
+- **Compositional letter-numerals**: beside the 50-form table, a run of numeral
+  letters with no vowel (≥2 letters) is a number — real Greek words always
+  contain a vowel — proposed with the table's surface-lemma convention and the
+  letter sum in the `value` feature; single letters fall back across case in
+  both directions. Under the existing `--numerals` opt-in.
+- **Three curated stemlib nouns** in the generated `nom.papyri` (each justified
+  by LSJ / PG attestation): παστοφόρος (LSJ via παστοφόριον/ἀρχιπαστοφόρος),
+  πόκιον (PG-attested diminutive of πόκος), ἐρίδιον (LSJ headword, Dim. of
+  ἔριον, long iota). θριδάκιον/πιττάκιον were already covered by `lsj.nom` and
+  ἀρχισωματοφύλαξ already analyzed — those misses were spelling issues.
+- **PapyGreek in the gate** (`scripts/benchmark.py`): optional `PAPYGREEK_DIR`
+  corpus, reader mirroring the tmp harness (original spelling, marker-stripped;
+  regularized gold lemma; per-document grouping; POS classes inverted from the
+  harness's TB2CLASS/MORPH2CLASS maps including the DC bridge and X/I
+  equivalence). The shipped default is gated (no `--numerals`).
+
+Measured on PapyGreek (all 36,455 word tokens; learned + adaptive defaults with
+the papyri table and `--numerals`; Round 16 → Round 17):
+
+| metric | Round 16 | Round 17 | gain |
+| --- | ---: | ---: | ---: |
+| coverage | 99.2% | **99.4%** | +0.2 |
+| top-1 ranked (exact / acc-insens) | 87.9 / 89.3% | **88.1 / 89.5%** | +0.2 |
+| top-1 learned (exact / acc-insens) | 89.7 / 91.2% | **89.9 / 91.4%** | +0.2 |
+| unanalyzed tokens | 296 | **235** | −21% |
+| numeral tokens missed | 31 / 1,454 | **14 / 1,454** | −17 |
+
+- **What the tail pass recovers**: 1,295 forms (422 spelling-only, 331
+  name-only, 542 both) — 30 more than Round 16; exact top-1 hits among recovered
+  tokens 634 spelling / 132 name (+46 spelling). The new rules reach
+  συνπροσγενόμενος → συμπροσγενόμενος (nasal assimilation), θρυδάκεια →
+  θριδάκια (pair), ὑγειαίνησς → ὑγιαίνῃς (pair), geminate pairs, the six
+  vowel-less numeral forms (χμγ 643, ψπ 780, ρξβ 162 …) and the capital single
+  letters (Β, Ζ, Δ, Τ, Φ).
+- **The residual is now**: 157 editorially marked/truncated forms, 14 numeral
+  tokens (Ατ = 1300 is a decimal-lemma table exception; single-letter
+  conjunctions like ἰ are excluded from the rule by design), and single-token
+  scribal forms (γεγράφεκα, γραψατας, πειτακείων — each needs 3+ operations
+  including insertions, or an ε/η interchange measured at 3 tokens total and
+  deferred).
+- **The default path** (no `--numerals`): 97.4% coverage, ranked 85.9/87.3,
+  learned 87.6/89.1, 942 unanalyzed (Round 16: 97.4%, 87.5/89.0).
+- **Gate**: PapyGreek joins the offline gate (shipped default: 97.4% analyzed,
+  ranked 87.7, learned 88.1, POS 81.3 — the gate's variant-based comparison
+  reads slightly higher than the harness's exact column, see lessons.md); the
+  four existing corpora are unchanged-or-up (AGLDT learned −0.01pp: the recovery's
+  new variants alter a few previously-recovered tokens' candidate sets; SBLGNT
+  identical on every metric). Thresholds re-baselined with `--update` and confirmed
+  green by a follow-up run.
+- **Proposal confidence (audit, carried to B4)**: softmax confidence is
+  conditional on the generated candidate set — lone proposals report 1.0 and
+  all-proposed tokens average 0.84 on PapyGreek vs ~0.59 measured top-1
+  accuracy for recovered forms. A fitted per-strategy prior belongs in
+  `calibrate.py`; the `proposed` / `recovered_from` flags are the actionable
+  signal meanwhile.
+
 ## Bottom line
 
 - **Coverage**: ~94% of tokens analyzable at the fork's best → **~99% now**, and
   ~100% on the literary corpora since Round 16's recovery pre-pass (PapyGreek 97.4%
-  default / 99.2% with `--numerals`); on true Unicode input the fork was 0%.
+  default / 99.4% with `--numerals`); on true Unicode input the fork was 0%.
 - **Top-1 lemma accuracy**: token-weighted across ~1.55M tokens, roughly
   **84.8% → 92.5%** — the top-1 lemma **error rate is about halved** (15.2% → 7.5%),
   with per-corpus gains of +4 to +13 points. Since Round 15 the shipped default
   (learned + adaptive) adds a further **+7.2** on classical, **+4.5** on papyri,
   **+2.3** on the LXX, and +0.1–0.5 on the NT-family corpora; Round 16's recovery
   pre-pass adds **+1.8** on papyri (its top-priority corpus) and is neutral-to-slightly-
-  positive on the literary corpora.
+  positive on the literary corpora, and Round 17's tail pass adds **+0.2** more there.
 
 ## Caveats
 
@@ -342,9 +417,9 @@ annotation spans stripped — the annotation-lemma hygiene, not the pre-pass.)
   Round 16 it is also measured over the *analyzed* set, so additive coverage gains
   (the recovery pre-pass) move it down slightly by denominator growth — a
   completeness artifact, not a regression (see the Round 16 section).
-- **PapyGreek numerals**: the opt-in `--numerals` table resolves 1,416/1,454 numeral
-  tokens (the Round 14 lowercase α/ε gap is fixed); bare-letter numeral *false hits*
-  remain deliberately out of scope.
+- **PapyGreek numerals**: the opt-in `--numerals` pass (table + vowel-less rule)
+  resolves 1,440/1,454 numeral tokens (the Round 14 lowercase α/ε gap is fixed); bare-letter
+  numeral *false hits* remain deliberately out of scope.
 
 ## Reproducing the spot checks
 

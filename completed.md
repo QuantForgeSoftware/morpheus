@@ -1623,3 +1623,118 @@ PapyGreek (36,455 word tokens; learned + adaptive defaults, papyri table,
   confidence), B5 (profile registry `--base-lemmas`), B6 (build determinism), B7
   (tokenizer robustness), B8 (licence-clean LM), B9 (lacuna restoration).
 - Round 13 remains queued pending the CSNTM contact.
+
+---
+
+# Round 17: recovery tail pass + PapyGreek gate entry (2026-10-15) ✅
+
+## Goal
+
+Close the measured tail of the Round 16 recovery pre-pass and put PapyGreek — the
+priority corpus — into the offline regression gate. Items 17.1–17.6 from the plan
+(evidence: the 296-miss Round 16 record in `tmp/pg16/`).
+
+## 17.1 — Operation-based recovery variants (shipped)
+
+`recovery.spelling_variants` rebuilt around primitive edit operations on the
+normalized base: every rule is an edit list (`_edits` returns `(rank, pair_eligible,
+edits)`), tier 1 emits all single operations, tier 2 merges every eligible pair
+(slot+slot, slot+geminate, slot+global), and the capped list (96) stays closest-first
+with vowel substitutions before consonants. Added internal nasal assimilation
+(νπ→μπ, νβ→μβ, νφ→μφ, νκ→γκ, νχ→γχ, νγ→γγ) and extended geminate reduction
+(ββ γγ δδ θθ φφ χχ beside the existing λλ μμ νν ππ ρρ σσ ττ κκ). Newly reachable:
+συνπροσγενόμενος → συμπροσγενόμενος, θρυδάκεια → θριδάκια (υ→ι + ει→ι),
+ὑγειαίνησς → ὑγιαίνῃς (ει→ι + σσ→σ).
+
+## 17.2 — Compositional letter-numerals (shipped)
+
+`numerals.propose(beta, surface=None)`: beside the 50-form table, a vowel-less run of
+≥2 numeral letters gets the table's surface-lemma convention with the letter sum in a
+`value` feature (χμγ = 643, ψπ = 780, ρξβ = 162 …); single letters fall back across
+case in both directions (the table lacked capital singles like Β, Ζ, Δ, Τ, Φ). Still
+opt-in (`--numerals`), still unanalyzed-only. χμγ's absence from the table was
+explained: the builder keeps gold pos `m` tokens and χμγ's gold pos is `x` — the rule
+covers it without a table rebuild. Ατ (gold 1300, contains a vowel) remains a table
+exception (decimal lemma).
+
+## 17.3 — Curated stemlib nouns (shipped)
+
+`build_papyri_stemlib.py` gained three curated entries in the generated `nom.papyri`
+(each justified: LSJ headword or LSJ-attested derivative / PG attestation):
+παστοφόρος (LSJ via παστοφόριον/ἀρχιπαστοφόρος), πόκιον (PG-attested diminutive of
+πόκος), ἐρίδιον (LSJ headword, Dim. of ἔριον, long iota [-ῑδ-]). θριδάκιον and
+πιττάκιον were already in `lsj.nom`, and ἀρχισωματοφύλαξ already analyzed — their
+misses were spelling issues (17.1's job). Rebuild: 10 lines added; only
+`nom.papyri`, `steminds/nomind`, `nomind.lindex` changed.
+
+## 17.4 — PapyGreek in the offline gate (shipped)
+
+`scripts/benchmark.py` gained the optional `PAPYGREEK_DIR` corpus: reader mirrors the
+tmp harness (original spelling, markers stripped; regularized gold lemma; per-document
+grouping; POS classes inverted from the harness's TB2CLASS/MORPH2CLASS maps including
+the DC bridge and X/I equivalence), shipped default gated (no `--numerals`).
+Gate row: n=36,455, analyzed 97.4%, cov 90.8%, raw 74.8 → ranked 87.7, learned 88.1,
+POS 81.3% (POS matches the harness exactly; ranked/learned read above the harness's
+exact column because the gate's `matches_lemma` credits any lemma variant — see
+lessons.md).
+
+## 17.5 — Proposal-confidence audit (carried to B4)
+
+Audited (sample: 40 documents, 3,589 tokens; 299 all-proposed tokens): softmax
+confidence is conditional on the generated candidate set — lone proposals report 1.0
+(63 tokens), mean 0.842 vs ~0.59 measured top-1 accuracy for recovered forms. The
+proper fix (fitted per-strategy priors) is carried to B4; findings in
+`tmp/pg17/audit_17_5.md`.
+
+## 17.6 — Measurement
+
+PapyGreek (all 36,455 word tokens; learned + adaptive defaults with the papyri table,
+`--numerals`; Round 16 → Round 17):
+
+| metric | Round 16 | Round 17 |
+| --- | ---: | ---: |
+| coverage | 99.2% | **99.4%** |
+| unanalyzed tokens | 296 | **235** |
+| — editorially marked | 189 | 157 |
+| — numeral tokens | 31 / 1,454 | **14 / 1,454** |
+| top-1 ranked (exact / acc-insens) | 87.9 / 89.3% | **88.1 / 89.5%** |
+| top-1 learned (exact / acc-insens) | 89.7 / 91.2% | **89.9 / 91.4%** |
+| recovered forms (spelling/name/both) | 1,265 (390/376/499) | **1,295 (422/331/542)** |
+| recovered exact top-1 (spelling/name) | 588 / 134 | **634 / 132** |
+
+Default path (no `--numerals`): 97.4% coverage / 87.6 / 89.1 learned, 942 unanalyzed
+(Round 16: 97.4% / 87.5 / 89.0).
+
+ε/η and α/ο interchange experiments: measured against the miss list — ε/η fixes 3
+tokens, α/ο 6; both add tier-1 operations that shift every existing target deeper into
+the capped list, so both were deferred with the measurement recorded.
+
+## Docs
+
+- README: recovery section (op-based generator, new rules, Round 16/17 table);
+  numerals section (compositional rule, symmetric case fallback); limitation bullets.
+- improvements.md: Round 17 section; PG opt-in coverage row 99.2% → 99.4%.
+- lessons.md: op-based generation; measure-a-symmetric-rule; builder filters; gate vs
+  harness comparison conventions; confirmation-runs; proposal-confidence audit.
+
+## Verification
+
+- `pytest python/tests` — 75 passed.
+- CLI smoke: συνπροσγενόμενος/θρυδάκεια/ὑγειαίνησς recovered (default); χμγ → χμγ
+  [value=643], ψπ → ψπ [value=780] with `--numerals`.
+- Gate: thresholds re-baselined with `--update` on all five corpora (shipped
+  default). SBLGNT unchanged on every metric; AF analyzed +0.01; AGLDT unchanged
+  except learned −0.01pp (the recovery's new variants alter a few
+  previously-recovered tokens' candidate sets; the three new stems match no AGLDT
+  token); PROIEL +0.01/+0.02; PapyGreek joined the
+  gate (n=36,455, analyzed 97.42%, cov 90.81%, ranked 87.73%, learned 88.07%,
+  POS 81.28%). The confirmation run reproduced every metric byte-identically and
+  reported **OK (within tolerance)**.
+- All measurement material in git-ignored `tmp/`; no PROIEL/TLG/PHI-derived content
+  committed.
+
+## Carried forward
+
+- B4: fitted per-strategy priors for proposal confidence.
+- ε/η + α/ο interchanges: measured, deferred (9 tokens; cap-pressure risk).
+- Round 18 unchanged (canonical-lemma scoring + learned retrain).

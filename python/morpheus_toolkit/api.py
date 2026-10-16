@@ -230,7 +230,7 @@ class Morpheus:
 
         for result in results:
             if not result.analyses and result.beta:
-                analysis = propose(result.beta)
+                analysis = propose(result.beta, result.token)
                 if analysis is not None:
                     result.analyses = [analysis]
 

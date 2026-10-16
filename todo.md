@@ -1,12 +1,11 @@
 # Active plan
 
-**Round 16 (recovery pre-pass + hygiene) is complete** — records in
-[completed.md](completed.md). **Round 17** (canonical-lemma scoring fix + learned-feature
-cleanup + PG retrain) is agreed and deferred; **Round 13** (CSNTM / NT-manuscript
-outreach) is queued pending the CSNTM contact; the remaining **candidate follow-ups
-(B items)** and **Round X** are standing. Rounds 11, 12, 14, 15 and 16 are complete
-(records in [completed.md](completed.md)); [improvements.md](improvements.md) carries
-the measured gains to date.
+**Round 18** (canonical-lemma scoring fix + learned-feature cleanup + PG retrain with a
+document-level held-out split) is agreed and deferred. **Round 13** (CSNTM /
+NT-manuscript outreach) is queued pending the CSNTM contact; the remaining **candidate
+follow-ups (B items)** and **Round X** are standing. Rounds 11, 12, 14, 15, 16 and 17
+are complete (records in [completed.md](completed.md)); [improvements.md](improvements.md)
+carries the measured gains to date.
 
 ## Standing constraints (carry into any future round)
 
@@ -35,12 +34,30 @@ the measured gains to date.
 
 ---
 
-# Round 17 (agreed, deferred) — canonical-lemma scoring fix + learned retrain
+# Round 18 (agreed, deferred) — canonical-lemma scoring + learned retrain
 
-Canonical-lemma scoring fix (Morpheus's `form,lemma` field pollutes frequency scoring —
-measured **+1.2pp on PG plain path**, SBLGNT wash) + learned-feature cleanup + PG-data
-retrain with a document-level held-out split. The plain-path fix is held back so the
-learned model and its features are retrained together (feature semantics change).
+**Context.** Morpheus's `form,lemma` candidate field pollutes frequency scoring: an
+inflected-form element makes a zero-frequency lemma (πηρός) outrank a frequent one
+(παρά). Scoring on the canonical lemma only is measured at **+1.2pp on the PG plain
+path** (SBLGNT wash). The fix changes feature semantics for the learned model, so it is
+held back to land together with a retrain on the shipped candidate distribution — now
+also including PapyGreek (CC BY-SA, committable statistics) with a **document-level
+held-out split** so the PG evaluation is honest (no same-document leakage).
+
+- [ ] 18.1 **Canonical-lemma scoring fix (plain path)** — rank on the canonical lemma
+      (not the form element); measure PG plain path (expect ≈ +1.2pp), SBLGNT wash;
+      update tests.
+- [ ] 18.2 **Learned-feature cleanup** — drop/repair features that encoded the polluted
+      scoring; align the feature set with the shipped candidate distribution
+      (Round 15 lesson: candidate generation defines the task).
+- [ ] 18.3 **Retrain with PG + document-level split** — pool PG with the existing
+      SBLGNT/AF/AGLDT pool (balanced; `--agldt-limit` precedent); train/evaluate with
+      a document-level held-out split; report honest PG learned numbers + all gate
+      corpora.
+- [ ] 18.4 **Measurement + docs + wrap-up (required)** — full gate, PG re-measure,
+      improvements.md Round 18 section, lessons.md; re-evaluate/update
+      [`improvements.md`](improvements.md); migrate the completed record to
+      [`completed.md`](completed.md).
 
 ---
 

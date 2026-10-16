@@ -3,7 +3,8 @@
 Generate `stemlib/Greek/stemsrc/nom.papyri` — proper names and a few dialectal
 words attested in the PapyGreek treebanks (Helsinki; CC BY-SA 4.0) that the
 classical stemlibs do not cover: Egyptian deity/month/personal names, papyrus
-spelling variants of personal pronouns, and Egyptian loanwords.
+spelling variants of personal pronouns, Egyptian loanwords, and a small set of
+curated technical nouns (παστοφόρος, πόκιον, ἐρίδιον — see CURATED_NOUNS).
 
 It runs Morpheus over the corpus's ORIGINAL spellings (editorial markers
 stripped), keeps tokens that get **no** analysis whose gold POS is nominal or
@@ -11,9 +12,9 @@ pronominal and whose regularized-layer lemma is capitalized (i.e. a name) with
 a total count of at least --min-count, and emits `:le:`/`:wd:` entries marking
 them as indeclinable `pers_name`s — the same convention as nom.biblical.
 
-A small curated section (pronoun variants, loanwords) is emitted from the
-CURATED structure below; keep all curation in this script, never hand-edit
-the managed region of the generated file.
+A small curated section (pronoun variants, loanwords, technical nouns) is
+emitted from the CURATED / CURATED_NOUNS structures below; keep all curation in
+this script, never hand-edit the managed region of the generated file.
 
 Usage:
   scripts/build_papyri_stemlib.py --corpus-dir <papygreek-treebanks-root>
@@ -75,6 +76,23 @@ CURATED: dict = {
 }
 
 CURATED_MARKER = "# --- curated entries (managed by build_papyri_stemlib.py) ---"
+
+# Curated regular nouns, emitted as :le: + :no: stem entries (the classical
+# stemlibs lack them; full-form :wd: entries would only cover the attested
+# cases, so the paradigms are declared properly). Justification:
+# - παστοφόρος 'pastophoros priest': the standard papyrological title; LSJ
+#   carries its compounds παστοφόριον and ἀρχιπαστοφόρος (and the base παστός).
+# - πόκιον 'little fleece': diminutive of πόκος (LSJ headword).
+# - ἐρίδιον 'little fleece' (Dim. of ἔριον, long iota: LSJ ἐρίδιον [-ῑδ-],
+#   Luc., PMeyer 20.36).
+# All three are attested in the PapyGreek treebanks (CC BY-SA 4.0).
+CURATED_NOUNS: dict = {
+    "pastofo/ros": [("pasto-for", "os_ou stem_acc masc")],
+    "po/kion": [("po^ki", "os_ou neut")],
+    "e)ri/dion": [("e)ri_di", "os_ou neut")],
+}
+
+CURATED_NOUNS_MARKER = "# --- curated noun stems (managed by build_papyri_stemlib.py) ---"
 
 
 def read_rows(corpus_dir: str):
@@ -189,6 +207,13 @@ def main() -> int:
             out.write(f":le:{lemma_beta}\n")
             for form_beta, payload in CURATED[lemma_beta]:
                 out.write(f":wd:{form_beta}\t{payload}\n")
+                entries += 1
+            out.write("\n")
+        out.write(CURATED_NOUNS_MARKER + "\n")
+        for lemma_beta in sorted(CURATED_NOUNS):
+            out.write(f":le:{lemma_beta}\n")
+            for stem_beta, payload in CURATED_NOUNS[lemma_beta]:
+                out.write(f":no:{stem_beta}\t{payload}\n")
                 entries += 1
             out.write("\n")
     print(f"Wrote {len(names)} names + curated to {os.path.relpath(args.out, REPO)} ({entries} forms)")

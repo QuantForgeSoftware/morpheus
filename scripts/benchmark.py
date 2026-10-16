@@ -16,6 +16,7 @@ Corpora are read from environment variables / flags, never hardcoded paths:
   AF_CORPUS_DIR  Apostolic Fathers data/morph     (CC-BY-SA 4.0)
   AGLDT_DIR      AGLDT v2.1 Greek texts *.tb.xml  (CC-BY-SA 3.0 US)
   PROIEL_DIR     syntacticus greek-nt.conll       (CC BY-NC-SA; measurement only)
+  PAPYGREEK_DIR  PapyGreek treebanks *.xml (ALDT) (CC BY-SA 4.0)
 
 Usage:
   scripts/benchmark.py                       # check against thresholds (shipped default)
@@ -28,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import glob
+import html
 import json
 import os
 import random
@@ -63,6 +65,26 @@ PROIEL_CLASSES = {
     "N": {"N", "A"}, "V": {"V"}, "S": {"RA"}, "P": {"RP", "RR", "RD"},
     "D": {"D", "C"}, "R": {"P"}, "C": {"C"}, "A": {"A"}, "G": {"C", "D"},
 }
+# PapyGreek ALDT pos1 -> acceptable Morpheus classes (inversion of the PG
+# evaluator's TB2CLASS/MORPH2CLASS maps): R-classes share the coarse "R", the
+# treebank's "DC" bridges C and D in both directions, and X covers I.
+PG_CLASSES = {
+    "n": {"N"}, "a": {"A"}, "v": {"V"},
+    "l": {"RA", "RP", "RD", "RR", "RI"},
+    "p": {"RA", "RP", "RD", "RR", "RI"},
+    "c": {"C", "D"}, "r": {"P"}, "d": {"C", "D"},
+    "m": {"X", "I"}, "i": {"X", "I"}, "x": {"X", "I"},
+}
+
+# PapyGreek editorial markers (LappEpiDoc + PapyGreek variants), stripped from
+# the original spelling before analysis: |num:N| / |g:...| annotation spans,
+# then supplement/uncertainty brackets in every bracket family the corpus uses,
+# line-break marks, ellipses, and hyphenation. The apostrophes ʼ ’ are real
+# elision marks and are kept.
+PG_PIPE_ANN = re.compile(r"\|[a-z]+:[^|]*\|")
+PG_MARKERS = re.compile(
+    r"[∼∽∤⋰⋱⸢⸣❨❩<>[\]{}()〚〛⊢⊣⸌⸍⎴⎵⦑⦒⸜⸝⧼?…-]+|[̣̅]")
+PG_GREEK = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
 
 
 @dataclass
@@ -144,6 +166,38 @@ def read_proiel(path: str, limit: int = 0) -> List[Row]:
                         str(ref), frozenset(PROIEL_CLASSES.get(f[3], ()))))
         if limit and len(rows) >= limit:
             return rows
+    return rows
+
+
+def read_papygreek(directory: str, limit: int = 0) -> List[Row]:
+    """PapyGreek treebanks (ALDT XML): original spelling vs regularized gold.
+
+    Feeds Morpheus the ORIGINAL spelling (editorial markers stripped) and scores
+    it against the REGULARIZED layer's lemma, grouped per document. Punctuation
+    (pos1 ``u``) is excluded; gold lemmas keep the text outside annotation spans.
+    """
+    rows: List[Row] = []
+    for path in sorted(glob.glob(os.path.join(directory, "**", "*.xml"), recursive=True)):
+        try:
+            content = html.unescape(open(path, encoding="utf-8", errors="replace").read())
+        except OSError:
+            continue
+        for m in re.finditer(r"<word\s+([^>]+)/>", content):
+            a = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+            if a.get("lang", "grc") != "grc":
+                continue
+            form = PG_MARKERS.sub("", PG_PIPE_ANN.sub("", a.get("form_orig", ""))).strip()
+            lemma = PG_PIPE_ANN.sub("", a.get("lemma_reg", ""))
+            postag = a.get("postag_reg", "")
+            pos1 = postag[0] if postag else ""
+            if not form or not lemma or pos1 == "u":
+                continue
+            if not PG_GREEK.search(form):
+                continue  # illegible-text placeholders ($ etc.)
+            rows.append(Row(form, lemma, "", os.path.basename(path),
+                            frozenset(PG_CLASSES.get(pos1) or ({"?"} if pos1 else ()))))
+            if limit and len(rows) >= limit:
+                return rows
     return rows
 
 
@@ -328,6 +382,9 @@ def discover(args) -> List[Tuple[str, List[Row], bool]]:
     proiel = args.proiel_dir or os.environ.get("PROIEL_DIR", "")
     if proiel and os.path.isfile(proiel):
         corpora.append(("PROIEL greek-nt", read_proiel(proiel, args.limit), True))
+    papygreek = args.papygreek_dir or os.environ.get("PAPYGREEK_DIR", "")
+    if papygreek and os.path.isdir(papygreek):
+        corpora.append(("PapyGreek", read_papygreek(papygreek, args.limit), True))
     return [(name, rows, acc) for name, rows, acc in corpora if rows]
 
 
@@ -337,6 +394,7 @@ def main() -> int:
     ap.add_argument("--af-corpus-dir", default="")
     ap.add_argument("--agldt-dir", default="")
     ap.add_argument("--proiel-dir", default="")
+    ap.add_argument("--papygreek-dir", default="")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--no-learned", dest="learned", action="store_false",
                     help="frequency path only (no learned re-ranker)")
@@ -363,7 +421,8 @@ def main() -> int:
 
     corpora = discover(args)
     if not corpora:
-        print("no corpora found — set MORPHGNT_DIR / AF_CORPUS_DIR / AGLDT_DIR / PROIEL_DIR")
+        print("no corpora found — set MORPHGNT_DIR / AF_CORPUS_DIR / AGLDT_DIR / "
+              "PROIEL_DIR / PAPYGREEK_DIR")
         return 0
 
     runner = MorpheusRunner()

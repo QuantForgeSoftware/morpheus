@@ -243,12 +243,19 @@ tokens the stemlib could not analyze at all** and proposes candidates from two
 rule-generated sources:
 
 - **spelling variants** (`recovery.spelling_variants`) — bounded, closest-first
-  orthographic normalization: vowel classes ι/ει/η/υ/οι/υι/ου, ε/αι, ο/ω;
-  consonant classes τ/δ/θ, κ/γ/χ, π/β/φ; geminate simplification and doubling;
-  documentary ο/οι, ει/ε, ζ/σ and μψ/ψ; the final -ν/-ς toggle including sandhi
-  spellings (μὲγ → μέν); and dropped iota subscripts restored on single η
-  positions — the accent-insensitive cruncher mode does not ignore the subscript,
-  so ῃ forms match only when it is present. Every variant the stemlib analyzes is
+  orthographic normalization built from primitive edit operations on the
+  normalized form: vowel classes ι-first (ι/ει/η/υι/υ/οι/ου), ε/αι, ο/ω;
+  consonant classes τ/δ/θ, κ/γ/χ, π/β/φ; geminate simplification and doubling
+  (ρρ σσ ττ λλ μμ νν ππ κκ ββ γγ δδ θθ φφ χχ); internal nasal assimilation
+  (νπ → μπ, νβ → μβ, νφ → μφ, νκ → γκ, νχ → γχ, νγ → γγ; συνπροσγενόμενος →
+  συμπροσγενόμενος); documentary ο/οι, ει/ε, ζ/σ and μψ/ψ; the final -ν/-ς toggle
+  including sandhi spellings (μὲγ → μέν); and dropped iota subscripts restored on
+  single η positions — the accent-insensitive cruncher mode does not ignore the
+  subscript, so ῃ forms match only when it is present. Every single operation is
+  tried first, then every pair of *eligible* operations is merged (slot+slot,
+  slot+geminate, slot+global), so a form with several deviations at once
+  (θρυδάκεια → θριδάκια: υ→ι + ει→ι) is still reachable; the list is
+  deterministic and capped at 96 candidates. Every variant the stemlib analyzes is
   attached as a candidate with `proposed=True` and `recovered_from` naming the
   variant.
 - **name candidates** (`recovery.name_candidates`) — case-ending → nominative rules
@@ -262,26 +269,33 @@ The pre-pass never touches tokens that already have candidates — their analyse
 byte-identical with it off or on — and proposals go through the regular ranking, so a
 proposal can only win when ranking justifies it. Measured on PapyGreek (all 36,455
 word tokens; learned + adaptive defaults with the papyri table, `--numerals`; recovery
-off → on):
+off reads 95.1% coverage / 85.9% ranked / 1,781 unanalyzed tokens under the same
+harness):
 
-| metric | off | on |
+| metric | Round 16 | Round 17 |
 | --- | ---: | ---: |
-| coverage | 95.1% | **99.2%** |
-| top-1 ranked (exact / accent-insensitive) | 85.9 / 87.3% | **87.9 / 89.3%** |
-| top-1 learned | 87.9 / 89.4% | **89.7 / 91.2%** |
-| unanalyzed tokens | 1,781 | **296** |
+| coverage | 99.2% | **99.4%** |
+| top-1 ranked (exact / accent-insensitive) | 87.9 / 89.3% | **88.1 / 89.5%** |
+| top-1 learned (exact / accent-insensitive) | 89.7 / 91.2% | **89.9 / 91.4%** |
+| unanalyzed tokens | 296 | **235** |
 
-The remaining misses are dominated by editorially marked or truncated forms (189),
-numerals outside the bundled table (31), and rare technical vocabulary with no stemlib
-entry. The 1,265 recovered forms split 390 spelling-only / 376 name-only / 499 from
-both (exact top-1 hits among recovered tokens: 588 spelling, 134 name). Coarse POS
+Round 17's tail pass (operation-based variant generation with pairwise composition,
+internal nasal assimilation, extended geminates, the vowel-less numeral-letter rule,
+and three curated nouns) closes another 61 misses. The residual is dominated by
+editorially marked or truncated forms (157), numeral tokens outside the table and rule
+(14), and single-token scribal or technical forms. The 1,295 recovered forms split 422
+spelling-only / 331 name-only / 542 from both (exact top-1 hits among recovered tokens:
+634 spelling, 132 name). Coarse POS
 agreement reads 80.1% → 79.7% because the newly covered tokens enter
 that metric's denominator and agree at ~70% — a completeness effect, not a regression
 (coverage and top-1 can only rise: a miss has no candidates to lose). On clean literary
 corpora the pre-pass fires on the few remaining misses and measures neutral-or-positive:
 the LXX (623,685 tokens) reaches 100.0% coverage (99.81% before) with top-1 unchanged,
-and on the gate corpora (SBLGNT, AF, AGLDT, PROIEL) every coverage/top-1 metric is
-up-or-equal — AF's analysis rate rises 98.4% → 99.4%, which is also what moves its
+and on the gate corpora (SBLGNT, AF, AGLDT, PROIEL — PapyGreek joined the gate in
+Round 17) every coverage/top-1 metric is up-or-equal (AGLDT's learned top-1 moves
+−0.01pp: the recovery's new variants alter a few previously-recovered tokens'
+candidate sets) —
+AF's analysis rate rises 98.4% → 99.4%, which is also what moves its
 coarse POS down slightly (the same completeness effect).
 
 ## The Septuagint (LXX)
@@ -439,16 +453,23 @@ same repository are redundant or negligible; only `v2.1` is used.)
 Papyri write numbers as bare Greek letters (β = 2, κθ = 90, λϛ = 36 …), and the
 stemlib has no entries for them — in the PapyGreek treebank they are the single
 largest miss family (853 of its 1,454 numeral tokens). `--numerals` (API:
-`Morpheus(numerals=True)`) gives unanalyzed tokens a synthetic analysis from the
-bundled table `data/papyrus_numerals.json` (50 forms; built from the PapyGreek
-Treebanks' numeral gold, CC BY-SA — rebuild with
-`scripts/build_papyrus_numerals.py`).
+`Morpheus(numerals=True)`) gives unanalyzed tokens a synthetic analysis from two
+sources: the bundled table `data/papyrus_numerals.json` (50 forms; built from the
+PapyGreek Treebanks' numeral gold, CC BY-SA — rebuild with
+`scripts/build_papyrus_numerals.py`), and a compositional rule for runs of
+numeral letters with **no vowel** (χμγ = 643, ψπ = 780, ρξβ = 162) — real Greek
+words always contain a vowel, so vowel-less runs are numerals, abbreviations, or
+truncations, all of which get the table's surface-lemma convention, with the
+letter sum carried in the `value` feature. The table stays the exception list
+(case fallback for single letters in both directions, decimal-annotated gold
+lemmas like Ατ = 1300).
 
 The flag fires **only on tokens Morpheus cannot analyze** and never overrides an
 existing analysis: short betas like `ke`/`ka` also match real words under
 accent-insensitive matching (and are real particles elsewhere), so overriding would
-corrupt them. Synthetic analyses carry POS N and `proposed=True`. On PapyGreek the
-flag lifts coverage 92.9% → **95.1%** and ranked top-1 lemma 83.7% → **85.9%**; a
+corrupt them. Synthetic analyses carry POS N and `proposed=True`. On PapyGreek
+(recovery on) the flag lifts coverage 97.4% → **99.4%** and ranked top-1 lemma
+85.9/87.3% → **88.1/89.5%** (exact/accent-insensitive); a
 handful of single-letter abbreviations (τ for ἀντί) get labeled as numerals — filter
 on `proposed` if that matters. Off by default; with it off behavior is unchanged.
 
@@ -467,7 +488,8 @@ on `proposed` if that matters. Off by default; with it off behavior is unchanged
   and cannot separate feature-level readings inside one lemma.
 - **Papyrus letter-numerals are misses** (β = 2, κθ = 90 …): the stemlib has no
   entries for bare-letter numerals. Enable `--numerals` to give unanalyzed ones a
-  synthetic analysis from the bundled PapyGreek-derived table (see Papyrus numerals).
+  synthetic analysis from the bundled PapyGreek-derived table plus the vowel-less
+  numeral-letter rule (see Papyrus numerals).
 - **Coverage.** A small fraction of NT tokens gets no analysis, historically dominated
   by **biblical proper names** (Δαυίδ, Φαρές, Ἀμιναδάβ, …) absent from `stemlib`;
   coverage improved slightly after the LXX additions (`nom.lxx`) since many biblical

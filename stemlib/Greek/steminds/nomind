@@ -14794,7 +14794,7 @@
 *stur :*stu/ra:os_ou:neut:pl:geog_name :*stureu/s:eus_ews:masc:suff_acc :*sturh/s:hs_es:suff_acc
 *sture :*stu/reos:os_h_on
 *stwa :*stw/ac:c_kos:masc
-*stw|k :*stwiko/s:os_h_on:suff_acc
+*stwik :*stwiko/s:os_h_on:suff_acc
 *su *su+:*su+/a:a_hs:fem
 *suadr :*sua/dras:hs_ou:masc
 *suagr :*su/agros:os_ou:masc
@@ -21903,7 +21903,7 @@
 2*soufi :*soufi:indecl:masc:sg:pers_name
 2*soufir :*soufir:indecl:masc:sg:pers_name
 2*souia :*souia:indecl:masc:sg:pers_name
-2*soukessw| *souke/ssw|:*soukesos:indecl:masc:sg:pers_name *souke/sswi:*soukesos:indecl:masc:sg:pers_name
+2*soukesswi *souke/sswi:*soukesos:indecl:masc:sg:pers_name *souke/ssw|:*soukesos:indecl:masc:sg:pers_name
 2*soukesw| *souke/sw|:*soukesos:indecl:masc:sg:pers_name
 2*soukkesswi *soukke/sswi:*soukesos:indecl:masc:sg:pers_name *soukke/ssw|:*soukesos:indecl:masc:sg:pers_name
 2*soulamitidi *soulami/tidi:*soulami=tis:indecl:fem:sg:pers_name
@@ -35116,7 +35116,7 @@ a)poklau :a)po/klauma:ma_matos:neut
 a)pokleis :a)po/kleisis:is_ews:fem :a)po/kleisma:ma_matos:neut
 a)pokleism :a)pokleismo/s:os_ou:masc:suff_acc
 a)pokleist :a)po/kleistos:os_on
-a)poklh|s :a)po/kleisis:is_ews:fem
+a)poklhis :a)po/kleisis:is_ews:fem
 a)poklhr :a)po/klhros:os_on
 a)poklhronom :a)poklhro/nomos:os_on
 a)poklhrws :a)poklh/rwsis:is_ews:fem
@@ -50375,6 +50375,7 @@ e)ribwl :e)ri/bwlos:os_on :e)ribw=lac:os_on:epic:*hom.
 e)ribwla e)ribw_la:e)ribw=lac:c_kos:masc/fem:ant_acc
 e)ridant :e)rida/nths:hs_ou:masc:stem_acc
 e)ridhl :e)ri/dhlos:os_on
+e)ridi e)ri_di:e)ri/dion:os_ou:neut
 e)ridin :e)ridinh/s:hs_es:suff_acc
 e)ridmat e)ridma_t:e)ri/dmatos:os_on
 e)ridoup :e)ri/doupos:os_on
@@ -64474,7 +64475,7 @@ lh|dari :lh|da/rion:os_ou:neut:diminutive
 lhidi :lhi/dios:os_h_on :lh|di/on:os_ou:neut:stem_acc
 lhin :lhi/nh:h_hs:fem
 lhinom :lhino/mos:os_on:stem_acc
-lhist :lhi/stwr:wr_oros:masc:stem_acc :lh|sth/s:hs_ou:masc:ionic:suff_acc :lh|sth/s:hs_ou:masc:suff_acc :lhisth/s:hs_ou:masc:suff_acc :lhisto/s:os_h_on:suff_acc :lhistu/s:us_uos:fem:suff_acc
+lhist :lhi/stwr:wr_oros:masc:stem_acc :lh|sth/s:hs_ou:masc:ionic:suff_acc :lhisth/s:hs_ou:masc:suff_acc :lh|sth/s:hs_ou:masc:suff_acc :lhisto/s:os_h_on:suff_acc :lhistu/s:us_uos:fem:suff_acc
 lh|starx :lh/|starxos:os_ou:masc :lh|sta/rxhs:hs_ou:masc:stem_acc
 lh|stei :lh|stei/a:h_hs:fem:stem_acc
 lhisth :lhisth/r:r_ros:masc:stem_acc :lh|sth/r:r_ros:masc:stem_acc
@@ -74948,6 +74949,7 @@ pastillfor :pastillfo/ros:os_on:stem_acc
 pastillforiss :pastillfo/rissa:a_hs:fem
 pastilli :pasti/llion:os_ou:neut
 pastillwd :pastillw/dhs:hs_es:stem_acc
+pastofor :pastofo/ros:os_ou:masc:stem_acc
 pastofori :pastofo/rion:os_ou:neut
 pastri :pa/stria:a_hs:fem
 pasxhtiasm :pasxhtiasmo/s:os_ou:masc:suff_acc
@@ -77458,6 +77460,7 @@ poiwtik :poiwtiko/s:os_h_on:suff_acc
 pok :po/kos:os_ou:masc
 poka :poka/s:s_dos:fem:stem_acc
 pokari :poka/rion:os_ou:neut
+poki :po/kion:os_ou:neut
 pokism :pokismo/s:os_ou:masc:suff_acc
 pokoeid :pokoeidh/s:hs_es:suff_acc
 pokt :po/ktos:os_ou:masc

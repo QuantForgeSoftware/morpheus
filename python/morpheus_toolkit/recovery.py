@@ -10,10 +10,13 @@ corpus data involved — which the API re-analyzes against the stemlib:
 - :func:`spelling_variants` — orthographic normalization candidates from the
   standard Greek alternations: vowel classes ι/ει/η/υ/οι/υι/ου, ε/αι, ο/ω;
   consonant classes τ/δ/θ, κ/γ/χ, π/β/φ; geminate simplification/doubling;
-  documentary ο/οι, ει/ε, ζ/σ and μψ/ψ; the final -ν/-ς toggle including
+  documentary ο/οι, ει/ε, ζ/σ, μψ/ψ and internal nasal assimilation
+  (συνπροσγενόμενος → συμπροσγενόμενος); the final -ν/-ς toggle including
   sandhi spellings (μὲγ → μέν, ἐὰμ → ἐάν); and dropped iota subscripts restored
-  on single η positions (:func:`subscript_variants`). Closest-first (single
-  substitutions before pairwise), deterministic, capped.
+  on single η positions (:func:`subscript_variants`). Operations compose: every
+  pair of single operations is tried (a class substitution combines with a
+  geminate or a global rule, not just with another substitution). Closest-first
+  (single operations before pairwise), deterministic, capped.
 - :func:`name_candidates` — case-ending → nominative candidates for name-like
   surfaces (Δωρίωνος → Δωρίων, Ἀχιλλᾶτος → Ἀχιλλᾶς, Σωτέλῃ → Σωτέλης,
   Χοινώθμεως → Χοινωθμις).
@@ -27,7 +30,6 @@ from __future__ import annotations
 
 import unicodedata
 from dataclasses import replace
-from itertools import combinations
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from .analysis import Analysis
@@ -35,9 +37,12 @@ from .beta import normalize_lemma, to_beta
 
 # i-sound interchange first (longest digraphs before single letters), then the
 # e- and o-classes. Documentary ο/οι is handled as a global rule below because
-# οι is already claimed by the i-class.
+# οι is already claimed by the i-class. Within the i-class the alternatives are
+# ordered ι-first (the dominant itacism): matching only requires υι to precede
+# υ, so ι/ει/η may lead the tuple while every position still matches its
+# longest member.
 VOWEL_CLASSES: Tuple[Tuple[str, ...], ...] = (
-    ("υι", "οι", "ει", "η", "υ", "ι", "ου"),
+    ("ι", "ει", "η", "υι", "υ", "οι", "ου"),
     ("αι", "ε"),
     ("ω", "ο"),
 )
@@ -46,12 +51,19 @@ CONSONANT_CLASSES: Tuple[Tuple[str, ...], ...] = (
     ("κ", "γ", "χ"),
     ("π", "β", "φ"),
 )
-GEMINATES = ("ρρ", "σσ", "ττ", "λλ", "μμ", "νν", "ππ", "κκ")
+GEMINATES = ("ρρ", "σσ", "ττ", "λλ", "μμ", "νν", "ππ", "κκ",
+             "ββ", "γγ", "δδ", "θθ", "φφ", "χχ")
 DOUBLED = ("ρ", "σ", "τ")
 # Whole-word substitutions that are not per-position classes: documentary ο/οι
-# and ει/ε interchanges, ζ/σ (ζμῆνος for σμῆνος), and μψ/ψ cluster
-# simplification (ἀντιλήμψεως for ἀντιλήψεως).
-GLOBAL_RULES = (("οι", "ο"), ("ει", "ε"), ("ζ", "σ"), ("μψ", "ψ"))
+# and ει/ε interchanges, ζ/σ (ζμῆνος for σμῆνος), μψ/ψ cluster simplification
+# (ἀντιλήμψεως for ἀντιλήψεως), and internal nasal assimilation, where the
+# nasal assimilates to a following labial/velar stop in spelling
+# (συνπροσγενόμενος for συμπροσγενόμενος, ἐνγηαλλιούσαις for ἐγγηαλλιούσαις).
+GLOBAL_RULES = (
+    ("οι", "ο"), ("ει", "ε"), ("ζ", "σ"), ("μψ", "ψ"),
+    ("νπ", "μπ"), ("νβ", "μβ"), ("νφ", "μφ"),
+    ("νκ", "γκ"), ("νχ", "γχ"), ("νγ", "γγ"),
+)
 
 # Case-ending -> nominative replacements (longest suffixes first), applied to
 # the unaccented surface (which uses σ, not final ς, after normalize()).
@@ -88,8 +100,13 @@ NAME_RULES: Tuple[Tuple[str, str], ...] = (
     ("ι", "ης"),
 )
 
-SPELLING_CAP = 48
+SPELLING_CAP = 96
 NAME_CAP = 16
+# In the pairwise tier only the first few alternatives of a class slot
+# participate: with ~6 alternatives per vowel slot the pair space explodes, and
+# the alternatives are ordered most-likely-first (ι leads the i-class), so the
+# tail is diminishing returns. Singles keep every alternative.
+PAIR_ALTERNATIVES = 3
 
 
 def strip_accents(text: str) -> str:
@@ -109,20 +126,24 @@ def normalize(form: str) -> str:
     )
 
 
-def _slots(form: str) -> List[Tuple[int, int, Tuple[str, ...]]]:
-    """Interchangeable positions: (start, end, alternative spellings)."""
-    slots: List[Tuple[int, int, Tuple[str, ...]]] = []
+def _slots(form: str) -> List[Tuple[int, int, Tuple[str, ...], bool]]:
+    """Interchangeable positions: (start, end, alternative spellings, is_vowel)."""
+    slots: List[Tuple[int, int, Tuple[str, ...], bool]] = []
     index = 0
     while index < len(form):
         match = None
-        for cls in VOWEL_CLASSES + CONSONANT_CLASSES:
-            for member in cls:
-                if form.startswith(member, index):
-                    match = (
-                        index,
-                        index + len(member),
-                        tuple(other for other in cls if other != member),
-                    )
+        for is_vowel, classes in ((True, VOWEL_CLASSES), (False, CONSONANT_CLASSES)):
+            for cls in classes:
+                for member in cls:
+                    if form.startswith(member, index):
+                        match = (
+                            index,
+                            index + len(member),
+                            tuple(other for other in cls if other != member),
+                            is_vowel,
+                        )
+                        break
+                if match:
                     break
             if match:
                 break
@@ -145,17 +166,68 @@ def _display(form: str) -> str:
     return form[:-1] + "ς" if form.endswith("σ") else form
 
 
+def _edits(form: str) -> List[Tuple[int, bool, List[Tuple[int, int, str]]]]:
+    """Primitive normalization operations as (rank, pair-eligible, edits).
+
+    Each operation is a list of ``(start, end, replacement)`` edits: one per
+    alternative of a per-position class slot, one covering every occurrence of
+    a geminate / doubling / global substitution, and one for the final -ν/-ς
+    toggle. Operations compose by concatenating their edit lists (all positions
+    refer to the original form, so merged edits never go stale); pairs whose
+    edits overlap are skipped by the caller. The rank orders the pairwise
+    search: vowel substitutions first (the dominant documentary phenomenon),
+    then consonant substitutions, other rules, and the final toggle.
+    """
+    operations: List[Tuple[int, bool, List[Tuple[int, int, str]]]] = []
+    for start, end, alternatives, is_vowel in _slots(form):
+        for position, alternative in enumerate(alternatives):
+            operations.append((
+                0 if is_vowel else 1,
+                position < PAIR_ALTERNATIVES,
+                [(start, end, alternative)],
+            ))
+    for pattern, replacement, step in (
+        *((geminate, geminate[0], 2) for geminate in GEMINATES),
+        *((letter, letter * 2, 1) for letter in DOUBLED),
+        *((source, target, len(source)) for source, target in GLOBAL_RULES),
+    ):
+        edits = []
+        index = form.find(pattern)
+        while index != -1:
+            edits.append((index, index + len(pattern), replacement))
+            index = form.find(pattern, index + step)
+        if edits:
+            operations.append((2, True, edits))
+    if form.endswith("ν"):
+        operations.append((3, True, [(len(form) - 1, len(form), "")]))
+    elif form.endswith("σ"):
+        operations.append((3, True, [(len(form) - 1, len(form), "ν")]))
+    elif form.endswith("γ") or form.endswith("μ"):
+        operations.append((3, True, [(len(form) - 1, len(form), "ν")]))  # μὲγ/ἐὰμ for μέν/ἐάν
+    else:
+        operations.append((3, True, [(len(form), len(form), "ν")]))
+    return operations
+
+
+def _overlapping(edits: List[Tuple[int, int, str]]) -> bool:
+    ordered = sorted(edits)
+    return any(b_start < a_end for (_, a_end, _), (b_start, _, _) in zip(ordered, ordered[1:]))
+
+
 def spelling_variants(form: str, cap: int = SPELLING_CAP) -> List[str]:
     """Bounded orthographic normalization candidates, closest-first.
 
-    Tier 1: one substitution, geminate simplification/doubling, the global
-    ο/οι rule, and the final -ν/-ς toggle. Tier 2: two substitutions. Empty
-    for forms shorter than two letters (single letters belong to ``numerals``).
+    Tier 1: every single normalization operation (class substitutions, geminate
+    simplification/doubling, the global rules incl. nasal assimilation, the
+    final -ν/-ς toggle). Tier 2: every pair of operations merged into one edit
+    set — so a substitution also combines with a geminate or a global rule —
+    searched vowel-pairs-first. Empty for forms shorter than two letters
+    (single letters belong to ``numerals``).
     """
     base = normalize(form)
     if len(base) < 2:
         return []
-    slots = _slots(base)
+    operations = sorted(_edits(base), key=lambda operation: operation[0])
     candidates: List[str] = []
     seen = set()
 
@@ -165,33 +237,15 @@ def spelling_variants(form: str, cap: int = SPELLING_CAP) -> List[str]:
             seen.add(candidate)
             candidates.append(candidate)
 
-    for start, end, alternatives in slots:
-        for alternative in alternatives:
-            add(_substitute(base, [(start, end, alternative)]))
-    for geminate in GEMINATES:
-        if geminate in base:
-            add(base.replace(geminate, geminate[0]))
-    for letter in DOUBLED:
-        if letter in base:
-            add(base.replace(letter, letter * 2))
-    for source, target in GLOBAL_RULES:
-        if source in base:
-            add(base.replace(source, target))
-    if base.endswith("ν"):
-        add(base[:-1])
-    elif base.endswith("σ"):
-        add(base[:-1] + "ν")
-    elif base.endswith("γ") or base.endswith("μ"):
-        add(base[:-1] + "ν")  # sandhi spelling: μὲγ/ἐὰμ for μέν/ἐάν
-    else:
-        add(base + "ν")
-
-    for (start1, end1, alts1), (start2, end2, alts2) in combinations(slots, 2):
-        for alt1 in alts1:
-            for alt2 in alts2:
-                add(_substitute(base, [(start1, end1, alt1), (start2, end2, alt2)]))
-                if len(candidates) >= cap:
-                    break
+    for _, _, edits in operations:
+        add(_substitute(base, edits))
+    pairwise = [(rank, edits) for rank, eligible, edits in operations if eligible]
+    for index, (_, first) in enumerate(pairwise):
+        for _, second in pairwise[index + 1:]:
+            merged = first + second
+            if _overlapping(merged):
+                continue
+            add(_substitute(base, merged))
             if len(candidates) >= cap:
                 break
         if len(candidates) >= cap:

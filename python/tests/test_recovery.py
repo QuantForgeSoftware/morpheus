@@ -32,7 +32,7 @@ def test_spelling_variants_geminate_and_final_nu():
 def test_spelling_variants_are_deterministic_and_capped():
     first = spelling_variants("ἀσπάζομε")
     assert first == spelling_variants("ἀσπάζομε")
-    assert len(first) <= 48
+    assert len(first) <= 96
     assert spelling_variants("α") == []
 
 
@@ -52,6 +52,19 @@ def test_spelling_variants_sandhi_and_documentary_rules():
     assert "βουκολος" in spelling_variants("βυκόλος")  # υ -> ου
     assert "αντιληψεως" in spelling_variants("ἀντιλήμψεως")  # μψ -> ψ
     assert "σμηνων" in spelling_variants("ζμηνῶν")  # ζ -> σ
+    # internal nasal assimilation: ν assimilates to a following labial/velar
+    assert "συμπροσγενομενος" in spelling_variants("συνπροσγενόμενος")
+    assert "εγγηαλλιουσαις" in spelling_variants("ἐνγηαλλιούσαις")
+    assert "ανηγκασε" in spelling_variants("ἀνήνκασε")
+
+
+def test_spelling_variants_compose_operations_pairwise():
+    # two class substitutions (υ -> ι and ει -> ι): θρυδάκεια for θριδάκια
+    assert "θριδακια" in spelling_variants("θρυδάκεια")
+    # a class substitution with a geminate simplification: ὑγειαίνησς for ὑγιαίνῃς
+    assert "υγιαινης" in spelling_variants("ὑγειαίνησς")
+    # two geminate simplifications: ββ and λλ in one form
+    assert "εμβλομενος" in spelling_variants("ἐμββλλόμενος")
 
 
 def test_name_candidates_more_endings():
