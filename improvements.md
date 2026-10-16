@@ -391,6 +391,64 @@ the papyri table and `--numerals`; Round 16 → Round 17):
   `calibrate.py`; the `proposed` / `recovered_from` flags are the actionable
   signal meanwhile.
 
+## Round 18 additions (2026-10-15): canonical-lemma scoring + learned retrain
+
+Round 18 fixes the scoring primitive that credited a candidate with a *form
+element's* frequency, retrains the learned model on the shipped candidate
+distribution, and closes the confidence-calibration and profile items from the
+B list:
+
+- **Canonical-lemma scoring** (`ranking.py`, `learned.py`, `tables.py`,
+  `homographs.py`): Morpheus's `form,lemma` field carries the forms the stem
+  matched before the lemma, and an alternate stem can make one entry's form
+  element equal a different word's lemma — πηρός's Doric stem lists παρά, so
+  variant-list scoring credited πηρός with παρά's frequency (366) and promoted
+  it above the actual preposition on PapyGreek. Scoring now uses the canonical
+  lemma only; matching (the gold readers, the Strong's fallback) still considers
+  every variant. Measured: PG plain path **+1.3pp** ranked (88.1 → 89.4 exact,
+  89.5 → 90.8 accent-insensitive), recovered-form top-1 634 → **660**; SBLGNT a
+  wash.
+- **Retrained learned model** (711 features, 411,615 analyzable tokens vs Round
+  15's 385,758): the trainer now runs the same recovery pre-pass the shipped
+  pipeline uses (proposals are ranked like any other candidate), pools PapyGreek
+  (34,998 tokens) under a **document-level held-out split** — 79 documents /
+  7,474 tokens, never trained on — and prefers canonical-lemma gold matches.
+  Held-out PG: frequency 94.2% → learned **96.1%** top-1. Model metadata records
+  the split (`papygreek_holdout`).
+
+Measured on PapyGreek (all 36,455 word tokens; learned + adaptive defaults with
+the papyri table and `--numerals`; Round 17 → Round 18):
+
+| metric | Round 17 | Round 18 | gain |
+| --- | ---: | ---: | ---: |
+| coverage | 99.4% | 99.4% | — |
+| top-1 ranked (exact / acc-insens) | 88.1 / 89.5% | **89.4 / 90.8%** | +1.3 |
+| top-1 learned (exact / acc-insens) | 89.9 / 91.4% | **90.2 / 91.7%** | +0.3 |
+| recovered-form top-1 (ranked, exact) | 634 | **660** | +26 |
+| default path (no `--numerals`) learned | 87.6 / 89.1% | **88.0 / 89.5%** | +0.4 |
+
+- **Confidence calibration (B4)**: the joint (lemma, POS) score path got its own
+  fitted temperature (T=0.12, ECE 0.198 → 0.137); the reported `pos_confidence`
+  is now calibrated — the class mass multiplied by a per-class reliability fitted
+  on SBLGNT (ECE 0.19 → **0.002** on the learned path, 0.021 frequency, 0.014
+  joint; AF transfer 0.003/0.020/0.016) — and all-proposed tokens (recovery /
+  numerals / proper) are scaled by fitted per-strategy priors, so a lone proposal
+  reports its strategy's measured rate (spelling 0.49, name 0.27) instead of 1.0.
+- **Profiles (B5)**: the analyzer-guarded `base-lemmas` mode (compound verbs
+  lemmatize to the base verb when the remainder is an attested verb, contracted
+  compounds tail-matched) is now a registry profile, comma-combinable with
+  `morphgnt`/`lxx`.
+- **Tokenizer (B7)**: editorial markers inside words no longer split them
+  (`ἀδελφ[οῦ]` → ἀδελφοῦ, `πα|gap:1|ρά` → παρά) and elision apostrophes stay
+  attached, so `ἀλλʼ` analyses as ἀλλά and `δʼ` as δέ; crasis stays a single
+  token (κἀγώ → ἐγώ, τοὐμόν → ἐμός, τἀληθές → ἀληθής, χὠ → ὁ; μοὐ recovers μοι).
+- **Gate (18.4)**: full offline gate re-run, re-baselined with `--update` and confirmed
+  green — every per-corpus adaptive pick unchanged, no metric regressed; POS agreement
+  improved on every corpus (PapyGreek 81.3 → **82.8**, AGLDT 85.2 → **86.0**, SBLGNT
+  77.8 → 78.1, AF 75.3 → 75.5, PROIEL 81.5 → 81.7); PapyGreek learned 88.07 → **88.25**
+  (the gate's variant-aware ranked column is flat by construction — the demoted
+  candidates already "matched" the gold through their form elements there).
+
 ## Bottom line
 
 - **Coverage**: ~94% of tokens analyzable at the fork's best → **~99% now**, and
@@ -403,6 +461,10 @@ the papyri table and `--numerals`; Round 16 → Round 17):
   **+2.3** on the LXX, and +0.1–0.5 on the NT-family corpora; Round 16's recovery
   pre-pass adds **+1.8** on papyri (its top-priority corpus) and is neutral-to-slightly-
   positive on the literary corpora, and Round 17's tail pass adds **+0.2** more there.
+  Round 18's canonical-lemma scoring adds **+1.3** more on papyri (harness exact
+  column; the gate's variant-aware comparison is flat by construction) and the
+  retrained model a further **+0.3** learned there, while POS agreement gains
+  **+0.2 to +1.5** on every gate corpus.
 
 ## Caveats
 

@@ -1,11 +1,11 @@
 # Active plan
 
-**Round 18** (canonical-lemma scoring fix + learned-feature cleanup + PG retrain with a
-document-level held-out split) is agreed and deferred. **Round 13** (CSNTM /
-NT-manuscript outreach) is queued pending the CSNTM contact; the remaining **candidate
-follow-ups (B items)** and **Round X** are standing. Rounds 11, 12, 14, 15, 16 and 17
-are complete (records in [completed.md](completed.md)); [improvements.md](improvements.md)
-carries the measured gains to date.
+**Round 18** (canonical-lemma scoring fix + learned retrain) is **complete** — the
+B-item sprint closed B4/B5/B6/B7 in the same session; B3/B8/B9 are carried with the
+assessments below. **Round 13** (CSNTM / NT-manuscript outreach) is queued pending the
+CSNTM contact; **Round X** and the remaining B items are standing. Rounds 11–18 are
+complete (records in [completed.md](completed.md));
+[improvements.md](improvements.md) carries the measured gains to date.
 
 ## Standing constraints (carry into any future round)
 
@@ -31,33 +31,6 @@ carries the measured gains to date.
   `todo.md` to [`completed.md`](completed.md)** when a round closes — `todo.md` holds only
   the active plan. And **every round's plan ends with an item to re-evaluate and update
   [`improvements.md`](improvements.md)**.
-
----
-
-# Round 18 (agreed, deferred) — canonical-lemma scoring + learned retrain
-
-**Context.** Morpheus's `form,lemma` candidate field pollutes frequency scoring: an
-inflected-form element makes a zero-frequency lemma (πηρός) outrank a frequent one
-(παρά). Scoring on the canonical lemma only is measured at **+1.2pp on the PG plain
-path** (SBLGNT wash). The fix changes feature semantics for the learned model, so it is
-held back to land together with a retrain on the shipped candidate distribution — now
-also including PapyGreek (CC BY-SA, committable statistics) with a **document-level
-held-out split** so the PG evaluation is honest (no same-document leakage).
-
-- [ ] 18.1 **Canonical-lemma scoring fix (plain path)** — rank on the canonical lemma
-      (not the form element); measure PG plain path (expect ≈ +1.2pp), SBLGNT wash;
-      update tests.
-- [ ] 18.2 **Learned-feature cleanup** — drop/repair features that encoded the polluted
-      scoring; align the feature set with the shipped candidate distribution
-      (Round 15 lesson: candidate generation defines the task).
-- [ ] 18.3 **Retrain with PG + document-level split** — pool PG with the existing
-      SBLGNT/AF/AGLDT pool (balanced; `--agldt-limit` precedent); train/evaluate with
-      a document-level held-out split; report honest PG learned numbers + all gate
-      corpora.
-- [ ] 18.4 **Measurement + docs + wrap-up (required)** — full gate, PG re-measure,
-      improvements.md Round 18 section, lessons.md; re-evaluate/update
-      [`improvements.md`](improvements.md); migrate the completed record to
-      [`completed.md`](completed.md).
 
 ---
 
@@ -96,16 +69,12 @@ critical-text Greek, where the pipeline is clean (100% analyzed).
 
 # Candidate follow-ups (carried from Round 11 Item B)
 
+B4, B5, B6 and B7 are complete (Round 18 record in [completed.md](completed.md)).
+
 - [ ] B3. Implement the **Unicode-native C path** (`docs/unicode-native-input.md`).
-      (Round 15 assessment: robustness/parity work, own round; no accuracy effect.)
-- [ ] B4. Per-config confidence calibration — **freq and learned paths done (Round
-      15)**; remaining: joint-path temperature + a calibrated **POS** confidence.
-- [ ] B5. Finish the profile registry: analyzer-guarded `--base-lemmas` mode.
-- [ ] B6. Cross-environment build determinism: the tracked STEMPROG helper binaries
-      (`stemsrc/{stripref,zapfirstf,headnolen,goodstem,flatlems}`) still change on
-      `make clean`.
-- [ ] B7. Tokenizer robustness: crasis / multiword tokens and editorial-mark
-      normalization as first-class behavior.
+      (Round 15 assessment: robustness/parity work, own round; no accuracy effect.
+      Round 18 re-confirmed: carried — it needs its own round with dedicated parity
+      validation against the NT-output-invariance rule.)
 - [ ] B8. **Ancient Greek transformer LMs as the disambiguation layer** — head-to-head
       done (Round 15, `tmp/lm/head2head.py`): the LM-MLP beats the bundled learned on
       accented text (SBLGNT test 99.4 vs 97.9 ambiguous-only; AF 98.0 vs 97.3) but
@@ -113,11 +82,12 @@ critical-text Greek, where the pipeline is clean (100% analyzed).
       `ignore_accents` inflates multi-candidate rate 37.8% → 59.4%). Not shipped
       (torch + GPL-3.0-derived ~440 MB weights). Next: a licence-clean model trained
       on the shipped candidate distribution (incl. `ignore_accents` examples), then
-      re-measure and decide.
+      re-measure and decide. (Round 18: carried — training is GPU-scale.)
 - [ ] B9. **Ithaca/Pythia lacuna restoration as a pre-pass** for fragmentary texts (the
       largest miss class in the Round 12 probe). The I.PHI-for-Round-12 part is retired
       with Round 12's close-out. Note: I.PHI's *text* is still PHI's → `tmp/`-only,
-      commit-nothing-derived rule applies to any such experiment.
+      commit-nothing-derived rule applies to any such experiment. (Round 18: carried —
+      needs external model weights and PHI-derived text, both `tmp/`-only.)
 
 ## Explicitly out of scope (standing constraints)
 

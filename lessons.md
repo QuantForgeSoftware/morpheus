@@ -484,3 +484,44 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   A fitted prior per proposal strategy belongs in `calibrate.py`; until then the
   actionable signal is the `proposed`/`recovered_from` flags (carried to B4,
   with the audit recorded in `tmp/pg17/audit_17_5.md`).
+
+## Round 18 (2026-10-15)
+
+- **Score on the canonical lemma, never on the variant list.** Morpheus's `form,lemma`
+  candidate field carries the *form element* the stem matched, and an alternate stem can
+  make one entry's form element coincide with a different word's lemma: πηρός's Doric
+  stem lists παρά, so variant-list scoring credited πηρός with παρά's frequency (366) and
+  put it above the actual preposition. Scoring `normalize_lemma(analysis.lemma)` (the
+  last variant, which the parser already stores as `lemma`) fixed the class: PapyGreek
+  plain path +1.3pp ranked (88.1 → 89.4 exact, 89.5 → 90.8 accent-insensitive), SBLGNT
+  unchanged (94.6 ranked / 77.9 POS), +26 recovered-form hits. Variants stay for
+  *matching* (gold corpora, the Strong's fallback) — matching wants recall, scoring wants
+  identity.
+- **A scoring primitive propagates into every consumer: fix it in one place, then
+  re-verify every re-ranker.** The same variant-list lookup lived in four places —
+  `Ranker.frequency_score`, the learned model's `_best_frequency`/`_best_joint`, the
+  adaptive table fit (`tables.py`) and the opt-in homograph re-ranker (`homographs.py`).
+  The adaptive picks are load-bearing (they choose each corpus's frequency table), so the
+  gate's per-corpus `adaptive table:` lines are the check that the fix did not move them.
+- **Retrain on the shipped candidate distribution, or the model learns a task that does
+  not exist at inference.** The Round 15 trainer skipped tokens with no analysis; since
+  Round 16 the shipped pipeline recovers them (spelling/name proposals), so the trainer
+  now runs the same recovery pre-pass (411,615 analyzable tokens vs 385,758) and ranks
+  proposals as part of the task. A document-level held-out split (79 PapyGreek documents,
+  6,936 analyzable tokens) keeps the PG number honest — same-document leakage would
+  flatter it, and the trainer now reports the split in the model file itself
+  (`papygreek_holdout`).
+- **A confidence is conditional on its candidate set; generated candidates need a fitted
+  prior.** (Round 17's audit, closed in B4.) The class-mass POS estimate is peaked for the
+  lemma, not for the class: SBLGNT mean mass ~1.0 against 79.4% coarse-POS accuracy
+  (ECE 0.19). The reported POS confidence therefore multiplies the mass by a fitted
+  per-class reliability, and all-proposed tokens are scaled by fitted per-strategy
+  accuracies — a lone proposal reports its strategy's measured rate, not 1.0.
+- **Verify a commit's *diff*, not its message.** The B6 commit claimed to untrack the
+  STEMPROG helper binaries, but `git show --name-status` showed `M` (a rebuild had been
+  committed) and `git ls-files` still listed them — and `.gitignore` has no effect on
+  tracked files, so `make clean` would still dirty `git status`. Caught on review and
+  fixed by rebuilding the two commits (`git reset --soft` + re-stage): the helpers are
+  now untracked (`D`) and ignored, and the makefile's `STEMPROG` target compiles them
+  from `stemsrc/*.c` (the `clean` target removes them). Amending history also needs the
+  *right* commit — `--amend` hits `HEAD`, so check `git log -1` first.

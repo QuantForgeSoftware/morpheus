@@ -80,8 +80,9 @@ and a softmax **confidence**; Latin analyses have neither:
 
 ```python
 best = morpheus.analyze_text("θεοῦ")[0].best
-best.strongs      # 2316
-best.confidence   # 0.32
+best.strongs         # 2316
+best.confidence      # 0.32
+best.pos_confidence  # 0.87  (P(the analysis's coarse POS class is right))
 ```
 
 The Strong's table is MorphGNT-convention, so a few Morpheus spelling variants
@@ -165,15 +166,17 @@ Top-1 lemma, frequency ranking → learned (flag off → on):
 | corpus | tokens | freq | learned |
 | --- | ---: | ---: | ---: |
 | SBLGNT (MorphGNT) | 137,554 | 94.6% | **94.7%** |
-| Apostolic Fathers (all) | 63,222 | 90.1% | **90.3%** |
-| PROIEL greek-nt (**independent**) | 132,366 | 91.7% | **92.2%** |
-| AGLDT v2.1 Greek (classical, adaptive table) | 469,254 | 92.8% | **93.7%** |
+| Apostolic Fathers (all) | 63,222 | 90.5% | **90.2%** |
+| PROIEL greek-nt (**independent**) | 132,366 | 91.8% | **92.1%** |
+| AGLDT v2.1 Greek (classical, adaptive table) | 469,254 | 92.8% | **93.8%** |
 
 Pooling the classical treebank into training is what makes the model strong on classical
 text (+3.0pp over the Koine-only model, +1.0pp over frequency ranking with the classical
 table) at the cost of a
 ~0.3pp Koine drift (within build noise; the larger, unbalanced pool cost ~0.7pp, hence
-the `--agldt-limit` balance). It cannot resolve feature-level homographs inside one lemma
+the `--agldt-limit` balance). Round 18 pools PapyGreek too, under a document-level
+held-out split (held-out PG: frequency 94.2% → learned **96.1%**); the NT-family corpora
+move within ±0.2pp. It cannot resolve feature-level homographs inside one lemma
 (e.g. εἰμί imperfect 3sg vs 1sg, which need lemma-level context).
 
 ### Adaptive domain tables
@@ -189,40 +192,65 @@ payoff of getting the register right is large:
 
 | corpus | Koine table (fixed) | adaptive |
 | --- | ---: | ---: |
-| AGLDT v2.1 Greek (classical) | 86.6% | **92.8%** |
-| Apostolic Fathers | 90.1% | **90.5%** |
+| AGLDT v2.1 Greek (classical) | 86.2% | **92.8%** |
+| PapyGreek (papyri) | 84.6% | **87.7%** |
+| Apostolic Fathers | 90.2% | **90.5%** |
 | SBLGNT | 94.6% | 94.6% |
 
-On classical text, automatic selection recovers **+6.2pp** over the Koine default (and
-matches passing the classical table by hand). Inputs under 40 tokens keep the default
-table.
+On classical text, automatic selection recovers **+6.6pp** over the Koine default (and
+matches passing the classical table by hand); on papyri, **+3.1pp**. Inputs under 40
+tokens keep the default table.
 
 ### Confidence calibration
 
 Reported `confidence` is a softmax over the ranker's scores, which are *ordering*
 scores, not probabilities — so the raw softmax is badly scaled. A temperature per
 score path (bundled `data/calibration.json`, fitted by NLL grid search on SBLGNT with
-`scripts/calibrate.py`; `--learned` fits the learned path) now scales it:
+`scripts/calibrate.py`) scales it:
 
 - **frequency scores** (`--no-learned`): T=0.08, top-1 expected calibration error
-  **0.208 → 0.142** on SBLGNT and **0.203 → 0.139** on the Apostolic Fathers;
+  **0.207 → 0.137** on SBLGNT and **0.203 → 0.135** on the Apostolic Fathers;
+- **joint (lemma, POS) scores** (`--joint`): T=0.12, ECE **0.198 → 0.137** (SBLGNT) /
+  **0.192 → 0.133** (AF);
 - **learned scores** (the default path): the learned model's scores turn out natively
-  calibrated — T=1.0, ECE **0.005** (SBLGNT) / **0.002** (AF), ~30× tighter than the
+  calibrated — T=1.03, ECE **0.004** (SBLGNT) / **0.002** (AF), ~30× tighter than the
   calibrated frequency path.
+
+`pos_confidence` estimates P(this analysis's coarse POS class is right). The class
+mass alone is peaked for the *lemma*, not the class (SBLGNT mean ~1.0 against 81%
+accuracy), so it is multiplied by a per-class reliability fitted on SBLGNT — ECE
+**0.19 → 0.002** on the learned path and **0.19 → 0.021** on the frequency path
+(AF transfers at 0.003 / 0.020). The fitted rates also make the known
+Morpheus↔reference convention gaps explicit: when Morpheus says `A` the reference
+usually says `R` (determiners like αὐτός are tagged `A` here but `RD`/`RP` there;
+rate 0.04), and its `X` particles are usually reference `C` conjunctions (0.07).
+
+Proposals (recovery / numerals / unknown-as-proper) are only attached to tokens with
+no analyses, so their softmax is *conditional on the generated candidate set* and a
+lone proposal would report 1.0. A per-strategy accuracy fitted through the shipped
+API path on PapyGreek (`scripts/calibrate.py --proposal-priors --papygreek-dir DIR`)
+scales them — measured top-1 rates: spelling **0.49**, name **0.27** — so a lone
+proposal reports its strategy's measured rate.
 
 Pass `temperature=1.0` to opt out; the value stays in `[0, 1]`.
 
 ### Convention profiles
 
 `--profile morphgnt` (API `Morpheus(profile="morphgnt")`) selects a named output
-convention from a registry (`morpheus_toolkit/profiles.py`). In practice Morpheus's
-Unicode output already matches the MorphGNT/LXX dictionary-form convention — articles
-are lemmatized under nominative `ὁ`/`RA`, personal pronouns under `ἐγώ`/`σύ`,
-demonstratives under `οὗτος`/`ἐκεῖνος` — so the bundled article transform is
-**idempotent**: it is a guard, and the registry is the extension point for
-corpus-specific conventions. (The LXX `--base-lemmas` preverb-stripping is not a static
-profile — it needs an analyzer-backed verb-resolution guard — and stays in
-`build_morph_lxx.py`.)
+convention from a registry (`morpheus_toolkit/profiles.py`); several can be combined
+with a comma (`--profile morphgnt,base-lemmas`), applied left to right.
+
+- `morphgnt` / `lxx` — dictionary forms. In practice Morpheus's Unicode output already
+  matches the MorphGNT/LXX dictionary-form convention — articles are lemmatized under
+  nominative `ὁ`/`RA`, personal pronouns under `ἐγώ`/`σύ`, demonstratives under
+  `οὗτος`/`ἐκεῖνος` — so the bundled article transform is **idempotent**: it is a
+  guard, and the registry is the extension point for corpus-specific conventions.
+- `base-lemmas` — compound verbs lemmatize to the base verb (the preverb stays in the
+  caller's prefix column). A preverb is stripped only when the remainder resolves as
+  an attested verb in the analyzer's joint (lemma, POS) table (falling back to the
+  bundled Koine table), and contracted compounds (δια+ἔρχομαι → διέρχομαι) are
+  recovered by tail-matching guarded on attested preverb remnants. This is the
+  analyzer-guarded mode `build_morph_lxx.py --base-lemmas` uses.
 
 ### Performance and packaging
 
@@ -269,23 +297,27 @@ The pre-pass never touches tokens that already have candidates — their analyse
 byte-identical with it off or on — and proposals go through the regular ranking, so a
 proposal can only win when ranking justifies it. Measured on PapyGreek (all 36,455
 word tokens; learned + adaptive defaults with the papyri table, `--numerals`; recovery
-off reads 95.1% coverage / 85.9% ranked / 1,781 unanalyzed tokens under the same
+off reads 95.2% coverage / 87.2% ranked / 1,750 unanalyzed tokens under the same
 harness):
 
-| metric | Round 16 | Round 17 |
-| --- | ---: | ---: |
-| coverage | 99.2% | **99.4%** |
-| top-1 ranked (exact / accent-insensitive) | 87.9 / 89.3% | **88.1 / 89.5%** |
-| top-1 learned (exact / accent-insensitive) | 89.7 / 91.2% | **89.9 / 91.4%** |
-| unanalyzed tokens | 296 | **235** |
+| metric | Round 16 | Round 17 | Round 18 |
+| --- | ---: | ---: | ---: |
+| coverage | 99.2% | 99.4% | 99.4% |
+| top-1 ranked (exact / accent-insensitive) | 87.9 / 89.3% | 88.1 / 89.5% | **89.4 / 90.8%** |
+| top-1 learned (exact / accent-insensitive) | 89.7 / 91.2% | 89.9 / 91.4% | **90.2 / 91.7%** |
+| unanalyzed tokens | 296 | 235 | 235 |
 
 Round 17's tail pass (operation-based variant generation with pairwise composition,
 internal nasal assimilation, extended geminates, the vowel-less numeral-letter rule,
-and three curated nouns) closes another 61 misses. The residual is dominated by
+and three curated nouns) closes another 61 misses. Round 18 adds the canonical-lemma
+scoring fix (+1.3pp ranked — the πηρός/παρά form-element pollution) and a retrained
+learned model (+0.3pp learned; PapyGreek pooled with a document-level held-out split):
+exact top-1 hits among recovered tokens rise to **660** spelling / 132 name. The
+residual is dominated by
 editorially marked or truncated forms (157), numeral tokens outside the table and rule
 (14), and single-token scribal or technical forms. The 1,295 recovered forms split 422
 spelling-only / 331 name-only / 542 from both (exact top-1 hits among recovered tokens:
-634 spelling, 132 name). Coarse POS
+634 spelling, 132 name at Round 17). Coarse POS
 agreement reads 80.1% → 79.7% because the newly covered tokens enter
 that metric's denominator and agree at ~70% — a completeness effect, not a regression
 (coverage and top-1 can only rise: a miss has no candidates to lose). On clean literary
@@ -414,6 +446,10 @@ Plato, Aesop, Homeric Hymns, Apollodorus.
 | Thucydides / Herodotus (Attic/Ionic prose) | 51,127 | ~100% | ~82% | ~92% | ~77% |
 | Diodorus Siculus | 23,037 | 99.9% | 86.2% | **95.4%** | 84.6% |
 
+(The table is the Round 9 measurement, before learned re-ranking and adaptive
+tables; the shipped defaults now read **92.8%** ranked / **86.0%** POS on the full
+corpus — see Adaptive domain tables.)
+
 Two findings:
 - The only systematic gap was **elision-mark encoding**: classical editions mark
   elision with a word-final combining comma above (U+0313, δ̓ = δέ), which the beta
@@ -469,7 +505,7 @@ existing analysis: short betas like `ke`/`ka` also match real words under
 accent-insensitive matching (and are real particles elsewhere), so overriding would
 corrupt them. Synthetic analyses carry POS N and `proposed=True`. On PapyGreek
 (recovery on) the flag lifts coverage 97.4% → **99.4%** and ranked top-1 lemma
-85.9/87.3% → **88.1/89.5%** (exact/accent-insensitive); a
+87.2/88.6% → **89.4/90.8%** (exact/accent-insensitive); a
 handful of single-letter abbreviations (τ for ἀντί) get labeled as numerals — filter
 on `proposed` if that matters. Off by default; with it off behavior is unchanged.
 
