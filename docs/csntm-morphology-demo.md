@@ -1,8 +1,8 @@
 # Morphological analysis for CSNTM's transcription → searchable-text pipeline
 
 *A one-page proposal for the Center for the Study of New Testament Manuscripts.
-Prepared 2026-10-15. Demo below uses public-domain Greek only; no CSNTM data is used
-or included.*
+Prepared 2026-10-15; numbers refreshed 2026-10-16 (Round 19). Demo below uses
+public-domain Greek only; no CSNTM data is used or included.*
 
 ## What it is
 **Morpheus** is an Ancient Greek morphological analyzer from the Perseus/Perseids
@@ -10,6 +10,11 @@ lineage, with a Python toolkit (`morpheus-toolkit`, MIT-licensed). It takes UTF-
 and returns, for every token, its **lemma**, fine-grained **POS**, **full morphological
 parse** (person/number/tense/mood/voice/case/gender/degree), **Strong's number**, and a
 **calibrated confidence**, as structured **JSON/JSONL**. It runs fully offline.
+
+Measured on the SBLGNT (accented critical text): **94.6% exact / 94.7%
+accent-insensitive top-1 lemma**, 78.1% coarse POS. On unaccented papyri (PapyGreek
+treebank originals): **97.4% coverage, 89.4 / 90.8% top-1** with the numeral pass;
+learned re-ranking adds ~2 points on top of the frequency baseline.
 
 ## Why it fits a transcription pipeline
 After handwritten-text recognition produces raw Greek, morphology is the layer that turns
@@ -30,9 +35,9 @@ Input (accented critical-text Greek):
 ```bash
 $ morpheus-toolkit analyze sample.txt --json sample.jsonl
 24 tokens, 24 analyzed (100.0%), 0 misses
-  ἐν     P ἐν     [—]                          (0.64)
-  ἀρχῇ  N ἀρχή   [case=dat number=sg gender=fem] (1.00)
-  ἦν     V εἰμί   [tense=imperf mood=ind …]      (0.33)
+  Ἐν     P ἐν     []                              (0.99)
+  ἀρχῇ  N ἀρχή   [case=dat number=sg gender=fem]  (1.00)
+  ἦν     V εἰμί   [tense=imperf mood=ind …]        (0.88)
 ```
 
 JSONL (one record per token), excerpt:
@@ -40,7 +45,8 @@ JSONL (one record per token), excerpt:
 ```json
 {"token": "θεόν", "beta": "qeo/n", "analyses": [
   {"lemma": "θεός", "pos": "N", "features": {"gender": ["masc"], "case": ["acc"], "number": ["sg"]},
-   "stemtype": "os_ou", "confidence": 1.0, "strongs": 2316, "proposed": false}]}
+   "stemtype": "os_ou", "confidence": 1.0, "pos_confidence": 0.75, "strongs": 2316,
+   "proposed": false, "recovered_from": null}]}
 ```
 
 Lemma search over the JSONL — "give me every token whose reading is λόγος":
