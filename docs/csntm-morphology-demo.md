@@ -1,8 +1,9 @@
 # Morphological analysis for CSNTM's transcription → searchable-text pipeline
 
 *A one-page proposal for the Center for the Study of New Testament Manuscripts.
-Prepared 2026-10-15; numbers refreshed 2026-10-16 (Round 19). Demo below uses
-public-domain Greek only; no CSNTM data is used or included.*
+Prepared 2026-10-15; numbers refreshed 2026-10-16; claims corrected the same day
+after re-measuring bare uncial input. Demo below uses public-domain Greek only;
+no CSNTM data is used or included.*
 
 ## What it is
 **Morpheus** is an Ancient Greek morphological analyzer from the Perseus/Perseids
@@ -11,10 +12,17 @@ and returns, for every token, its **lemma**, fine-grained **POS**, **full morpho
 parse** (person/number/tense/mood/voice/case/gender/degree), **Strong's number**, and a
 **calibrated confidence**, as structured **JSON/JSONL**. It runs fully offline.
 
-Measured on the SBLGNT (accented critical text): **94.6% exact / 94.7%
-accent-insensitive top-1 lemma**, 78.1% coarse POS. On unaccented papyri (PapyGreek
-treebank originals): **97.4% coverage, 89.4 / 90.8% top-1** with the numeral pass;
-learned re-ranking adds ~2 points on top of the frequency baseline.
+Three different tasks, not one number:
+
+- **Accented critical text** (SBLGNT, the published gate): **94.6% exact / 94.7%
+  accent-insensitive top-1 lemma**, 78.1% coarse POS. This is not manuscript
+  performance.
+- **Fully bare text** (accents and breathings removed — the uncial condition),
+  John 1–3, n=1,913, toolkit API with `--ignore-accents`: **74.0%**
+  accent-insensitive top-1, against 93.2% on the same accented tokens under the
+  same flag. That 93.2% is a chapter sample, not the gate.
+- **Documentary papyri** (PapyGreek): 97.4% coverage, 89.4/90.8% top-1 with the
+  numeral pass. A different register. Not NT papyri, and not a CSNTM number.
 
 ## Why it fits a transcription pipeline
 After handwritten-text recognition produces raw Greek, morphology is the layer that turns
@@ -22,8 +30,10 @@ it into *searchable, comparable* text:
 
 - **Lemma/parse search** across all transcriptions — "show every form of λόγος", or
   "every 3rd-plural aorist imperative".
-- **Collation support**: classify variant-unit differences as **morphological vs
-  orthographic** by comparing lemma+parse, not raw strings.
+- **Collation support (intended, not shipped):** compare lemma+parse rather than
+  raw strings, so a morphological difference is distinguishable from an
+  orthographic one. That comparison is only as good as the parse — on bare
+  uncial text it is not, yet.
 - **Conventions that match NT scholarship**: MorphGNT-style codes and **Strong's numbers**
   (SBLGNT lemma mapping) for cross-referencing apparatus and lexica.
 - **Practical scale**: Unicode in / JSONL out, parallel jobs, per-reading **confidence**
@@ -34,7 +44,7 @@ Input (accented critical-text Greek):
 
 ```bash
 $ morpheus-toolkit analyze sample.txt --json sample.jsonl
-24 tokens, 24 analyzed (100.0%), 0 misses
+24 tokens, 24 analyzed (100.0% coverage — not lemma accuracy), 0 misses
   Ἐν     P ἐν     []                              (0.99)
   ἀρχῇ  N ἀρχή   [case=dat number=sg gender=fem]  (1.00)
   ἦν     V εἰμί   [tense=imperf mood=ind …]        (0.88)
@@ -57,20 +67,31 @@ rows = [json.loads(l) for l in open("sample.jsonl")]
 # -> ['λόγος', 'λόγος', 'λόγος']
 ```
 
-## One honest nuance for manuscript text
-Uncial manuscripts are **unaccented and unbreathed**, and the toolkit's
-accent-insensitive pass (`--ignore-accents`) strips **accents but not breathings**. So a
-fully bare form can mis-resolve: `εν` (no breathing) → εἰμί instead of ἐν. Practically,
-(a) breathings/accents (or a light restoration step) raise accuracy a lot, and
-(b) the confidence scores and context help where they don't. This is worth a short
-conversation — a breathing-restoration or context-disambiguation step is a natural joint
-improvement.
+## The manuscript condition, measured
+Uncial text is unaccented **and unbreathed**. `--ignore-accents` (`cruncher -n`)
+ignores accents in matching and does **not** ignore breathings. The breathing
+retry (smooth, then rough) runs only when the accented match misses entirely.
+
+Bare `εν` is such a miss. With the flag it locks onto **epic ἔν**, the imperfect
+3pl of εἰμί (`e/n`), and because that is the only candidate the API reports
+**confidence 1.0** — not ἐν. `ἐν` (`e)n`) is ἐν at 0.99. So confidence does not
+catch this, and the flag is not a fix for uncial function words. Without the
+flag the form is a miss; recovery then proposes εἰ (0.49), which is also wrong,
+but at least not a lone 1.0.
+
+Restoring the edition's diacritics where the letters agree closes that gap (the
+John 1–3 pair above: 74% → the low 90s). A prototype does this by aligning a
+bare page to a base text, and it is meant to *report* letter disagreements as
+candidate variants rather than silently correct them. **Not shipped**, and not
+yet measured on a full real transcription. Worth a conversation; not a claim
+that the current toolkit is a drop-in for HTR output.
 
 ## Try it
 ```bash
 scripts/build.sh                                   # build the analyzer -> bin/cruncher
 python3 -m venv .venv && .venv/bin/pip install -e python/ pytest
 .venv/bin/morpheus-toolkit analyze transcript.txt --json out.jsonl
+# --ignore-accents is not a fix for bare uncial text; see above (εν → εἰμί at 1.0)
 .venv/bin/morpheus-toolkit analyze transcript.txt --ignore-accents --jobs 4
 ```
 
@@ -91,5 +112,6 @@ locally on whatever text you supply.
 and the Who-We-Are page rather than in the AI page body.)
 
 **Question:** is lemmatization / morphological tagging on CSNTM's transcription roadmap?
-If so, this is a drop-in morphology layer we can wire to your HTR output (JSONL) and
-extend (e.g. uncial-specific handling) together.
+If so, this is a local morphology layer we can wire to your HTR output (JSONL) and
+extend for uncial text together — including the bare-form failure above, which we
+would not paper over.

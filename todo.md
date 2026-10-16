@@ -4,8 +4,13 @@
 **complete** (record in [completed.md](completed.md)): B3 shipped (Unicode-native C
 input, parity-proven), B8-lite measured and carried (MLP +0.21pp held-out — below the
 ship gate; features, not capacity, are the next lever), and 19.5 refreshed the CSNTM
-demo and drafted the outreach email. **Round 13.2** is now the only open action: send
-that email (user action). Rounds 11–19 are complete (records in
+demo and drafted the outreach email. **Round 13 is open, not done.** Do not send
+13.2 on the Round 19.5 draft — it led with accented-text accuracy and cited
+PapyGreek as if it were NT-manuscript performance. The corrected draft is
+[`docs/csntm-outreach.md`](docs/csntm-outreach.md) (2026-10-16); sending is still
+the user's action. **Round 20** (NT passage-constrained analysis) is **proposed,
+not approved**. Its feasibility note is a prototype — one simulated page plus a
+non-blind spot-reading — not a ship result. Rounds 11–19 are complete (records in
 [completed.md](completed.md)); [improvements.md](improvements.md) carries the measured
 gains to date.
 
@@ -38,7 +43,7 @@ gains to date.
 
 ---
 
-# Round 13 (proposed) — CSNTM / NT-manuscript morphology outreach
+# Round 13 (open) — CSNTM / NT-manuscript morphology outreach
 
 **Context.** Daniel B. Wallace (the user was an early student) is Executive Director of
 the Center for the Study of New Testament Manuscripts (CSNTM). CSNTM's current flagship
@@ -46,9 +51,10 @@ technical project is **"AI for Manuscript Transcription"** — training a model 
 ancient Greek NT manuscripts into *searchable digital text* (alongside the new Digital
 Manuscript Collection, Feb 2026, and the Bodleian/Oxford digitization expedition).
 Morphology is the natural layer after recognition: lemma tagging, lemma/parse search, and
-morphological-vs-orthographic variant classification for collation. **Note:** the
-documentary names / abbreviations / dialectal forms surfaced in Round 12 may also help
-tag and align CSNTM transcriptions, so Rounds 12 and 13 feed each other.
+morphological-vs-orthographic variant classification for collation. **Corrected
+2026-10-16:** Round 12's documentary abbreviations do **not** transfer here. NT
+manuscripts need nomina sacra, itacism, and scriptio continua, not PHI documentary
+shorthand. Rounds 12 and 13 do not feed each other.
 
 - [x] 13.1 One-page demo: [`docs/csntm-morphology-demo.md`](docs/csntm-morphology-demo.md)
       (public-domain Greek only) — what the toolkit does, why it fits a transcription →
@@ -63,11 +69,106 @@ tag and align CSNTM transcriptions, so Rounds 12 and 13 feed each other.
       [`improvements.md`](improvements.md); migrate the completed record to
       [`completed.md`](completed.md). (13.2 pending, so the round stays open.)
 
-**Finding for the CSNTM use case (recorded):** uncial manuscripts are unaccented
-**and unbreathed**; the toolkit's `--ignore-accents` strips **accents but not breathings**,
-so a bare form can mis-resolve (e.g. `εν` → εἰμί instead of ἐν). A breathing-restoration
-or context-disambiguation step is a natural joint improvement. Demo uses accented
-critical-text Greek, where the pipeline is clean (100% analyzed).
+**Verdict (2026-10-16, re-measured — supersedes the Round 13 finding):**
+
+- **Three regimes, not one number.** SBLGNT 94.6/94.7 is accented critical text.
+  PapyGreek 97.4% coverage and 89.4/90.8 top-1 is *documentary* papyri, not NT
+  manuscripts. Fully bare NT text (accents and breathings removed) is a third
+  task: John 1–3, n=1,913, toolkit API with `--ignore-accents`, **74.0%**
+  accent-insensitive top-1 vs **93.2%** on the same accented tokens. That 93.2
+  is not the gate (94.6/94.7) — do not cite them as the same measurement.
+  "100% analyzed" on John 1:1–2 is **coverage of 24 tokens**, not lemma accuracy.
+- **The `εν` mechanism was misstated.** Matching under `-n` ignores accents
+  (`stripacc`: acute/grave/circumflex only) and does **not** ignore breathings.
+  The breathing retry (smooth, then rough) runs only when `checkstring` misses
+  entirely. Bare `en` is a miss without `-n`. With `-n` it hits **epic ἔν**,
+  εἰμί imperfect 3pl (`e/n,ei)mi/`), and because that is the only candidate the
+  API reports **confidence 1.0**. `e)n` is ἐν at 0.99. So the flag the draft
+  recommended *creates* the high-confidence wrong reading; confidence does not
+  "help where breathings don't." Without the flag, recovery proposes εἰ (0.49),
+  not εἰμί — the published example is true only of `--ignore-accents`.
+- **Round 20 is not "exactly this fix," and it is not shipped.** Passage
+  alignment can restore diacritics where the manuscript's letters agree with a
+  base text, complete partials, and *report* disagreements. It does not fix
+  non-NT text, and it must not silently replace a real variant with the edition.
+  The prototype's restored-accuracy column did exactly that substitution — do
+  not cite 62.5% → 90.3% as the design. The clean diacritic-only gap is the
+  John 1–3 pair above.
+
+---
+
+# Round 20 (proposed, pending check-in) — NT passage-constrained analysis (the CSNTM layer)
+
+**Context (user direction 2026-10-16).** CSNTM's manuscripts are all *versions of
+the NT* — a **known text**. That is a structural advantage over every other corpus:
+a transcription (even unaccented, damaged, continuous) can be **aligned to a base
+text** (e.g. SBLGNT), and the alignment then (a) restores the diacritics the
+manuscript never had, (b) completes partial words and fills lacunae, and
+(c) flags divergences from the base as **candidate variants** — the collation
+signal itself. Textual variants are the *feature* here: the layer must never
+silently correct them away, only classify and report. This supersedes B9's
+generative lacuna restoration **for NT texts** (deterministic, no external
+weights, no licensing exposure).
+
+**What the prototype actually showed** (`tmp/r20/passage_proto.py`,
+`tmp/r20/passage_proto_results.txt`; one page, one seed, text derived from the
+base it was aligned to):
+
+- Passage ID on that page: top-1 at John 5:1, ratio 0.951 vs 0.21 for the best
+  *distant* region. The "top-3 all true" line is not three confirmations — the
+  third hit (John 4:52, ratio 0.70) is a boundary overlap, marked true only
+  because the window test was ≥50%.
+- 11/11 prefix completions and 4/4 lacuna fills are nearly tautological once
+  the region is correct and the damage is a prefix or a deletion. They are not
+  a detection rate. 10/10 "variants flagged" is the wrong success metric: those
+  injections were orthographic interchanges (αι/ε, ο/ω), which the design says
+  should be classed as orthographic, not substantive. The prototype had no
+  equivalence classes, so it flagged all of them.
+- Do **not** cite page 62.5% → 90.3%. That mixes truncation with diacritic
+  loss, and the restored column substituted the edition token even where a
+  variant had been injected — the opposite of "never silently correct."
+- The number that is worth keeping: John 1–3 undamaged, same API flag, bare
+  **74.0%** vs accented **93.2%** (n=1,913). Residual misses on restored forms
+  (ἀπεκρίθη→ἀποκρίνω, εἶπεν→εἶπον, ἐγένετο→γίγνομαι) are analyzer conventions,
+  not alignment errors — on that one page.
+- P46 spot-reading (`tmp/r20/papyri/reading_notes.md`) is a sanity check, not a
+  result. The site already labeled the leaf Rom 5:17–6:3. A few hand-segmented
+  strings, after ς→σ normalization, intersect there; "ὁ θάνατος ἐβασίλευσεν" is
+  unique at 5:17. Not a blind ID, not a full transcription, not a variant find
+  (the strings read agree with SBLGNT).
+
+**Do not claim,** in the email or the demo: a shipped aligner; 11/11 or 10/10
+as evaluation; PapyGreek as NT-papyrus accuracy; confidence as a guard on bare
+function words; "100% analyzed" as accuracy.
+
+**Proposed scope:**
+- [ ] 20.1 `passage.py`: base-text index (k-gram + ratio verification) + token
+      alignment with classes (equal / partial / orthographic-equivalent /
+      substantive divergence / lacuna / extra); base text supplied by the caller
+      (MorphGNT dir or plain text; nothing committed).
+- [ ] 20.2 Manuscript input handling: nomina sacra table (θς/κς/ις/χς/πν(α)…),
+      scriptio-continua mode (word boundaries derived from the edition), the
+      existing tokenizer's editorial marks; three-way variant classification
+      (orthographic equivalence vs substantive divergence).
+- [ ] 20.3 Outputs: per-token annotation (`aligned_to`, restoration class,
+      passage-confidence) in the JSONL; a variants TSV (manuscript reading, base
+      reading, ref, class); refuse below a confidence threshold.
+- [ ] 20.4 CLI: `morpheus-toolkit align transcript.txt --base-text DIR`.
+- [ ] 20.5 Evaluation, still open. The 2026-10-16 image spot-check does not
+      close this item. A real eval needs blind pages, scriptio continua, nomina
+      sacra, synoptic parallels, and heavier damage — plus a full transcription
+      whose license is actually checked. "P.Oxy. pre-1930 = public domain" is
+      too coarse to commit a fixture on (volume, jurisdiction, and any EES
+      claim). Sanders 1935 stays out of committed files. A CSNTM sample is a
+      *follow-up*, not the first email.
+- [ ] 20.6 Records when the round actually closes. The demo and email honesty
+      fixes are done (2026-10-16); they do not describe passage alignment as
+      shipped.
+
+**Still open:** proceed with 20.1–20.4? Sending 13.2 is unblocked by the draft
+correction, but it is still the user's action — and email 1 does not ask for
+data. Image → transcription is a separate plan ([ocr.md](ocr.md)); Round 20
+assumes a transcription already exists. Do not fold HTR into 20.1.
 
 ---
 
@@ -91,7 +192,8 @@ B3, B4, B5, B6 and B7 are complete (Round 18/19 records in
       largest miss class in the Round 12 probe). The I.PHI-for-Round-12 part is retired
       with Round 12's close-out. Note: I.PHI's *text* is still PHI's → `tmp/`-only,
       commit-nothing-derived rule applies to any such experiment. (Round 18: carried —
-      needs external model weights and PHI-derived text, both `tmp/`-only.)
+      needs external model weights and PHI-derived text, both `tmp/`-only.) Round 20,
+      if built, covers only the *known-text NT* case and does not retire B9.
 
 ## Explicitly out of scope (standing constraints)
 

@@ -376,12 +376,16 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
 
 ## Round 13 (2026-10-15)
 
-- **`--ignore-accents` strips accents but NOT breathings.** Uncial manuscript text is
-  unaccented *and unbreathed*, so a bare form can mis-resolve: `en` under `-n` yields
-  **V εἰμί**, not **P ἐν** (whereas `e)n` yields ἐν first). Any manuscript-transcription
-  pipeline (e.g. CSNTM) needs breathings/accents restored, or context/confidence, before
-  function words are reliable. The toolkit's Unicode path on *accented* critical-text
-  Greek is clean (100% analyzed on John 1:1–2).
+- **`--ignore-accents` ignores accents, not breathings — and confidence does not
+  save the miss.** `stripacc` removes acute/grave/circumflex only. The breathing
+  retry (smooth, then rough, `stdiomorph.c`) runs only when `checkstring` misses
+  entirely. Bare `en` is a miss without `-n`. With `-n` it hits **epic ἔν**
+  (`e/n,ei)mi/`, imperfect 3pl), the only candidate, so the API reports
+  **confidence 1.0** — not P ἐν. `e)n` is ἐν at 0.99. Without the flag, recovery
+  proposes εἰ (0.49), not εἰμί; the published example is true only of the flag.
+  Do not recommend `--ignore-accents` plus confidence as the uncial fix. "100%
+  analyzed" on John 1:1–2 is coverage of 24 tokens, not lemma accuracy.
+  Corrected 2026-10-16; the Round 13 demo/email had the mechanism wrong.
 
 ## Round 15 (2026-10-15)
 
