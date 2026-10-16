@@ -2,6 +2,15 @@
 *.o
 *.a
 
+# stemlib build helpers (compiled from stemsrc/*.c by stemlib/Greek/makefile;
+# kept out of the tree so `make clean` + rebuild never dirties git status)
+stemlib/Greek/stemsrc/stripref
+stemlib/Greek/stemsrc/zapfirstf
+stemlib/Greek/stemsrc/headnolen
+stemlib/Greek/stemsrc/goodstem
+stemlib/Greek/stemsrc/flatlems
+stemlib/Greek/stemsrc/tailnolen
+
 # binaries
 bin/
 src/anal/cruncher
