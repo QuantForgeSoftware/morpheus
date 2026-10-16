@@ -99,6 +99,12 @@ $ echo 'cactus' | MORPHLIB=stemlib bin/cruncher -S -L
 > <NL>N cactus  masc nom sg			us_i</NL>
 ```
 
+```
+$ echo 'ἄνθρωπος' | MORPHLIB=stemlib bin/cruncher -S -u
+> a)/nqrwpos
+> <NL>N a)/nqrwpos  masc nom sg			os_ou</NL>
+```
+
 ### Command line options
 
 | Option | Description |
@@ -113,6 +119,7 @@ $ echo 'cactus' | MORPHLIB=stemlib bin/cruncher -S -L
 | -P | Turn off Perseus format. Output will be in the form `$feminam& is^M &from$ femina^M $fe\_minam^M [&stem $fe\_min-& ]^M & a\_ae fem acc sg^M`. Note the returns, without line feeds, between the fields. |
 | -V | Analyze verbs only. |
 | -q | Echo a `:form <token>` delimiter for every input, including words with no analysis, so batch output stays positionally alignable. |
+| -u | Unicode input. Convert each UTF-8 Greek word to lowercase beta code before analysis (Greek only — Latin keeps its case). Parity with the Python converter is asserted by `scripts/unicode_parity.py`; see [`docs/unicode-native-input.md`](docs/unicode-native-input.md). |
 
 ## Python toolkit
 

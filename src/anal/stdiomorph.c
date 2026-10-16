@@ -4,12 +4,14 @@
 #include <unistd.h>
 #include <prntflags.h>
 #include "stdiomorph.proto.h"
+#include "gkunicode.proto.h"
 #ifndef CLOCKS_PER_SEC
 #define CLOCKS_PER_SEC  1000000         /* ANSI C clock ticks per sec */
 #endif
 
 #include <time.h>
 int quickflag = 0;
+int unicodeflag = 0;
 char * anal_buf();
 long prevmemory = 0;
 time_t start_time = 0;
@@ -21,7 +23,7 @@ double string_time = 0;
 char long_string[BUFSIZ];
 int timeit = 1;
 
-#define ARGS "ILalmnbckidsxSVpPeTo:q"
+#define ARGS "ILalmnbckidsxSVpPeTuo:q"
 #define PATH_SEP '/'
 
 main(argc,argv)
@@ -108,6 +110,9 @@ char *argv[];
       break;
     case 'q':
       flags |= ECHO_INPUT;
+      break;
+    case 'u':
+      unicodeflag = 1;
       break;
     case 'o':
       if (!strcmp(optarg,"-")) {
@@ -201,6 +206,21 @@ fprintf(stdout,"files: [%s] [%s]\n", outname, failedname);
     while(*p&&!isspace(*p)) p++;
     if( p == line ) continue;
     if(*p) *p = 0;
+
+    /* -u: convert UTF-8 Greek to lowercase beta before analysis (the toolkit's
+       to_beta + lower-casing, implemented in gkunicode.c). Latin text keeps
+       its case, so the conversion is Greek-only. */
+    if (unicodeflag && cur_lang() != LATIN) {
+      char conv[BUFSIZ*4];
+
+      if (gkuni_convert(line, conv, sizeof conv) != 0) {
+        fprintf(ffailed, "%s\n", line);
+        fflush(ffailed);
+        nwords++;
+        continue;
+      }
+      Xstrcpy(line, conv);
+    }
     
     if (timeit) {
       prev_time = clock();

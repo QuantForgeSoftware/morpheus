@@ -1,7 +1,11 @@
 # Design: a Unicode-native input path for `cruncher`
 
-**Status: proposed (Round 10, Item 12). Not implemented — this is the required
-scoping/plan before a large C refactor.**
+**Status: implemented (Round 19.4, 2026-10-16).** The C path is
+`src/anal/gkunicode.c` (+ generated `gkunicode_tab.c`), exposed as `cruncher -u`
+and as the `gkconvert` oracle binary. Parity with the Python converter holds for
+**110,927 forms** (6,623 synthetic + every distinct form in MorphGNT, AF, AGLDT,
+PROIEL and PapyGreek): 0 mismatches. The toolkit still converts in Python by
+default; switching it to `-u` is a follow-up decision, gated on that parity.
 
 ## Problem
 
@@ -31,48 +35,72 @@ truth drift.
 Let `cruncher` read UTF-8 Greek directly, so the toolkit can pass text through
 unchanged and the conversion has **one** implementation, covered by tests.
 
-## Proposed approach
+## Implemented approach (Round 19.4)
 
-1. **Canonical decomposition in C.** Normalize each input code point with a
-   Unicode canonical decomposition (NFD) table so a letter and its diacritics are
-   separate code points. This turns the messy precomposed range (U+1F00–U+1FFF,
-   ~500 Greek Extended code points) into a small mapping: ~24 base letters + ~8
-   combining marks.
+1. **Generated tables, not hand rules** (`scripts/gen_gkunicode_tables.py` →
+   `src/anal/gkunicode_tab.c`). The reference is the *same* beta-code package
+   JSON the Python converter uses (`unicode_to_beta_code.json`), so parity is by
+   construction where possible:
+   - the 271 single-codepoint map entries (values are pure ASCII beta);
+   - **NFC composition pairs** (449) derived by asking `unicodedata` for every
+     (starter, mark) combination — starters include every decomposition piece
+     (U+00A8, backtick, space) so spacing characters recompose;
+   - **NFD expansions** (259) for every Greek/combining/mapped codepoint —
+     singleton decompositions (U+0340→U+0300, U+0343→U+0313, U+0344→U+0308
+     U+0301) are not composition pairs and must be expanded;
+   - combining classes (111) for canonical ordering; Unicode lowercase
+     mappings (153) for pass-through Greek codepoints (the Python reference
+     lowercases the whole converted string).
 
-2. **Mapping tables (new `src/greeklib/gkunicode.c`).**
-   - base letters → beta (`α→a`, `β→b`, … including `ου`, `γγ` digraph handling);
-   - combining marks → beta operators: acute `´`, grave `` ` ``, circumflex `~`/
-     `^`, rough `(` , smooth `)`, iota subscript `|`, diaeresis `+`;
-   - **word-final** combining comma (U+0313) → ASCII apostrophe (elision); mid-word
-     combining marks pass through as letter parts (the rule the Round-9 Python fix
-     established).
+2. **Conversion order mirrors `to_beta` + `_normalize_beta` exactly**:
+   apostrophe translation (U+2019/2018/02BC/00B4 → `'`) → word-final U+0313 →
+   `'` → full NFD → canonical reorder → greedy recomposition with the UAX #15
+   blocking rule → per-codepoint map (unmapped codepoints pass through) →
+   lowercase (ASCII beta + Unicode table).
 
-3. **Entry point.** Add `-u` / `--unicode` to `cruncher` (do **not** auto-detect;
-   an explicit flag avoids ambiguity with Latin ASCII input). Optionally detect a
-   UTF-8 BOM. The flag converts each input word before the existing lowercase/
-   lookup path, so nothing downstream changes.
+3. **Entry points.**
+   - `cruncher -u`: converts each input word before the existing pipeline;
+     conversion failure counts as a miss. Greek only — Latin input keeps its
+     case (the Latin path is case-sensitive). Default behavior (no `-u`) is
+     byte-identical.
+   - `bin/gkconvert`: the oracle binary (`src/anal/gkconvert.c`) — reads forms,
+     prints the conversion (or `\x1fFAIL`); used by the parity script and tests.
 
-4. **Single source of truth.** Generate the C mapping tables from the same
-   reference data used to validate the Python converter, and add a cross-check
-   test: for every distinct form in the committed gold corpora, assert
-   `C_convert(w) == to_beta(w)`.
+4. **Single source of truth + oracle test.** `scripts/unicode_parity.py` asserts
+   `C_convert(w) == to_beta(w).lower()` over the synthetic exhaustive set and
+   every distinct corpus form; `python/tests/test_unicode_c_path.py` runs it
+   (skipped when the binary is not built) plus direct behavior checks.
 
-## Risks and mitigations
+## Results (Round 19.4)
 
-| Risk | Mitigation |
+| check | result |
 | --- | --- |
-| Converter divergence from `beta-code` | Oracle test over all corpus forms; fail the build on any mismatch |
+| synthetic exhaustive (map keys, Greek ranges, compositions NFC+NFD, mark orders, apostrophes, 3K random) | 6,623 forms, 0 mismatches |
+| corpora (MorphGNT 137K, AF 63K, AGLDT 469K, PROIEL 132K, PapyGreek 36K rows) | 104,304 distinct forms, 0 mismatches |
+| conversion speed | 104K forms / 1.0 MB in 0.05 s (~2M forms/s) |
+| `cruncher -u` vs beta input | byte-identical output (`-q` echo + analyses) |
+| default path | unchanged (no `-u` ⇒ old code path) |
+
+## Remaining follow-ups
+
+- Switch the toolkit's `runner` to `-u` (one conversion implementation) once a
+  round can absorb the regression surface; keep `to_beta` for the API's
+  `beta` field.
+- Non-Greek pass-through is ASCII-lowercased in C (the Python reference
+  applies full Unicode lowercase); Greek + punctuation are covered by the
+  lowercase table, other scripts are out of scope for the corpus set.
+- The beta-code package's three multi-character map keys (space + combining
+  mark) cannot occur inside a word and are not carried into C.
+
+## Original proposal (Round 10, Item 12) — kept for the record
+
+The scoping below estimated ~2.5 days and proposed hand-written base+mark
+mapping rules; the implementation instead generated every table from the
+reference JSON, which removed the hand-rule divergence risk entirely.
+
+| Risk | Mitigation (as implemented) |
+| --- | --- |
+| Converter divergence from `beta-code` | Oracle test over all corpus forms (110,927 forms, 0 mismatches) |
 | Encoding detection errors | Explicit `-u` flag; never guess |
-| Performance | Conversion is O(bytes) with a 256/0x2000-entry table lookup; measure on AGLDT (469K tokens) |
-| Regressions in existing beta-code callers | New path is additive; default behavior unchanged; the toolkit keeps its Python path until parity is proven |
-
-## Effort
-
-- Mapping tables + NFD lens: ~1 day.
-- `cruncher` flag + input loop wiring: ~0.5 day.
-- Oracle test harness + corpus cross-check: ~0.5 day.
-- Verification (all corpora byte-identical analyses vs the Python path): ~0.5 day.
-
-**Recommendation:** do it as its own round, gated on the oracle test, and make the
-toolkit prefer the C path only once `C_convert == to_beta` holds for every form in
-SBLGNT + AF + AGLDT + PROIEL + PapyGreek.
+| Performance | O(bytes) table lookups; measured ~2M forms/s |
+| Regressions in existing beta-code callers | New path additive; default unchanged; toolkit keeps the Python path until parity is proven (proven) |

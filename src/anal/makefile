@@ -42,7 +42,7 @@ ${ANALLIB}: ${ANALOBJ}
 	ar rv ${ANALLIB} ${ANALOBJ}
 	ranlib ${ANALLIB}
 
-ALL=cruncher pname findbase deverbal ${ANALLIB}
+ALL=cruncher pname findbase deverbal gkconvert ${ANALLIB}
 
 all: ${ALL}
 
@@ -52,8 +52,11 @@ install: all
 lcnt: lcnt.o ${ANALLIB} ${LIBS}
 	${CC} -o lcnt lcnt.o ../gener/genwd.o ${ANALLIB} ${LIBS}
 
-cruncher: stdiomorph.o ${ANALLIB} ${LIBS}
-	${CC} -o cruncher stdiomorph.o ../gener/genwd.o ${ANALLIB} ${LIBS}
+cruncher: stdiomorph.o gkunicode.o gkunicode_tab.o ${ANALLIB} ${LIBS}
+	${CC} -o cruncher stdiomorph.o gkunicode.o gkunicode_tab.o ../gener/genwd.o ${ANALLIB} ${LIBS}
+
+gkconvert: gkconvert.o gkunicode.o gkunicode_tab.o
+	${CC} -o gkconvert gkconvert.o gkunicode.o gkunicode_tab.o
 
 pname: propname.o ${ANALOBJ} ${LIBS}
 	${CC} -o pname propname.o ${ANALOBJ} ${LIBS}
@@ -65,7 +68,7 @@ deverbal: deverb.o ${ANALOBJ} ${LIBS}
 	${CC} -o deverbal deverb.o ${ANALOBJ} ${LIBS}
 
 clean:
-	rm -f cruncher pname findbase deverbal lcnt *.o ${ANALLIB}
+	rm -f cruncher pname findbase deverbal gkconvert lcnt *.o ${ANALLIB}
 
 proclems: proclems.o
 	${CC} -o proclems proclems.o
