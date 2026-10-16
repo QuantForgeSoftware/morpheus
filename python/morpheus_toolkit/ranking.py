@@ -101,27 +101,25 @@ class Ranker:
         self.log_max = math.log1p(self.max_frequency)
 
     def frequency_score(self, analysis: Analysis) -> float:
+        # Score on the canonical lemma only. Morpheus's comma-joined lemma field
+        # is ``form,lemma`` (e.g. ``ku_ri/ou,ku/rios``): the leading elements are
+        # the *forms* the entry matched — for a Doric stem like πηρός's ``pa_r``
+        # that can be a different word entirely (παρά), and crediting a candidate
+        # with a form's frequency promotes readings the reference never attests
+        # (πηρός outranked the preposition παρά on PapyGreek). Matching still
+        # considers every variant (``Analysis.matches_lemma``); scoring does not.
         # Prefer the joint (lemma, POS) count when we have it: it separates
         # homographs such as o( as an article (RA) vs a relative pronoun (RR).
         # The reference type scheme and Morpheus's POS do not always agree for
         # the same lemma (αὐτός is tagged A here but RD in the reference), so a
         # candidate whose POS has no joint count must not score zero.
+        lemma = normalize_lemma(analysis.lemma)
         if self.joint:
-            best = 0
-            seen = False
-            known = False
-            for variant in analysis.variants():
-                row = self.joint.get(normalize_lemma(variant))
-                if not row:
-                    continue
-                known = True
+            row = self.joint.get(lemma)
+            if row is not None:
                 count = row.get(analysis.pos, 0)
                 if count:
-                    seen = True
-                    best = max(best, count)
-            if seen:
-                return math.log1p(best) / self.log_max_joint if self.log_max_joint else 0.0
-            if known:
+                    return math.log1p(count) / self.log_max_joint if self.log_max_joint else 0.0
                 # The reference knows this lemma but never pairs it with this POS.
                 # Such a pair cannot be the gold reading of any token, so score it
                 # as a single occurrence: enough to beat unlisted lemmas (which
@@ -129,10 +127,7 @@ class Ranker:
                 # attested readings — crediting it with full lemma frequency would
                 # over-promote e.g. σός(N) past σύ(RP) or ὅστις(RR) past ὅτι(C).
                 return math.log1p(1) / self.log_max_joint if self.log_max_joint else 0.0
-        frequency = max(
-            (self.frequencies.get(normalize_lemma(variant), 0) for variant in analysis.variants()),
-            default=0,
-        )
+        frequency = self.frequencies.get(lemma, 0)
         return math.log1p(frequency) / self.log_max if self.log_max else 0.0
 
     def score(self, analysis: Analysis) -> float:

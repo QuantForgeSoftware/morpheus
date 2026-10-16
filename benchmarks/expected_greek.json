@@ -9,47 +9,47 @@
       "top1_ranked": 94.6,
       "top1_learned": 94.7,
       "top1_homograph": null,
-      "pos": 77.82
+      "pos": 78.06
     },
     "Apostolic Fathers": {
       "n": 63227,
       "analyzed": 99.41,
       "coverage": 91.26,
       "top1_raw": 84.8,
-      "top1_ranked": 90.52,
-      "top1_learned": 90.26,
+      "top1_ranked": 90.49,
+      "top1_learned": 90.21,
       "top1_homograph": null,
-      "pos": 75.31
+      "pos": 75.54
     },
     "AGLDT classical": {
       "n": 469254,
       "analyzed": 99.94,
       "coverage": 98.66,
       "top1_raw": 79.88,
-      "top1_ranked": 92.8,
-      "top1_learned": 93.75,
+      "top1_ranked": 92.77,
+      "top1_learned": 93.84,
       "top1_homograph": null,
-      "pos": 85.19
+      "pos": 85.95
     },
     "PROIEL greek-nt": {
       "n": 132366,
       "analyzed": 99.88,
       "coverage": 94.23,
       "top1_raw": 78.17,
-      "top1_ranked": 91.71,
-      "top1_learned": 92.25,
+      "top1_ranked": 91.75,
+      "top1_learned": 92.1,
       "top1_homograph": null,
-      "pos": 81.53
+      "pos": 81.74
     },
     "PapyGreek": {
       "n": 36455,
       "analyzed": 97.42,
       "coverage": 90.81,
       "top1_raw": 74.77,
-      "top1_ranked": 87.73,
-      "top1_learned": 88.07,
+      "top1_ranked": 87.71,
+      "top1_learned": 88.25,
       "top1_homograph": null,
-      "pos": 81.28
+      "pos": 82.75
     }
   }
 }

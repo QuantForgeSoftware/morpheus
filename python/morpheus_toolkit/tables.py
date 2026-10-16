@@ -83,10 +83,12 @@ class TableSet:
                 size = len(ranks) or 1
                 best = 1.0
                 for analysis in analyses:
-                    for variant in analysis.variants():
-                        rank = ranks.get(normalize_lemma(variant))
-                        if rank is not None:
-                            best = min(best, rank / size)
+                    # Canonical lemma only: Morpheus's variant list also carries
+                    # the *form* element it matched (πηρός's Doric stem lists
+                    # παρά), which must not earn the word a frequency rank.
+                    rank = ranks.get(normalize_lemma(analysis.lemma))
+                    if rank is not None:
+                        best = min(best, rank / size)
                 counts[name] += 1.0 - best
         if total:
             for name in counts:

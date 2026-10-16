@@ -16,9 +16,12 @@ def test_frequency_ranking_promotes_the_common_lemma():
     assert ranked[0].lemma == "θεός"
 
 
-def test_lemma_variants_are_used_for_frequency():
+def test_canonical_lemma_is_used_for_frequency():
+    # Morpheus's comma-joined field is ``form,lemma``; the parser stores the
+    # canonical lemma (the last element) in ``lemma`` and all variants in
+    # ``lemma_variants``. Scoring keys on the canonical lemma.
     analysis = Analysis(
-        lemma="γενεσως",
+        lemma="γένεσις",
         lemma_beta="",
         pos="N",
         raw_pos="N",
@@ -27,6 +30,33 @@ def test_lemma_variants_are_used_for_frequency():
     )
     ranker = Ranker({"γένεσις": 500})
     assert ranker.frequency_score(analysis) > 0
+
+
+def test_form_element_does_not_earn_frequency():
+    # The πηρός/παρά case: the πηρός entry has a Doric stem (πηρά -> παρά), so
+    # the cruncher lists παρά as the *form* element of a πηρός analysis. The
+    # form's frequency must not credit the candidate (that promoted πηρός over
+    # the preposition παρά itself).
+    analysis = Analysis(
+        lemma="πηρός",
+        lemma_beta="",
+        pos="N",
+        raw_pos="N",
+        stemtype="os_h_on",
+        lemma_variants=("παρά", "πηρός"),
+    )
+    ranker = Ranker({"παρά": 366, "πηρός": 0})
+    assert ranker.frequency_score(analysis) == 0.0
+    # The real παρά reading still scores.
+    prep = Analysis(
+        lemma="παρά",
+        lemma_beta="",
+        pos="P",
+        raw_pos="P",
+        stemtype="prep",
+        lemma_variants=("πάρα", "παρά"),
+    )
+    assert ranker.frequency_score(prep) > 0
 
 
 def test_unattested_pos_scores_a_floor_not_zero():

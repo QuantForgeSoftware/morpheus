@@ -57,10 +57,8 @@ def rerank(analyses: List[Analysis], form_beta: str,
     ctx_key = f"{prev_pos} {next_pos}" if prev_pos and next_pos else None
     dist = (entry["contexts"].get(ctx_key) if ctx_key else None) or entry["marginal"]
     for analysis in analyses:
-        best = max(
-            (dist.get(normalize_lemma(variant), 0) for variant in analysis.variants()),
-            default=0,
-        )
-        analysis.score = math.log1p(best)
+        # Canonical lemma only: the variant list also carries the *form* element
+        # Morpheus matched, which is not this candidate's lemma.
+        analysis.score = math.log1p(dist.get(normalize_lemma(analysis.lemma), 0))
     analyses.sort(key=lambda item: (-item.score, item.lemma))
     return analyses

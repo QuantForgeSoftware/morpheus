@@ -78,19 +78,17 @@ class LearnedRanker:
 
     # -- feature extraction (shared with the trainer) -----------------------
     def _best_frequency(self, analysis: Analysis) -> float:
-        return max(
-            (self.frequencies.get(normalize_lemma(variant), 0)
-             for variant in analysis.variants()),
-            default=0,
-        )
+        """Frequency of the candidate's canonical lemma.
+
+        Not the max over ``variants()``: the leading variants are the *forms*
+        the entry matched (see ``Ranker.frequency_score``), so a form element
+        would credit the candidate with another word's frequency.
+        """
+        return self.frequencies.get(normalize_lemma(analysis.lemma), 0)
 
     def _best_joint(self, analysis: Analysis) -> int:
-        best = 0
-        for variant in analysis.variants():
-            row = self.joint.get(normalize_lemma(variant))
-            if row:
-                best = max(best, row.get(analysis.pos, 0))
-        return best
+        row = self.joint.get(normalize_lemma(analysis.lemma))
+        return row.get(analysis.pos, 0) if row else 0
 
     def features(
         self,
