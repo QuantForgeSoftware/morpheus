@@ -1897,3 +1897,198 @@ restored without a lexicon.
 - CSNTM outreach (Round 13) stays blocked on user contact.
 - ε/η and α/ο interchange evidence stays in lessons.md (deferred).
 - Ατ (gold 1300, decimal lemma) remains a documented PG numeral residual.
+
+# Round 19: PG error audit, adaptive numerals, Unicode-native C input, MLP head-to-head (2026-10-16) ✅
+
+## Goal
+
+User direction "do all 5" — the five suggestions from the Round 18 wrap-up:
+(19.1) a PapyGreek top-1 error audit that names what is actually left and bounds
+what ranking work can buy; (19.2) register-aware numerals
+(`numerals="auto"` / `--numerals-auto`); (19.3) the B8-lite CPU contextual
+re-ranker, head-to-head against the perceptron under a ship/no-ship gate;
+(19.4) the B3 Unicode-native cruncher input path with exhaustive parity
+validation; (19.5) CSNTM demo refresh + outreach email to unblock Round 13.2.
+Records (19.6) close the round.
+
+## 19.1 — PapyGreek top-1 error audit (measurement only)
+
+All 36,455 PG word tokens through the *shipped* path: accent-insensitive
+candidate pass, recovery pre-pass, learned re-ranking, the adaptive papyri
+frequency table (selection score 0.83), numerals off. Script
+`tmp/r19/audit_pg_top1.py`; evidence `tmp/r19/audit_19_1.log`,
+`audit_19_1_errors.tsv` (2,857 error tokens), `audit_19_1_families.tsv`
+(1,510 families), report `tmp/r19/audit_19_1_report.md`.
+
+Faithfulness: learned top-1 exact/acc-insensitive **88.1 / 89.6%**, reproducing
+the Round 18 default path (88.0 / 89.5). Cross-check: the default Koine table
+instead of the adaptive papyri pick gives 85.6 / 88.2 — the adaptive selection
+is worth ~2.5pp exact on PG, and the audit uses the shipped configuration.
+
+| bucket | tokens | share |
+| --- | ---: | ---: |
+| covered (≥1 candidate) | 35,513 | 97.4% |
+| misses | 942 | 2.58% |
+| gold lemma absent from candidates | 1,725 | 4.73% |
+| gold present, not top-1 (ranking) | 1,132 | 3.11% |
+| top-1 exact | 32,105 | 88.1% |
+| top-1 accent-insensitive | 32,656 | 89.6% |
+
+- **Misses (942).** 717 are the numeral/indeclinable class; 703 are covered by
+  `--numerals`/`--numerals-auto` (14 remain: decimal-annotated gold like Ατ,
+  sub-threshold forms). ~225 non-numeral ≈ the Round 18 residual (157
+  editorially marked or truncated).
+- **Gold absent (1,725).** 192 are *covered-misanalyzed* numerals (the token has
+  a wrong reading, so the misses-only numerals path cannot fire): ιθ→ηθ 65,
+  κε→ἄν 27, ιζ→εἰμί/ἴς 16, ιδ→ηθ 12, λε→ληίς 11, ιγ→ἐν 16…; a numeral proposal
+  exists for 134 (vowel-less rule or table). The other 1,533 are
+  **editorial/regularization conventions** — the treebank's regularized lemma is
+  not the lemma of the spelling present (ποιήσις→ποιέω 11, πλεῖστα→πολύς 8,
+  ἐπὶ→ἐπεί 20, εἵνα→ἵνα 19, κὲ→καί 14, Ἡρακλέους→ἡρακλέης 10, καθάπερ→καθά 11).
+  Candidate-generation work, not ranking; corpus-specific lemma mapping was
+  declined in Rounds 12/17 — do not chase.
+- **Gold present (1,132, the only ranking-fixable bucket).** 925 native
+  candidates (443 gold at rank 2; POS-class agrees 366; both lemmas common 319),
+  including **numeral-gold with the numeral candidate present — 140** (ιη→κερατέα
+  51, κη→πη 32, ια→κερατέα 23, ιε→ἰός/εἶμι 17); 147 recovery proposals out-ranking
+  a native gold reading; 60 variant-credited (gate hits). Largest families:
+  function-word homographs ἀλλά→ἄλλος 86, ὅς→ὁ 69+ (plus ὃ/ἃ/ἃς), εἰμί→ἐάν/οὖν/
+  ὄντα/εἰ 43, πᾶς→πάντῃ 24, σύ→σου/σε 13, ὡς→ὅς 14+; word-formation confusions
+  ἀποδίδωμι→ἄπους 28 (ἀπόδος), χαλκοῦς→χαλκός 18, ἀξιόω→ἄξιος 11,
+  ἀντίγραφος→ἀντιγράφω 9, ἀπαντάω→ἀπαντή 9.
+- **Ceilings.** Better ranking with no candidate changes: **+3.1pp**
+  (89.6 → 92.7 acc-insensitive, numerals off). A papyri-scoped numeral-candidate
+  rule (192 + 140 ≈ 274 tokens) is worth ~+0.75pp but needs its own round with a
+  false-positive audit (κέ/τ/abbreviations). B8-lite's honest target was
+  therefore the 1,132-token bucket — fractions of a point, not points.
+
+## 19.2 — Adaptive numerals (`numerals="auto"` / `--numerals-auto`) (shipped)
+
+The papyrus-numeral proposals (Round 14) now have a register-aware form: apply
+them only when adaptive table selection picked the **papyri** table for this
+input, so numeral-shaped misses in other registers stay misses. `api.py`
+accepts `numerals: bool | "auto"` (validated; `True` keeps the old
+always-on behavior); the auto pass runs *after* `_apply_adaptive_tables` — so
+numeral proposals can never skew the table selection that gates them — and
+`_selected_table` records the pick. It needs selection to run: caller-supplied
+`frequencies` or `adaptive_tables=False` leave it inert (documented).
+
+CLI: `--numerals-auto` (mutually exclusive with `--numerals`). Implemented as a
+distinct flag rather than the planned `--numerals=auto` optional-value form,
+because `nargs="?"` would make `--numerals file.txt` eat the positional path
+argument — recorded in lessons.md.
+
+Tests: 5 new (`test_api.py`): auto fires on PG text; silent on SBLGNT-shaped
+text even with numeral misses; explicit `numerals=True` unchanged; inert
+without adaptive selection; invalid string rejected. **105 tests pass.**
+
+Verified: an 8-document PG sample selects papyri; `bgu.3.948.xml` through the
+full shipped path (learned + recovery) gives auto output identical to explicit
+`numerals=True`; SBLGNT selects koine and auto output is identical to
+`numerals=False`. Equivalence on the other corpora is by construction (auto is
+the same code path once the selection matches).
+
+## 19.3 — B8-lite MLP head-to-head (measured; not shipped)
+
+`scripts/build_learned_model.py` gained an opt-in `--mlp` branch
+(`train_mlp()`; graceful without torch): listwise softmax cross-entropy over
+each token's candidates, bucketed by candidate count, batch 128, Adam 1e-3,
+best-held-out state, pure-Python payload shape (`feature_index`/`w1`/`b1`/
+`w2`/`b2`, type `"mlp"`) so shipping would have needed only a forward path.
+
+Run on the same shipped candidate distribution as the Round 18 retrain
+(recovery pre-pass included): 411,615 analyzable tokens, 827 features → 815
+kept; PG document-level held-out split (6,936 analyzable of 7,474).
+
+| model | held-out top-1 |
+| --- | ---: |
+| frequency baseline | 94.22% |
+| perceptron (shipped) | 96.08% |
+| MLP (64 hidden, 8 epochs, best) | **96.29%** |
+
+The perceptron reproduces the shipped model **byte-identically** (weights and
+feature index equal — the training pipeline is fully reproducible). The MLP's
++0.21pp (≈15 held-out tokens; SE ≈ 0.24pp at n = 6,936) is below the pre-set
+**≥0.3pp ship gate** and within noise, so it is **not shipped**: nonlinearity
+over the existing features buys fractions of a point, exactly as 19.1
+predicted. The MLP improved monotonically over its 8 epochs (95.95 → 96.29),
+so the carried next step is *features* (the audit's function-word homograph
+families and context counts), not more model capacity. Evidence:
+`tmp/r19/train_r19.log`, `learned_reranker_r19.json`,
+`learned_reranker_r19_mlp.json`.
+
+## 19.4 — B3: Unicode-native cruncher input (shipped)
+
+`cruncher -u` converts UTF-8 Greek directly to lowercase beta in C before the
+existing pipeline (`src/anal/gkunicode.c`; `-u` wired into `stdiomorph.c`,
+Greek-only — Latin keeps its case). The converter replicates the beta-code
+package's algorithm — NFC normalize → per-codepoint map → pass-through →
+lowercase — with **every table generated** from the same
+`unicode_to_beta_code.json` the Python converter uses
+(`scripts/gen_gkunicode_tables.py` → `src/anal/gkunicode_tab.c`: 271 map
+entries, 449 composition pairs, 111 combining classes, 153 lowercase mappings,
+259 NFD expansions). `bin/gkconvert` is the oracle binary; `makefile` links
+`gkunicode.o gkunicode_tab.o` into cruncher and gkconvert; the binary is
+git-ignored.
+
+Parity (`scripts/unicode_parity.py`): the exhaustive synthetic set (map keys,
+both Greek ranges, pair compositions in NFC and NFD spellings, mark orders,
+apostrophes, 3K random strings) plus **every distinct form** in MorphGNT, AF,
+AGLDT, PROIEL and PapyGreek — **110,927 forms, 0 mismatches** against
+`to_beta(w).lower()`; conversion speed ~2M forms/s. `cruncher -u` output is
+byte-identical to the beta-input path on samples; default (no `-u`) behavior
+unchanged. Guards: `python/tests/test_unicode_c_path.py` (synthetic oracle +
+direct conversions + cruncher -u vs beta path; skipped when not built).
+
+Debugging found three real divergences the oracle caught: singleton NFD
+decompositions (U+0340/0343/0344) are not composition pairs (367 forms), spacing
+decomposition pieces (U+00A8/backtick/space) must start recomposition (16
+forms), and a generated-table struct overflow (`nfd[4]` + terminator) produced
+a 1,134-form output explosion. `docs/unicode-native-input.md` now documents the
+implemented design; README gained the `-u` row + example; lessons recorded.
+The toolkit keeps the Python `to_beta` path for now — switching it to `-u` is
+a later decision, gated on this parity (now proven).
+
+## 19.5 — CSNTM prep
+
+`docs/csntm-morphology-demo.md` refreshed: current measured numbers (SBLGNT
+94.6 / 94.7 exact/acc-insensitive; PG 89.4 / 90.8 with numerals; learned ~+2
+over frequency on the held-out split), the John 1:1–2 worked example re-run on
+the current build (24/24 analyzed; ἐν 0.99, ἀρχῇ 1.00, ἦν 0.88 with the
+calibrated confidences), and the JSONL excerpt updated to the current record
+shape (lemma_variants, pos_confidence, recovered_from). The honest
+uncial-text nuance section stands (accent-insensitive strips accents but not
+breathings; bare forms can mis-resolve). `docs/csntm-outreach.md` drafts the
+email for the user to send — the last step of Round 13.2.
+
+## 19.6 — Gate + records
+
+Full offline gate re-run in verification mode (`tmp/r19/refresh_gate.sh
+--check`, five corpora in parallel, against the committed thresholds): **all
+five OK (within tolerance)** — SBLGNT 94.6/94.7, AF 90.5/90.2, AGLDT 92.8/93.8,
+PROIEL 91.8/92.1, PapyGreek 87.7/88.2 — and every adaptive pick unchanged
+(SBLGNT→koine, AF→apostolic, AGLDT→classical, PROIEL→koine, PG→papyri). As
+expected: the round's changes are additive (`-u`, `--numerals-auto`),
+measurement-only (the audit), or outside the shipped model (the perceptron
+reproduces the shipped file byte-identically, so no model was re-shipped).
+105 pytest pass.
+
+Records: this entry; `improvements.md` Round 19 section; lessons (audit under
+the shipped configuration; split gold-absent from gold-present before proposing
+ranking work; a gated pass must not run before its gate; distinct flag over
+optional-value flag; replicate the reference converter's algorithm; NFC =
+NFD + recomposition; composition starters include decomposition pieces;
+terminator slot sizing; greedy hex escapes; exhaustive oracle; test the
+evaluation path with held-out data before the long run).
+
+## Carried forward
+
+- **Round 13.2**: send the CSNTM email (user action; draft ready).
+- **Numeral-candidate rule** for covered-misanalyzed numerals (~274 tokens,
+  ~+0.75pp) — own round, false-positive audit required (κέ/τ/abbreviations).
+- **Context/homograph ranking** (the +3.1pp ceiling): the audit's families
+  (ἀλλά/ἄλλος, ὅς/ὁ, εἰμί/ἐάν, πᾶς/πάντῃ); B8-lite showed model capacity is not
+  the lever — features/data are.
+- **B3 toolkit switch-over** (use `-u` in the runner; keep `to_beta` for the
+  API `beta` field) — parity is proven, decision deferred.
+- Ατ (gold 1300, decimal lemma) remains a documented PG numeral residual.

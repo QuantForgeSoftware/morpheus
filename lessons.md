@@ -525,3 +525,76 @@ Rules for future sessions in this repo, captured after corrections and mistakes.
   now untracked (`D`) and ignored, and the makefile's `STEMPROG` target compiles them
   from `stemsrc/*.c` (the `clean` target removes them). Amending history also needs the
   *right* commit — `--amend` hits `HEAD`, so check `git log -1` first.
+- **Replicate the reference converter's *algorithm*, not your reading of the problem.**
+  (Round 19.4, the C Unicode path.) The beta-code library is exactly "NFC normalize,
+  look every codepoint up in `unicode_to_beta_code.json`, pass unmapped characters
+  through" — three lines of Python. The C port therefore generates *every* table from
+  that same JSON (map, NFD expansions, composition pairs, combining classes, lowercase)
+  and re-implements NFC, instead of hand-writing base-letter/mark rules. Parity is then
+  by construction wherever the tables are the same data; the oracle only has to prove
+  the NFC re-implementation.
+- **NFC is full NFD *then* recomposition — singleton decompositions are not pairs.**
+  U+0340 → U+0300, U+0343 → U+0313, U+0344 → U+0308 U+0301 have canonical decompositions
+  that never appear as two-codepoint composition pairs. A converter that only composes
+  pairs passes them through unchanged and diverges (367 of 6,623 synthetic forms). The
+  fix: expand every input codepoint to its full NFD first, then recompose.
+- **Composition starters include decomposition *pieces*, including spacing characters.**
+  U+0385/U+1FC1/U+1FED-U+1FEF decompose to spacing diaeresis/backtick (+ mark), and NFC
+  recomposes them from those pieces; a pair table built only over Greek-letter starters
+  misses 16 forms. Derive the starter set from the NFD expansions themselves.
+- **A generated C table with a fixed-size terminator needs the terminator's slot.**
+  `int nfd[4]` with initializers `{c1, c2, c3, c4, 0}` compiles with only a warning
+  ("excess elements in array initializer") and drops the 0 — then the read loop walks
+  into the next struct's memory and emits garbage (a 1,134-form parity explosion).
+  Check the build log for warnings on generated tables; size arrays as max + 1.
+- **`"\x1fFAIL"` is not `\x1f` + `"FAIL"` in C.** Hex escapes are greedy: `\x1fF` is
+  parsed as a hex value out of range. Split the literal (`"\x1f" "FAIL"`) or use an
+  octal escape (`\037`) where the next character is a hex digit.
+- **An exhaustive oracle is cheap insurance for a "provably equivalent" port.** The
+  synthetic set (every mapped codepoint, every Greek codepoint, pair compositions in
+  NFC and NFD spellings, mark orders, apostrophe variants, 3K random strings) plus every
+  distinct corpus form (110,927 total) found the 367-form singleton gap, the 16-form
+  spacing gap and the struct overflow — none of which spot checks on real words would
+  have surfaced.
+- **Audit under the shipped configuration, and validate the audit script against the
+  recorded numbers first.** (Round 19.1.) The PG error audit runs with the *adaptive*
+  papyri table (the shipped pick); the default Koine table scores 85.6/88.2 vs the
+  adaptive 88.1/89.6, a 2.5pp shift that would have changed the classification mix.
+  Before trusting new classifications, the script reproduced the Round 18 record's
+  88.0/89.5 (numerals off) exactly.
+- **Split "gold absent from candidates" from "gold present, not top-1" before proposing
+  ranking work.** Of 2,857 PG top-1 errors, 1,725 are gold-absent — and 1,533 of those
+  are editorial/regularization conventions no ranking change can fix. Only the
+  1,132-token gold-present bucket is ranking-fixable, which bounds a context re-ranker's
+  honest target to fractions of a point (+3.1pp ceiling acc-insensitive) *before*
+  spending the training run.
+- **A gated optional pass must not run before the heuristic that gates it.** Adaptive
+  numerals (`numerals="auto"`) fire only when the adaptive selection picked the papyri
+  table, so the numerals pass runs *after* `_apply_adaptive_tables` — otherwise numeral
+  proposals would feed the table fit and could flip the selection that is supposed to
+  gate them.
+- **Prefer a distinct flag to an optional-value flag when a positional argument
+  follows.** `--numerals-auto` (separate store_true) instead of `--numerals=auto`
+  (`nargs="?"`): the optional-value form is ambiguous to users — `--numerals file.txt`
+  silently eats the path argument.
+- **A smoke test that omits the held-out set never exercises the evaluation path.**
+  (Round 19.3.) The MLP trainer's first full run crashed in `evaluate()`
+  (`sum(len(...))` on an int) after ~40 minutes of preparation + perceptron training —
+  the earlier 2K-token smoke test had no held-out examples, so `evaluate` was never
+  called. Cover every code path the long run will hit with synthetic data first; the
+  fix was verified in seconds with a fabricated held-out set.
+- **Don't edit a script while a long background run is executing it.** Python renders
+  traceback source lines from the file on disk at crash time, so the interleaved
+  edit made the traceback show wrong line numbers and text (frames pointing at
+  `with open(args.out)` for a crash in `evaluate`). The misleading frames cost real
+  debugging time; wait for the run or edit a copy.
+- **A held-out gain below ~2 standard errors is not evidence.** B8-lite's MLP beat
+  the perceptron by +0.21pp on the 6,936-token PG held-out split — about 15 tokens,
+  with SE ≈ 0.24pp — and the pre-set ≥0.3pp ship gate correctly declined it. Report
+  the token count and noise scale next to the pp gain, and let the pre-set gate
+  decide rather than post-hoc enthusiasm.
+- **Reproducibility is a check, not a hope: retraining reproduced the shipped
+  perceptron byte-identically.** Diffing the retrained payload against the shipped
+  model (weights, feature index, held-out numbers all equal) proved the training
+  pipeline unchanged and the environment deterministic — and would have caught an
+  accidental data or feature drift before it reached a model file.

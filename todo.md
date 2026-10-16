@@ -1,11 +1,15 @@
 # Active plan
 
-**Round 18** (canonical-lemma scoring fix + learned retrain) is **complete** — the
-B-item sprint closed B4/B5/B6/B7 in the same session; B3/B8/B9 are carried with the
-assessments below. **Round 13** (CSNTM / NT-manuscript outreach) is queued pending the
-CSNTM contact; **Round X** and the remaining B items are standing. Rounds 11–18 are
-complete (records in [completed.md](completed.md));
-[improvements.md](improvements.md) carries the measured gains to date.
+**Round 19** (PG top-1 error audit + adaptive numerals + B8-lite + B3 + CSNTM prep) is
+**complete** (record in [completed.md](completed.md)): B3 shipped (Unicode-native C
+input, parity-proven), B8-lite measured and carried (MLP +0.21pp held-out — below the
+ship gate; features, not capacity, are the next lever), and 19.5 refreshed the CSNTM
+demo and drafted the outreach email. **Round 13.2** is now the only open action: send
+that email (user action). Rounds 11–19 are complete (records in
+[completed.md](completed.md)); [improvements.md](improvements.md) carries the measured
+gains to date.
+
+---
 
 ## Standing constraints (carry into any future round)
 
@@ -69,20 +73,20 @@ critical-text Greek, where the pipeline is clean (100% analyzed).
 
 # Candidate follow-ups (carried from Round 11 Item B)
 
-B4, B5, B6 and B7 are complete (Round 18 record in [completed.md](completed.md)).
+B3, B4, B5, B6 and B7 are complete (Round 18/19 records in
+[completed.md](completed.md)).
 
-- [ ] B3. Implement the **Unicode-native C path** (`docs/unicode-native-input.md`).
-      (Round 15 assessment: robustness/parity work, own round; no accuracy effect.
-      Round 18 re-confirmed: carried — it needs its own round with dedicated parity
-      validation against the NT-output-invariance rule.)
-- [ ] B8. **Ancient Greek transformer LMs as the disambiguation layer** — head-to-head
-      done (Round 15, `tmp/lm/head2head.py`): the LM-MLP beats the bundled learned on
-      accented text (SBLGNT test 99.4 vs 97.9 ambiguous-only; AF 98.0 vs 97.3) but
-      regresses on the shipped accent-insensitive pipeline (PROIEL 92.3 vs 96.4 —
-      `ignore_accents` inflates multi-candidate rate 37.8% → 59.4%). Not shipped
-      (torch + GPL-3.0-derived ~440 MB weights). Next: a licence-clean model trained
-      on the shipped candidate distribution (incl. `ignore_accents` examples), then
-      re-measure and decide. (Round 18: carried — training is GPU-scale.)
+- [ ] B8. **Contextual disambiguation layer** — Round 15's transformer head-to-head
+      regressed on the shipped accent-insensitive pipeline (PROIEL 92.3 vs 96.4 —
+      `ignore_accents` inflates the multi-candidate rate 37.8% → 59.4%) and needed
+      torch + a GPL-3.0-derived ~440 MB checkpoint. Round 19's licence-clean
+      **B8-lite** (CPU MLP over the perceptron's own features, shipped candidate
+      distribution incl. `ignore_accents`) reached 96.29% vs the perceptron's 96.08%
+      on the PG document-level held-out split — +0.21pp (≈15 tokens, within noise),
+      below the ≥0.3pp ship gate, so not shipped. Carried: the next lever is
+      *features* — the 19.1 audit's function-word homograph families (ἀλλά/ἄλλος,
+      ὅς/ὁ, εἰμί/ἐάν, πᾶς/πάντῃ) and context counts; the ranking-fixable ceiling is
+      +3.1pp.
 - [ ] B9. **Ithaca/Pythia lacuna restoration as a pre-pass** for fragmentary texts (the
       largest miss class in the Round 12 probe). The I.PHI-for-Round-12 part is retired
       with Round 12's close-out. Note: I.PHI's *text* is still PHI's → `tmp/`-only,

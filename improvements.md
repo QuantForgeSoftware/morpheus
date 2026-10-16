@@ -5,8 +5,10 @@ Report compiled 2026-10-14 from the round records in [`completed.md`](completed.
 [`python/README.md`](python/README.md), and fresh runs on the current build;
 **Round 10 additions appended 2026-10-15; Round 11 (AGLDT pooling) appended 2026-10-15;
 Round 14 (entity extraction) appended 2026-10-15; Round 15 (learned + adaptive
-defaults), Round 16 (recovery pre-pass) and Round 17 (recovery tail pass + PapyGreek
-gate entry) appended 2026-10-15.**
+defaults), Round 16 (recovery pre-pass), Round 17 (recovery tail pass + PapyGreek
+gate entry) and Round 18 (canonical-lemma scoring + learned retrain) appended
+2026-10-15; Round 19 (PG error audit, adaptive numerals, Unicode-native C input,
+MLP head-to-head) appended 2026-10-16.**
 
 This file summarizes how much the analyzer improved, after the fork, when parsing
 different Greek texts. It is an **estimate built from measurements**, not a claim of
@@ -448,6 +450,55 @@ the papyri table and `--numerals`; Round 17 → Round 18):
   77.8 → 78.1, AF 75.3 → 75.5, PROIEL 81.5 → 81.7); PapyGreek learned 88.07 → **88.25**
   (the gate's variant-aware ranked column is flat by construction — the demoted
   candidates already "matched" the gold through their form elements there).
+
+## Round 19 additions (2026-10-16): PG error audit, adaptive numerals, Unicode-native input, MLP head-to-head
+
+- **PapyGreek top-1 error audit (19.1, measurement only).** Under the shipped path
+  (adaptive papyri table + learned + recovery, numerals off; 36,455 word tokens,
+  97.4% covered), learned top-1 exact/acc-insensitive = **88.1/89.6%** — matching
+  the Round 18 record's default path (88.0/89.5) and confirming the adaptive
+  papyri pick is worth ~2.5pp over the default table (85.6/88.2). The 2,857
+  remaining errors split into **1,725 gold-absent** (1,533 editorial/regularization
+  conventions no ranking change can fix — regularization to a different lexeme,
+  orthographic/editorial spellings, dialectal/name variants, truncation; 192
+  covered-misanalyzed numerals worth ~+0.75pp with a papyri-scoped
+  numeral-candidate rule) and **1,132 gold-present** — the only ranking-fixable
+  bucket: 48% gold at rank 2, function-word homographs (ἀλλά→ἄλλος 86, ὅς→ὁ 69+,
+  εἰμί→ἐάν/οὖν 43, πᾶς→πάντῃ 24) and same-stem derivative confusions
+  (ἀποδίδωμι→ἄπους 28). Ceiling for better ranking without candidate changes:
+  **+3.1pp**. This bounded the B8-lite expectation before its training run.
+- **Adaptive numerals (19.2, shipped).** `numerals="auto"` (CLI
+  `--numerals-auto`): the papyrus-numeral proposals apply only when adaptive table
+  selection picks the **papyri** table, so numeral-shaped misses in other registers
+  stay misses. Runs after selection so proposals cannot skew the table pick; inert
+  with caller-supplied frequencies or `adaptive_tables=False`. Measured: PG
+  identical to `--numerals` (89.4/90.8); SBLGNT/AF/AGLDT/PROIEL identical to the
+  default. 5 new tests (105 total).
+- **B3: Unicode-native cruncher input (19.4, shipped).** `cruncher -u` converts
+  UTF-8 Greek to lowercase beta directly in C (`src/anal/gkunicode.c` + generated
+  `gkunicode_tab.c`), replicating the beta-code package's algorithm (NFC
+  normalize → per-codepoint map → pass-through) with every table generated from
+  the same JSON the Python converter uses. Parity oracle over **110,927 forms**
+  (6,623 synthetic + every distinct form in MorphGNT/AF/AGLDT/PROIEL/PapyGreek):
+  **0 mismatches**; ~2M forms/s. `bin/gkconvert` oracle binary + pytest guards.
+  Default (no `-u`) byte-identical; the toolkit switch-over is carried.
+- **CSNTM prep (19.5).** Demo refreshed with current numbers (SBLGNT 94.6/94.7
+  exact/acc-insensitive; PG 89.4/90.8 with numerals) and the John 1:1–2 worked
+  example now shows the calibrated confidences; outreach email drafted in
+  `docs/csntm-outreach.md` for the user to send (Round 13.2).
+- **B8-lite MLP head-to-head (19.3, measured; not shipped).** `train_mlp()` was
+  added to `scripts/build_learned_model.py` (opt-in `--mlp`; listwise softmax CE,
+  bucketed by candidate count, CPU torch, best-held-out state; pure-Python payload
+  ready if it had shipped). On the same shipped candidate distribution as the
+  Round 18 retrain (411,615 analyzable tokens; 6,936-token PG document-level
+  held-out split), the perceptron reproduces **96.08%** (its weights come out
+  byte-identical to the shipped model) and the MLP (64 hidden, 8 epochs) reaches
+  **96.29%** — +0.21pp ≈ 15 held-out tokens, below the pre-set ≥0.3pp ship gate
+  and within noise (SE ≈ 0.24pp at n=6,936). The nonlinearity over the existing
+  features buys fractions of a point, exactly as the audit predicted (the
+  ranking-fixable bucket is 3.1% of tokens with a +3.1pp total ceiling); not
+  shipped, carried with the next step being *features* (the audit's
+  function-word homograph families) rather than model capacity.
 
 ## Bottom line
 
