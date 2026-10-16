@@ -232,6 +232,119 @@ def gold_index(analyses: List[Analysis], gold_lemma: str, gold_pos: str) -> Opti
     return matches[0]
 
 
+def train_mlp(examples, holdout_examples, feature_names, args, source):
+    """Optional MLP head-to-head on the same candidate examples (CPU torch).
+
+    Listwise softmax cross-entropy over each token's candidates; the sparse
+    candidate features are gathered from the first layer's weight columns, so
+    the input dimension is the feature vocabulary. Tokens with a single
+    candidate contribute no gradient but count in evaluation. Returns the model
+    payload dict (with its own held-out numbers).
+    """
+    import time
+
+    import torch
+
+    torch.manual_seed(args.seed)
+    hidden = args.mlp_hidden
+    index = {name: i + 1 for i, name in enumerate(feature_names)}
+    W1 = torch.zeros(hidden, len(feature_names) + 1, requires_grad=True)
+    b1 = torch.zeros(hidden, requires_grad=True)
+    w2 = torch.zeros(hidden, requires_grad=True)
+    b2 = torch.zeros(1, requires_grad=True)
+    with torch.no_grad():
+        W1[:, 1:].normal_(0.0, 0.05)
+        w2.normal_(0.0, 0.05)
+    optimizer = torch.optim.Adam([W1, b1, w2, b2], lr=args.mlp_lr)
+
+    def encode(cand_feats):
+        return [[index.get(key, 0) for key in keys] for keys in cand_feats]
+
+    train = [(encode(cf), gi) for cf, gi, _ in examples if len(cf) > 1]
+    hold = [(encode(cf), gi) for cf, gi, _ in holdout_examples] if holdout_examples else []
+
+    def buckets(encoded):
+        out = {}
+        for i, (ids, _gi) in enumerate(encoded):
+            out.setdefault(len(ids), []).append(i)
+        return out
+
+    def forward(batch):
+        n, k = len(batch), len(batch[0][0])
+        width = max(len(feat_ids) for ids, _ in batch for feat_ids in ids)
+        ids_t = torch.zeros(n, k, width, dtype=torch.long)
+        mask = torch.zeros(n, k, width)
+        tgt = torch.zeros(n, dtype=torch.long)
+        for r, (ids, gi) in enumerate(batch):
+            for j, feat_ids in enumerate(ids):
+                ids_t[r, j, :len(feat_ids)] = torch.tensor(feat_ids, dtype=torch.long)
+                mask[r, j, :len(feat_ids)] = 1.0
+            tgt[r] = gi
+        cols = W1[:, ids_t.reshape(-1)].t().reshape(n, k, width, hidden)
+        h = (cols * mask.unsqueeze(-1)).sum(dim=2) + b1
+        h = torch.relu(h)
+        return (h * w2).sum(dim=2) + b2, tgt
+
+    def evaluate(encoded, groups):
+        hits = len(groups.get(1, []))  # single-candidate tokens are top-1 by default
+        with torch.no_grad():
+            for k, idxs in groups.items():
+                if k < 2:
+                    continue
+                for start in range(0, len(idxs), 512):
+                    chunk = [encoded[i] for i in idxs[start:start + 512]]
+                    scores, tgt = forward(chunk)
+                    hits += int((scores.argmax(dim=1) == tgt).sum())
+        return hits / max(len(encoded), 1)
+
+    best_acc = None
+    best_state = None
+    for epoch in range(args.mlp_epochs):
+        started = time.time()
+        groups = buckets(train)
+        for idxs in groups.values():
+            random.shuffle(idxs)
+        for k, idxs in groups.items():
+            if k < 2:
+                continue
+            for start in range(0, len(idxs), 128):
+                chunk = [train[i] for i in idxs[start:start + 128]]
+                scores, tgt = forward(chunk)
+                loss = torch.nn.functional.cross_entropy(scores, tgt)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+        line = f"mlp epoch {epoch + 1} ({time.time() - started:.0f}s):"
+        if hold:
+            acc = evaluate(hold, buckets(hold))
+            line += f" held-out top-1 {100 * acc:.2f}%"
+            if best_acc is None or acc > best_acc:
+                best_acc = acc
+                best_state = [t.detach().clone() for t in (W1, b1, w2, b2)]
+        print(line, flush=True)
+    if best_state is None:
+        best_state = [t.detach().clone() for t in (W1, b1, w2, b2)]
+    W1b, b1b, w2b, b2b = best_state
+
+    payload = {
+        "source": source,
+        "type": "mlp",
+        "notes": "CPU-trained MLP re-ranker over the perceptron's candidate "
+                 "features; see scripts/build_learned_model.py --mlp.",
+        "hidden": hidden,
+        "features": len(feature_names),
+        "feature_index": feature_names,
+        "w1": [[round(v, 6) for v in row] for row in W1b.tolist()],
+        "b1": [round(v, 6) for v in b1b.tolist()],
+        "w2": [round(v, 6) for v in w2b.tolist()],
+        "b2": round(float(b2b.item()), 6),
+    }
+    if hold:
+        payload["papygreek_holdout"] = {"tokens": len(hold),
+                                        "learned_top1": round(100 * best_acc, 2)}
+    return payload
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("paths", nargs="*")
@@ -265,6 +378,14 @@ def main() -> int:
         "--out",
         default=os.path.join(REPO, "python", "morpheus_toolkit", "data", "learned_reranker.json"),
     )
+    parser.add_argument("--mlp", action="store_true",
+                        help="also train a CPU MLP on the same examples (requires torch) "
+                             "and report a held-out head-to-head")
+    parser.add_argument("--mlp-hidden", type=int, default=64)
+    parser.add_argument("--mlp-epochs", type=int, default=8)
+    parser.add_argument("--mlp-lr", type=float, default=1e-3)
+    parser.add_argument("--mlp-out", default="",
+                        help="write the MLP payload here (default: <out>.mlp.json)")
     args = parser.parse_args()
 
     paths = list(args.paths)
@@ -451,6 +572,31 @@ def main() -> int:
         print(f"PapyGreek held-out (n={n_hold} analyzable of {len(holdout_rows)}): "
               f"frequency top-1 {holdout_eval['frequency_top1']}%, "
               f"learned top-1 {holdout_eval['learned_top1']}%")
+
+    if args.mlp:
+        try:
+            import torch  # noqa: F401
+        except ImportError:
+            print("--mlp requires torch in the training environment "
+                  "(e.g. .venv/bin/pip install torch); skipping MLP training.",
+                  flush=True)
+        else:
+            feature_names = sorted(
+                f for f, count in feature_counts.items() if count >= args.min_count
+            )
+            print(f"training MLP ({args.mlp_hidden} hidden, {args.mlp_epochs} epochs, "
+                  f"{len(feature_names)} features)", flush=True)
+            mlp_payload = train_mlp(examples, holdout_examples, feature_names, args, source)
+            if holdout_eval:
+                print(f"head-to-head held-out: perceptron {holdout_eval['learned_top1']}% "
+                      f"vs MLP {mlp_payload.get('papygreek_holdout', {}).get('learned_top1')}%")
+            mlp_out = args.mlp_out or (
+                args.out[:-5] + ".mlp.json" if args.out.endswith(".json") else args.out + ".mlp.json"
+            )
+            os.makedirs(os.path.dirname(mlp_out) or ".", exist_ok=True)
+            with open(mlp_out, "w", encoding="utf-8") as handle:
+                json.dump(mlp_payload, handle, ensure_ascii=False)
+            print(f"Wrote MLP model to {mlp_out}")
 
     payload = {
         "source": source,
